@@ -171,12 +171,17 @@ export async function castEffect(actor, preset = {}) {
   const maxOf = k => W ? own(k) : Math.min(own(k), pool);
   const start = preset.spheres ?? (W && !wAny ? ws : preset.sphere && own(preset.sphere) ? { [preset.sphere]: maxOf(preset.sphere) } : {});
   const st = { ranks: Object.fromEntries(mine.map(k => [k, Math.min(start[k] ?? 0, maxOf(k))])), kind: C[preset.kind] ? preset.kind : "coincidental", quint: 0, mod: 0, mods: new Set(), will: false, res: false, save: false };
+  // черты мага к сложности (data/magick-merits.mjs): в группе — один вариант; у Чуда не действуют
+  const { magickMeritsOf } = await import("../data/magick-merits.mjs");
+  const merits = W ? [] : magickMeritsOf(actor), meritOpt = new Map(merits.flatMap(m => m.opts.map(o => [o.key, { ...o, name: m.name, group: m.group }])));
+  st.merits = new Map();   // группа → ключ варианта
   const quintHave = W ? W.system.quintessence : m.quintessence;
   const quintMax = Math.min(3, W ? quintHave : Math.min(avatarOf(actor), quintHave)), f = factionOf(actor), mar = isMarauder(actor);
   const top = W ? null : topResonance(actor), resDice = top && !m.resUsed ? RES_DICE[Math.clamp(top.value, 0, 5)] : 0;
   const calc = () => {
     const ranks = Object.fromEntries(Object.entries(st.ranks).filter(([, v]) => v > 0)), high = Math.max(0, ...Object.values(ranks));
-    const quick = [...st.mods].reduce((n, k) => n + (MODS.find(x => x[0] === k)?.[1] ?? 0), 0);
+    const quick = [...st.mods].reduce((n, k) => n + (MODS.find(x => x[0] === k)?.[1] ?? 0), 0)
+      + [...st.merits.values()].reduce((n, k) => n + (meritOpt.get(k)?.n ?? 0), 0);
     const raw = st.mod + quick - st.quint, mod = Math.clamp(raw, -C.modCap, C.modCap);
     return { ranks, high, kind: st.kind, quint: st.quint, raw, mod, capped: raw !== mod, base: high + C[st.kind], difficulty: Math.clamp(high + C[st.kind] + mod, C.min, C.max), will: st.will,
       dice: pool + (st.res ? resDice : 0), res: st.res, save: st.save };
@@ -209,6 +214,8 @@ export async function castEffect(actor, preset = {}) {
         <em>${esc(quintMax ? t("QuintHint", { n: quintHave, max: quintMax }) : t("QuintNone"))}</em></div>
       <div class="r-cast-mods">${MODS.map(([k, n]) => `<a class="r-cast-mod${n > 0 ? " is-bad" : ""}" data-mod="${k}"><b>${n > 0 ? "+" : "−"}${Math.abs(n)}</b> ${esc(t(`ModQuick.${k}`))}</a>`).join("")}
         <span class="r-cast-step" data-tooltip="${esc(t("ModTip"))}"><a data-step="-1">−</a><b data-mod-own>0</b><a data-step="1">+</a><small>${esc(t("ModOwn"))}</small></span></div>
+      ${merits.length ? `<div class="r-cast-mods r-cast-merits">${merits.map(m => `<span class="r-cast-mm-name" data-tooltip="${esc(t("MeritsHint"))}"><i class="fa-solid fa-star"></i> ${esc(m.name)}</span>${m.opts.map(o =>
+        `<a class="r-cast-mod${o.n > 0 ? " is-bad" : ""}" data-mm="${o.key}" data-group="${m.group}"><b>${o.n > 0 ? "+" : "−"}${Math.abs(o.n)}</b> ${esc(o.label)}</a>`).join("")}`).join("")}</div>` : ""}
       <label class="r-check r-cast-will"><input type="checkbox" name="will"><span>${esc(t("CastWill"))}</span></label>
       ${resDice ? `<label class="r-check r-cast-will" data-tooltip="${esc(t("CastResTip"))}"><input type="checkbox" name="res"><span>${esc(t("CastRes", { name: top.name, n: resDice }))}</span></label>` : ""}
       ${W ? "" : `<label class="r-check r-cast-will" data-tooltip="${esc(t("CastSaveTip"))}"><input type="checkbox" name="save"><span>${esc(mt(actor, "CastSave"))}</span></label>`}
@@ -234,6 +241,7 @@ export async function castEffect(actor, preset = {}) {
         for (const a of el.querySelectorAll(".r-cast-kind")) a.classList.toggle("is-on", a.dataset.kind === st.kind);
         el.querySelectorAll("[data-quint]").forEach((b, i) => b.classList.toggle("is-filled", i < st.quint));
         for (const a of el.querySelectorAll("[data-mod]")) a.classList.toggle("is-on", st.mods.has(a.dataset.mod));
+        for (const a of el.querySelectorAll("[data-mm]")) a.classList.toggle("is-on", st.merits.get(a.dataset.group) === a.dataset.mm);
         q("[data-mod-own]").textContent = `${st.mod > 0 ? "+" : st.mod < 0 ? "−" : ""}${Math.abs(st.mod)}`;
         // счёт сложности по слагаемым: высшая Сфера + вид магии ± поправки
         const part = (n, label, cls = "") => `<span class="${cls}"><b>${n}</b> ${esc(label)}</span>`;
@@ -254,6 +262,8 @@ export async function castEffect(actor, preset = {}) {
         if (box && !d) { const k = box.dataset.sphere; st.ranks[k] = st.ranks[k] ? 0 : maxOf(k); return sync(); }
         const kd = e.target.closest("[data-kind]"); if (kd) { st.kind = kd.dataset.kind; return sync(); }
         const qb = e.target.closest("[data-quint]"); if (qb) { const n = Number(qb.dataset.quint); st.quint = st.quint === n ? n - 1 : n; return sync(); }
+        const mm = e.target.closest("[data-mm]");
+        if (mm) { const g = mm.dataset.group; st.merits.get(g) === mm.dataset.mm ? st.merits.delete(g) : st.merits.set(g, mm.dataset.mm); return sync(); }
         const md = e.target.closest("[data-mod]"); if (md) { st.mods.has(md.dataset.mod) ? st.mods.delete(md.dataset.mod) : st.mods.add(md.dataset.mod); return sync(); }
         const sp = e.target.closest("[data-step]"); if (sp) { st.mod = Math.clamp(st.mod + Number(sp.dataset.step), -3, 3); return sync(); }
       });
@@ -274,8 +284,10 @@ export async function castEffect(actor, preset = {}) {
     await actor.update({ "system.mage.rotes": [...m.rotes.map(r => ({ ...r })), { name: res.name, spheres: used, text: "", kind: res.kind }] });
   const breakdown = [{ label: W ? `${mt(actor, "Arete")} · ${W.name}` : mt(actor, "Arete"), value: pool }];
   if (res.res) { breakdown.push({ label: `${t("Resonance")}: ${top.name}`, value: resDice }); await actor.update({ "system.mage.resUsed": true }); }
+  const meritNotes = [...st.merits.values()].map(k => meritOpt.get(k)).filter(Boolean)
+    .map(o => `<i class="fa-solid fa-star"></i> ${esc(o.name)}: ${esc(o.label)} (${o.n > 0 ? "+" : "−"}${Math.abs(o.n)})`);
   const roll = await rollPool({ actor, title: res.name || mt(actor, "CastTitle"), subtitle: t("CastSub", { n: res.high }), pool: res.dice, difficulty: res.difficulty,
-    willpower: res.will, kind: "check", breakdown,
+    willpower: res.will, kind: "check", breakdown, notes: meritNotes,
     extra: { mage: { kind: res.kind, high: res.high, ranks: res.ranks, quint: res.quint, used, mar } } });
   if (!roll) return null;
   if (!W) import("./calendar.mjs").then(c => actor.setFlag(SYSTEM_ID, "castWeek", Math.floor((c.nightNumber() - 1) / 7))).catch(() => {});   // неделя, когда колдовал (mage-state.mjs, mageWeekTick)

@@ -53,11 +53,12 @@ export function tormentOdds(pool, difficulty, torment, n = 4000) {
   return hit / n;
 }
 
-export function evaluate(values, { difficulty = 6, specialty = false, willpower = false, extraNeeded = 0, noBotch = false, auto = 0, cursed = false, lose = 0 } = {}) {
+export function evaluate(values, { difficulty = 6, specialty = false, willpower = false, extraNeeded = 0, noBotch = false, auto = 0, cursed = false, lose = 0, spareOnes = 0 } = {}) {
   const diff = Math.clamp(difficulty, 2, 10);
   const hits = values.filter(v => v >= diff).length;
   const tens = values.filter(v => v === 10).length;
-  const ones = values.filter(v => v === 1).length;
+  // spareOnes — сколько единиц не считать (Каскадёр, Сорвиголова: «отменить один кубик, который привёл бы к провалу»)
+  const ones = Math.max(0, values.filter(v => v === 1).length - (spareOnes || 0));
   const raw = hits + (specialty ? tens : 0);
   const dice = Math.max(0, raw - ones);
   const successes = dice + (willpower ? 1 : 0) + (auto || 0);
@@ -186,7 +187,7 @@ export async function rollPool(o) {
     title: o.title ?? t("Roll.Title"), subtitle: o.subtitle ?? "", values, pool,
     difficulty: diff, extraNeeded, specialty: !!o.specialty, specialtyName: o.specialtyName ?? "",
     willpower: !!o.willpower, breakdown: o.breakdown ?? [], kind: o.kind ?? "check",
-    noBotch: !!o.noBotch, auto: Math.max(0, (o.auto ?? 0) + wyrdAuto), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: [...(o.notes ?? []), ...wyrdNotes],
+    noBotch: !!o.noBotch, spareOnes: Math.max(0, o.spareOnes ?? 0), auto: Math.max(0, (o.auto ?? 0) + wyrdAuto), actorUuid: o.actor?.uuid ?? null, extra: o.extra ?? {}, notes: [...(o.notes ?? []), ...wyrdNotes],
     cursed: !!o.actor?.effects?.some(e => !e.disabled && e.flags?.[SYSTEM_ID]?.curseBotch),
     lose: [...(o.actor?.effects ?? [])].reduce((s, e) => s + (!e.disabled && (e.flags?.[SYSTEM_ID]?.succRolls ?? 0) > 0 ? Number(e.flags[SYSTEM_ID].succMinus) || 0 : 0), 0),
     effect: o.effect ?? ""

@@ -3,7 +3,7 @@
 // обратно), регенерация взрослого Богатыря — 1 уровень за ход (и губительного): в бою сама в начале его хода (пишет
 // активный рассказчик), вне боя — кнопкой на листе.
 
-import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { SYSTEM_ID } from "../config.mjs";
 import { BOGATYR_MANTLE, isBogatyr, isMatureBogatyr } from "../data/bogatyr.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Bogatyr.${k}`, d) : game.i18n.localize(`VTM20.Bogatyr.${k}`);

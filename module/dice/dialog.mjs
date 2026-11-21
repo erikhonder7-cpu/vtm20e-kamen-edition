@@ -16,6 +16,8 @@ import { noBotchFor, lykeianDiff } from "../apps/lykeian.mjs";
 import { talismanMods } from "../data/talisman.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+/** Черты, при которых одна «1» в броске не считается (рискованный трюк): отмечаются галочкой в окне броска. */
+const SPARE_ONE = ["Каскадёр", "Сорвиголова"];
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 
 /** Люциферианское очарование (Book of the Fallen): социальный бросок Падшего открывается со сложностью 4. */
@@ -428,6 +430,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       if (tw && await spendTotemPool(tw.pack, "willpower", this.actor)) willpowerPaid = true;
     }
     if (cfg.diffNote) notes.push(cfg.diffNote);
+    if (SPARE_ONE.some(n => v.fxOn.includes(`merit:${n}`))) notes.push(`<i class="fa-solid fa-person-falling"></i> ${t("Roll.SpareOne")}`);
     if (od) notes.push(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Demon.OverdrawNote", { n: od })}`);
     const res = await rollPool({
       actor: this.actor, title, subtitle: cfg.subtitle ?? "",
@@ -439,6 +442,8 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       kind: cfg.kind ?? "check", messageMode: v.messageMode, whisperAlso: cfg.whisperAlso, auto: c.auto,
       // без провала: Облик ликийца, Лебединая дева, богган (apps/lykeian.mjs)
       ...(cfg.noBotch || noBotchFor(this.actor, [v.trait1, v.trait2]) ? { noBotch: true } : {}),
+      // Каскадёр, Сорвиголова (отмечены галочкой): одна единица не считается
+      ...(SPARE_ONE.some(n => v.fxOn.includes(`merit:${n}`)) ? { spareOnes: 1 } : {}),
       extra: { ...(cfg.extra ?? {}), contest: v.contest, ...(v.contest === "extended" ? { extended: { need: v.need, prev: 0, step: 0 } } : {}),
         // потрачена ли кровь на силу — для итога «кровь потрачена впустую» (dice/roll.mjs)
         bloodPaid: v.payBlood && cfg.bloodCost > 0 && this.actor.hasBlood ? cfg.bloodCost : 0 },

@@ -16,7 +16,7 @@ import { openHazard } from "../apps/hazard.mjs";
 import { openHunt } from "../apps/night.mjs";
 import { rollPowerRef, powerByRef } from "../sheets/actor-sheet.mjs";
 import { effectTimer } from "../apps/timers.mjs";
-import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, rollGift, useGift, rollRite } from "../apps/werewolf.mjs";
+import { W as werewolfData, feraOf, changeForm, rageActions, regenerate, stepSideways, frenzyCheck, giftOf, useGift, rollRite } from "../apps/werewolf.mjs";
 import { H as hunterData, secondSight, edgesView, useEdge } from "../apps/hunter.mjs";
 import { numenOf as sorcNumenOf, useNumen as sorcUseNumen, useRitual as sorcUseRitual } from "../apps/sorcerer.mjs";
 import { paradoxOf, castEffect, castRote, sphereName, aretePool, factionOf, mt, changeQuintessence, paradoxBacklash } from "../apps/mage.mjs";

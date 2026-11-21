@@ -4185,6 +4185,41 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Черты вне обычного окна: «Каскадёр» — одна «1» не считается (бросок без успехов и с одной единицей — не провал);
+  // черты мага в окне чародейства (Цикличная магия, Метка порчи); «Спокойное сердце» — 2 кубика против бешенства Гару
+  await check("Черты: рискованный трюк, черты в чародействе, Спокойное сердце в бешенстве", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, wait = ms => new Promise(r => setTimeout(r, ms)), out = {};
+      const { evaluate } = await import(`/systems/${SYS}/module/dice/roll.mjs`);
+      out.spare = [evaluate([1, 3, 4], { difficulty: 6 }).outcome, evaluate([1, 3, 4], { difficulty: 6, spareOnes: 1 }).outcome, evaluate([1, 1, 4], { difficulty: 6, spareOnes: 1 }).outcome];
+      // черты мага: список вариантов для окна
+      const m = await Actor.create({ name: "E2E — цикл", type: "mage", flags: { world: { e2e: true }, [SYS]: { created: true } } });
+      await m.createEmbeddedDocuments("Item", ["Цикличная магия", "Метка порчи"].map(name => ({ name, type: "merit", system: { cost: 3 } })));
+      const { magickMeritsOf } = await import(`/systems/${SYS}/module/data/magick-merits.mjs`);
+      out.magick = magickMeritsOf(m).map(x => `${x.group}:${x.opts.map(o => o.n).join("/")}`);
+      out.labels = magickMeritsOf(m).flatMap(x => x.opts.map(o => o.label)).every(l => l && !l.startsWith("VTM20."));
+      await m.delete();
+      // бешенство Гару: все кубики — десятки; Ярость 5 → 5 успехов (нужно 4), Спокойное сердце гасит 2 → бешенства нет
+      const w = await Actor.create({ name: "E2E — спокойный", type: "werewolf", flags: { world: { e2e: true }, [SYS]: { created: true } },
+        system: { werewolf: { rage: { value: 5, max: 5 }, rank: 1 } } });
+      await w.createEmbeddedDocuments("Item", [{ name: "Спокойное сердце", type: "merit", system: { cost: 3 } }]);
+      const rnd = CONFIG.Dice.randomUniform, n0 = game.messages.size;
+      try {
+        CONFIG.Dice.randomUniform = () => 0.0001;
+        const { frenzyCheck } = await import(`/systems/${SYS}/module/apps/werewolf.mjs`);
+        const dlg = await frenzyCheck(w); await wait(600);
+        dlg.element.querySelector('button[type="submit"]').click(); await wait(1500);
+      } finally { CONFIG.Dice.randomUniform = rnd; }
+      const msgs = game.messages.contents.slice(n0).map(x => x.content);
+      out.calm = [msgs.some(c => /fa-heart/.test(c)), w.statuses.has("r-frenzy")];
+      for (const x of game.messages.contents.slice(n0)) await x.delete();
+      await w.delete();
+      return out;
+    });
+    const want = { spare: ["botch", "failure", "botch"], magick: ["cycle:-3/-2/-1/3/2/1", "taint:-2/2"], labels: true, calm: [true, false] };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   // Расстройства: правки бросков (Паранойя — сама +1 к социальным), «Сдержать» — −1 Воля и отметка на сцену, «Проявилось» — напоминание
   await check("Вампир: расстройства — правки бросков, сдержать и проявилось", async () => {
     const r = await page.evaluate(async () => {

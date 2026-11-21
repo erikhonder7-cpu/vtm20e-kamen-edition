@@ -7,7 +7,7 @@ import { Codex } from "../../data/codex.mjs";
 import { CHANGELING_HINTS, WRAITH_HINTS, MAGE_HINTS, RENOWN, THRALL_BANNED, TIERS, SECTS, STEP_HINTS, GHOUL_HINTS, DEMON_HINTS, EB_HINTS, THRALL_HINTS, HUNTER_HINTS, GAROU_HINTS, HUNTER_SLOTS, LOST_SLOTS, preview } from "./rules.mjs";
 import { W as werewolfData } from "../werewolf.mjs";
 import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
-import { M as mageData, mageGlyphSrc, sphereGlyphSmall } from "../mage.mjs";
+import { M as mageData, sphereGlyphSmall } from "../mage.mjs";
 import { H as hunterData, growth as hunterGrowth } from "../hunter.mjs";
 import { W as wraithData, wraithGlyphSrc, arcSym } from "../wraith.mjs";
 import { clGlyph } from "../changeling.mjs";

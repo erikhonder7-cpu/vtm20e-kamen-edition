@@ -2676,6 +2676,7 @@
       "NotesEmpty": "For yourself: names, debts, leads, promises made."
     },
     "Roll": {
+      "SpareOne": "Daredevil stunt: one “1” is ignored.",
       "DiffChosen": "{n} chosen",
       "DiffAgainst": "roll against {n}",
       "Title": "Roll",
@@ -6601,6 +6602,8 @@
       "Pick": "Choose"
     },
     "Werewolf": {
+      "CalmHeld": "Calm Heart: {name} holds on — dice {dice} (diff. {diff}) cancel {n} Rage successes, no frenzy.",
+      "CalmFailed": "Calm Heart: dice {dice} (diff. {diff}) cancel {n} Rage successes — not enough.",
       "Breed": "Breed",
       "Auspice": "Auspice",
       "Tribe": "Tribe",
@@ -9503,6 +9506,8 @@
       "paradox": "Paradox"
     },
     "Mage": {
+      "MeritsHint": "Character traits that change the casting difficulty: pick the option that applies",
+      "MM": {"cycle": {"peak": "cycle peak", "peakNear": "near the peak", "peakFar": "approaching the peak", "low": "cycle low", "lowNear": "near the low", "lowFar": "approaching the low"}, "taint": {"evil": "evil magick", "good": "good magick"}, "neph": {"umbra": "Mind or Spirit in the High Umbra"}},
       "SphereTip": "Own Sphere: {n}. Click a dot to set the rank used, the tile to add it in full or drop it.",
       "KindCap": "How it looks",
       "KindRisk": {

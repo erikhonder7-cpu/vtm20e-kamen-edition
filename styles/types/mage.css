@@ -166,6 +166,10 @@ body.r-theme-light img[src$="assets/mage/sphere-prime.png"] { filter: none; }
 .vtm20 .r-cast-mod:hover { border-color: var(--m-violet); }
 .vtm20 .r-cast-mod.is-on { color: var(--r-ink); border-color: #9fd6b5; background: rgba(120, 200, 160, .12); }
 .vtm20 .r-cast-mod.is-bad.is-on { border-color: var(--m-paradox); background: rgba(224, 86, 122, .12); }
+/* черты мага к сложности (data/magick-merits.mjs): имя черты и её варианты одной строкой под быстрыми поправками */
+.vtm20 .r-cast-merits { margin-top: 6px; }
+.vtm20 .r-cast-mm-name { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
+.vtm20 .r-cast-mm-name i { color: var(--m-gold-l); font-size: 9px; }
 .vtm20 .r-cast-step { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
 .vtm20 .r-cast-step a { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--r-line-2); cursor: pointer; color: var(--r-ink-2); }
 .vtm20 .r-cast-step a:hover { color: var(--r-ink); border-color: var(--m-violet); }

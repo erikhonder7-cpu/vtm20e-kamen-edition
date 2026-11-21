@@ -5,7 +5,7 @@
 import { openSept } from "../../apps/sept.mjs";
 import { useCharm } from "../../apps/werewolf/spirits.mjs";
 import { openUmbra } from "../../apps/umbra.mjs";
-import { editStanding, changeForm, rollGift, useGift, rollRite, frenzyCheck, stepSideways, removeScar, removeDeformity, renownAward, kinRemoveGift, kinUseGift, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiAdd, kamiRemove, kamiUse, bindFetch, burnFetch, primalUses, fomorBreed, fomorAdd, fomorRemove, fomorUse, removeCharm, spiritEssenceReset, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, regenerate, rageActions, spend as wwSpend, removeGift, removeRite } from "../../apps/werewolf.mjs";
+import { editStanding, changeForm, useGift, rollRite, frenzyCheck, stepSideways, removeScar, removeDeformity, renownAward, kinRemoveGift, kinUseGift, kinRemoveNumen, kinNumenDots, kinUseNumen, kamiAdd, kamiRemove, kamiUse, bindFetch, burnFetch, primalUses, fomorBreed, fomorAdd, fomorRemove, fomorUse, removeCharm, spiritEssenceReset, removeFetish, attuneFetish, reconcileFetish, useFetish, delirium, stayUp, regainRage, regainGnosis, haranoCheck, regenerate, rageActions, spend as wwSpend, removeGift, removeRite } from "../../apps/werewolf.mjs";
 
 
 /** Оборотень (apps/werewolf.mjs): смена формы, Дары и ритуалы, бешенство, шаг в Умбру, траты Ярости и Гнозиса. */

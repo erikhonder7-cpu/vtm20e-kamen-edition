@@ -447,7 +447,16 @@ export async function frenzyCheck(actor) {
   return RollDialog.prompt(actor, { title: t("Frenzy"), trait1: "werewolf.rage", difficulty: diff,
     extra: { ww: { kind: "frenzy", need, moon: m.label, auspice: w.auspice, breed: w.breed, rage: w.rage.value } },
     onRolled: async r => {
-      const s = r?.successes ?? 0;
+      let s = r?.successes ?? 0;
+      // Спокойное сердце (W20, Calm Heart: «два лишних кубика, чтобы сопротивляться бешенству»): 2 кубика той же сложности,
+      // каждый их успех гасит успех Ярости — бросаются, только когда бешенство иначе наступило бы
+      if (s >= need && actor.items.some(i => (i.type === "merit" || i.type === "flaw") && i.name === "Спокойное сердце")) {
+        const dz = r?.difficulty ?? diff, calm = await new Roll("2d10").evaluate();
+        const vals = calm.dice[0].results.map(x => x.result), hits = vals.filter(v => v >= dz).length;
+        s -= hits;
+        await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), rolls: [calm],
+          content: `<div class="r-notice r-type-werewolf"><i class="fa-solid fa-heart"></i> ${t(s < need ? "CalmHeld" : "CalmFailed", { name: esc(actor.name), dice: vals.join(", "), diff: dz, n: hits })}</div>` });
+      }
       if (s < need) return;
       await actor.toggleStatusEffect?.("r-frenzy", { active: true });
       const thrall = s >= 6;

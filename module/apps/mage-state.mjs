@@ -12,7 +12,7 @@ import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { ghouledView } from "./ghouled.mjs";
 import { Codex } from "../data/codex.mjs";
 import { attachCombos } from "../ui/combo.mjs";
-import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, mageGlyphSrc, sphereGlyphSmall, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
+import { M, isMarauder, isFallen, aretePool, changeQuintessence, paradoxOf, changeParadox, castEffect, sphereGlyphSmall, sphereName, topResonance, parseSpheres, RES_DICE } from "./mage.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.Mage.${k}`, d) : game.i18n.localize(`VTM20.Mage.${k}`);
 const esc = x => foundry.utils.escapeHTML(String(x ?? ""));

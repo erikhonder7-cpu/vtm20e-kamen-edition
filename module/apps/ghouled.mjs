@@ -7,7 +7,7 @@
 //   и изъяном, своя витэ — запас 10 и +1 за каждое столетие («Возраст»), без домитора и уз.
 // Дисциплины — предметами, как у любого гуля; лечение кровью — 1 витэ за лёгкое или тяжёлое повреждение.
 
-import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { SYSTEM_ID } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { REVENANT_FAMILIES, familyRules } from "../data/revenants.mjs";
 import { lifeState } from "./ghoul-life.mjs";
