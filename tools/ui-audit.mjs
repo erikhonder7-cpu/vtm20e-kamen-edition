@@ -80,11 +80,14 @@ window.__lint = function (root) {
     if (cs.opacity === "0" || el.closest("[aria-hidden=true], .r-vs-sum")) continue;
     // обрезка в несколько строк (-webkit-line-clamp) — намеренная: превью раскрывается по щелчку
     // и карточка броска в чате: полосы по краям выходят за неё на несколько точек нарочно
-    const clamped = (cs.webkitLineClamp && cs.webkitLineClamp !== "none") || el.matches(".r-roll-card");
+    const clamped = (cs.webkitLineClamp && cs.webkitLineClamp !== "none") || el.matches(".r-roll-card, .message-content:has(> .r-roll-card)");
     if (el.scrollWidth > el.clientWidth + 3 && ["hidden", "clip"].includes(cs.overflowX) && cs.textOverflow !== "ellipsis" && !clamped && el.tagName !== "SELECT" && el.tagName !== "INPUT")
       add("обрезано", txt.slice(0, 80), el);
     const r = el.getBoundingClientRect();
-    if (r.width > 0 && r.right > box.right + 2 && cs.position !== "fixed") add("за краем окна", txt.slice(0, 80), el);
+    // в рамке с прокруткой или обрезкой внутри окна (широкая таблица журнала) — не «за краем»: её листают
+    let framed = false;
+    for (let a = el.parentElement; a && a !== root; a = a.parentElement) if (getComputedStyle(a).overflowX !== "visible") { framed = true; break; }
+    if (r.width > 0 && r.right > box.right + 2 && cs.position !== "fixed" && !framed) add("за краем окна", txt.slice(0, 80), el);
   }
   return out;
 };

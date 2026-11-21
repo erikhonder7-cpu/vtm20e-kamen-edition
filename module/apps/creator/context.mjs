@@ -269,7 +269,8 @@ export class ContextCreator {
     ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && inCat(m, this.ui.mfCat)
       && (!Codex.daDuplicate(m) || chosen.some(x => x.name === m.name))
       && (!q || m.name.toLowerCase().includes(q) || (m.en ?? "").toLowerCase().includes(q)))
-      .map(m => ({ name: m.name, en: m.en, cost: m.cost,
+      // цена в квадратике — только числа («4–5»); пояснение после запятой («4–5, только …») — в подсказку
+      .map(m => ({ name: m.name, en: m.en, cost: String(m.cost ?? "").split(/[,;(]/)[0].trim(), costNote: String(m.cost ?? "").replace(/^[^,;(]*[,;(]?\s*/, "").replace(/\)$/, ""),
         cat: m.clan ? Codex.clanName(m.clan) : m.sect ? t(`Sect.${m.sect}`) : m.ghoul ? t("Library.Filter.GhoulTraits") : loc(VTM20.meritCategories[m.category]?.label ?? ""),
         // откуда черта: Тёмные века — отдельной пометкой, иначе — книга
         da: m.era === "darkAges", src: m.source ?? "", srcShort: m.era === "darkAges" ? t("Library.Filter.DarkAges") : String(m.source ?? "").replace(/\s*[,(].*$/, ""),

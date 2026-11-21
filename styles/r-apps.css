@@ -283,6 +283,9 @@
 .vtm20 .r-cr-mf-title:hover b { color: var(--r-accent); }
 .vtm20 .r-cr-mf-title em { font-size: 11px; color: var(--r-muted); }
 .vtm20 .r-cr-mf .r-tag { align-self: flex-start; }
+/* длинная категория («Сверхъестественные») в узкой колонке — многоточием, а не распирая карточку за край окна */
+.vtm20 .r-cr-mf { min-width: 0; }
+.vtm20 .r-cr-mf-tags .r-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* источник черты: книга; Тёмные века — золотом, чтобы сразу видно */
 .vtm20 .r-cr-mf-tags { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
 .vtm20 .r-cr-mf .r-tag-src { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; line-height: 15px; text-transform: none; letter-spacing: .3px; }
