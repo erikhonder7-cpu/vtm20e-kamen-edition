@@ -22,7 +22,7 @@
       <header class="r-edge-head r-sphere-head" data-sphere-fold="{{key}}">
         <span class="r-edge-sigil r-sphere-sigil">{{rSym sym "r-mg"}}</span>
         <a class="r-sphere-fold r-chevron" data-action="mageFold" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Sheet.Details'}}"><i class="fa-solid fa-chevron-down"></i></a>
-        <span class="r-edge-title" {{#if altTip}}data-tooltip="{{altTip}}"{{/if}}><b>{{name}}</b> <small>{{en}}{{#if affinity}} · {{localize "VTM20.Mage.AffinityShort"}}{{/if}}</small>{{#if qliph}}<em class="r-qliph" data-tooltip="«{{qliph.title}}». {{localize 'VTM20.Mage.QliphHint'}}">{{qliph.name}}</em>{{/if}}</span>
+        <span class="r-edge-title" {{#if altTip}}data-tooltip="{{altTip}}"{{/if}}><b>{{name}}</b> <small>{{en}}{{#if affinity}} · {{localize "VTM20.Mage.AffinityShort"}}{{/if}}</small>{{#if qliph}}<em class="r-qliph" data-tooltip="«{{qliph.title}}». {{#if qliph.aspect}}{{qliph.aspect}}{{else}}{{localize 'VTM20.Mage.QliphHint'}}{{/if}}">{{qliph.name}}</em>{{/if}}</span>
         <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="setDots" data-path="{{path}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
         {{#if @root.editable}}{{#if value}}<a class="r-vc-btn" data-action="mageCast" data-sphere="{{key}}" data-tooltip="{{localize 'VTM20.Mage.CastWith'}}"><i class="fa-solid fa-hat-wizard"></i></a>{{/if}}{{/if}}
       </header>
