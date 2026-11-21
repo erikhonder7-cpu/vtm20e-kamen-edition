@@ -12,7 +12,8 @@
 @font-face { font-family: "Old Standard"; src: url("../fonts/OldStandard-Italic.ttf") format("truetype"); font-style: italic; font-display: swap; }
 @font-face { font-family: "Old Standard"; src: url("../fonts/OldStandard-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
 @font-face { font-family: "IM Fell"; src: url("../fonts/IM_FELL_DW_PICA_RU.woff2") format("woff2"); font-display: swap; }
-@font-face { font-family: "IM Fell SC"; src: url("../fonts/IM_FELL_DW_PICA_SC_RU.woff2") format("woff2"); font-display: swap; }
+/* капитель — без цифр: старинные цифры IM Fell читались как буквы («10» — «IO», «−1» — «−ı»); цифры берёт следующий шрифт стека (Forum) */
+@font-face { font-family: "IM Fell SC"; src: url("../fonts/IM_FELL_DW_PICA_SC_RU.woff2") format("woff2"); font-display: swap; unicode-range: U+0000-002F, U+003A-10FFFF; }
 @font-face { font-family: "Marck Script"; src: url("../fonts/MarckScript.woff2") format("woff2"); font-display: swap; }
 
 :root {

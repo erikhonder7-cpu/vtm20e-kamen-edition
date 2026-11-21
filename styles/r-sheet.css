@@ -178,6 +178,8 @@
   flex: 0 1 220px; min-width: 100px; height: 26px; margin: 0; padding: 0 2px; text-align: right;
   font-family: var(--r-hand); font-size: 19px; color: var(--r-muted); background: transparent; border: 0; box-shadow: none;
 }
+/* длинное значение в поле — многоточием, а не молча обрезанным (видно, что текст длиннее; полностью — при фокусе) */
+.vtm20 input.r-concept, .vtm20 .r-df input:not([type=checkbox]), .vtm20 .r-trait-input { text-overflow: ellipsis; }
 .vtm20 input.r-concept::placeholder { font-family: var(--r-hand); font-style: normal; }
 .vtm20 input.r-concept:focus { background: var(--r-s2); color: var(--r-ink-2); }
 
@@ -196,13 +198,18 @@
 .vtm20 .r-dossier.is-demon .r-df.is-names { flex: 1 1 250px; }   /* «Поколение донора» у гуля — по ширине подписи */
 .vtm20 .r-df.is-narrow select { flex: 0 0 auto; width: 52px; }
 .vtm20 .r-df > span { flex: 0 0 auto; font-family: var(--r-caps); font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-muted); white-space: nowrap; }
-.vtm20 .r-df input, .vtm20 .r-df select {
+.vtm20 .r-df input:not([type=checkbox]), .vtm20 .r-df select {
   flex: 1 1 auto; min-width: 0; width: auto; height: 23px; padding: 0 2px; background: transparent; border: 0; box-shadow: none;
   font-family: var(--r-body); font-size: 14.5px; color: var(--r-ink);
 }
 .vtm20 .r-df:focus-within { border-bottom-color: var(--r-accent); }
 .vtm20 .r-df.is-check { flex: 0 0 auto; align-items: center; }   /* по ширине подписи — не налезает на соседнее поле */
 .vtm20 .r-df.is-check > span { font-size: 10.5px; }
+/* шапка: поле — по ширине своего значения; не влезает в строку — переносится ниже, а не обрезается
+   («Перфекционист», «Независимый», «Дочери Какофонии»); пустое поле тянется на остаток строки */
+.vtm20 .r-dossier .r-df { min-width: auto; }
+.vtm20 .r-dossier .r-df input:not([type=checkbox]), .vtm20 .r-dossier .r-df select { field-sizing: content; min-width: 4ch; max-width: 100%; }
+.vtm20 .r-dossier .r-df select { padding-right: 18px; }
 
 /* Запас крови */
 .vtm20 .r-assignat {
@@ -1236,8 +1243,10 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 
 /* строки-списки (Дары, ритуалы, Грани…): текст свёрнут, щелчок по имени — раскрыть (actor-sheet.mjs → _onRender) */
 .vtm20 .r-edge.has-text > .r-edge-main > b { cursor: pointer; }
-.vtm20 .r-edge.has-text > .r-edge-main > b::after { content: "▾"; margin-left: 6px; font-size: 11px; color: var(--r-muted); opacity: .8; }
-.vtm20 .r-edge.has-text.is-open > .r-edge-main > b::after { content: "▴"; }
+/* стрелка раскрытия — значком Font Awesome: «▾» в шрифте названий нет, подставленный символ выглядел чёрточкой */
+.vtm20 .r-edge.has-text > .r-edge-main > b::after { content: "\f078"; margin-left: 7px; vertical-align: 2px;
+  font-family: "Font Awesome 7 Pro", "Font Awesome 6 Pro", "Font Awesome 7 Free", "Font Awesome 6 Free"; font-weight: 900; font-size: 8.5px; color: var(--r-muted); opacity: .8; }
+.vtm20 .r-edge.has-text.is-open > .r-edge-main > b::after { content: "\f077"; }
 .vtm20 .r-edge.has-text > .r-edge-main > b:hover { color: var(--r-accent); }
 .vtm20 .r-vc-hint.is-gold { color: #e6c46e; }
 .r-notice.r-golconda i { color: #e6c46e; }
@@ -1273,6 +1282,7 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .r-ritae-card small { display: block; margin: 2px 0 4px; color: var(--r-muted); }
 /* призрак без Достоинств и Недостатков (Wraith 20) — пустая обёртка колонок не оставляет отступ */
 .vtm20 .r-cols2.r-mf:not(:has(.r-col)) { display: none; }
+.vtm20 .r-cols2.r-mf { margin-top: 12px; }   /* Достоинства и Недостатки — не вплотную под фактами биографии */
 
 /* лист: название Пути — кнопка библиотеки Путей */
 .vtm20 .r-banner.is-pick .r-path-pick { display: inline-flex; align-items: baseline; gap: 6px; cursor: pointer; }

@@ -75,7 +75,7 @@
       <a class="r-icon-btn" data-action="mageRoteEdit" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
       <a class="r-icon-btn is-danger" data-action="mageRoteDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
     </li>
-    {{else}}<li class="r-empty">{{localize "VTM20.Mage.RoteEmpty"}}</li>
+    {{else}}<li class="r-empty">{{@root.mageView.L.NoRotes}}</li>
     {{/each}}
   </ul>
 

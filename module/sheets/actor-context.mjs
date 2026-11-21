@@ -205,7 +205,7 @@ export function prepareRegistry(sheet, ctx) {
   ctx.path = path;
   ctx.moralityDots = dots(s.morality.value, 10, { path: "system.morality.value" });
   const bm = VTM20.bearingMod(s.morality.value);
-  ctx.bearing = { name: path?.bearing ?? "", mod: bm > 0 ? `+${bm}` : bm < 0 ? `${bm}` : "±0" };
+  ctx.bearing = { name: path?.bearing ?? "", mod: bm > 0 ? `+${bm}` : bm < 0 ? `−${-bm}` : "±0" };
   ctx.virtues = ["conscience", "selfControl", "courage"].map(slot => {
     const key = a.virtueKey(slot);
     const v = s.virtues[slot].value;
@@ -254,7 +254,8 @@ export function prepareRegistry(sheet, ctx) {
     }
     ctx.bloodDeep = max > 10;
     ctx.boosts = VTM20.bloodBoostable.map(k => ({ key: k, label: game.i18n.localize(VTM20.attributes[k].label),
-      short: game.i18n.localize(VTM20.attributes[k].label).slice(0, 4) + ".", value: s.boosts[k] }));
+      // кнопка короткая: слово до 5 букв — целиком («Сила»), длиннее — три буквы с точкой («Лов.», «Вын.»)
+      short: (l => l.length <= 5 ? l : `${l.slice(0, 3)}.`)(game.i18n.localize(VTM20.attributes[k].label)), value: s.boosts[k] }));
     ctx.anyBoost = Object.values(s.boosts).some(v => v > 0);
   }
   // Шкала здоровья: штраф под клеткой (0, −1 … −5), у последней — «выбыл»; тяжесть штрафа — цветом
