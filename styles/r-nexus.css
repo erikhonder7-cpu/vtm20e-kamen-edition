@@ -40,7 +40,7 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-np-nexus { display: flex; align-items: center; justify-content: center; width: 46px; color: var(--nx-blood-l); font-size: 15px; cursor: pointer; }
 .r-np-nexus:hover { background: rgba(255, 255, 255, .04); color: #e0414b; }
 .r-np-scene { display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 0 13px; min-width: 0; max-width: 220px; }
-.r-np-scene small { font-family: var(--nx-caps); font-size: 9.5px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--nx-muted); }
+.r-np-scene small { font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--nx-muted); }
 .r-np-scene span { font-family: var(--nx-display); font-size: 14px; line-height: 1.15; color: var(--nx-bone); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .r-np-time { display: flex; align-items: center; padding: 0 13px; font-family: var(--nx-display); font-size: 23px; line-height: 1; color: #f1e9da; }
 .r-np-time.is-link { cursor: pointer; }
@@ -134,7 +134,7 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-nx-noimg { font-family: var(--nx-caps); font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--nx-dim); }
 .r-nx-badges { position: absolute; left: 5px; top: 5px; display: flex; flex-wrap: wrap; gap: 3px; max-width: 90%; z-index: 1; }
 .r-nx-b {
-  padding: 1px 5px; font-family: var(--nx-caps); font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 1px 5px; font-family: var(--nx-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase;
   color: var(--nx-bone-2); background: rgba(10, 10, 12, .88); border: 1px solid var(--nx-line-2);
 }
 .r-nx-b.act { color: var(--nx-steel); border-color: rgba(141, 155, 184, .5); }
@@ -157,7 +157,7 @@ body.r-nav-off #scene-navigation { display: none !important; }
 .r-nx-card.locked:hover .r-nx-go { background: linear-gradient(180deg, transparent, rgba(40, 40, 44, .9)); }
 .r-nx-peek {
   position: absolute; right: 5px; bottom: 5px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 20px; height: 18px;
-  color: var(--nx-muted); background: rgba(10, 10, 12, .88); border: 1px solid var(--nx-line-2); font-size: 9px; cursor: pointer;
+  color: var(--nx-muted); background: rgba(10, 10, 12, .88); border: 1px solid var(--nx-line-2); font-size: 10px; cursor: pointer;
 }
 .r-nx-peek:hover { color: var(--nx-bone); border-color: var(--nx-bone-2); }
 .r-nx-onmap { position: absolute; right: 29px; bottom: 5px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 22px; height: 18px;

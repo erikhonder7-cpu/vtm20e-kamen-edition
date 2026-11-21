@@ -67,7 +67,7 @@
 #r-citymap .rc-body li > i:first-child { width: 14px; flex: 0 0 auto; text-align: center; font-size: 11.5px; }
 #r-citymap .rc-body li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #r-citymap .rc-body li small { display: block; font-size: 10.5px; color: var(--c-dim); overflow: hidden; text-overflow: ellipsis; }
-#r-citymap .rc-body li .rc-mini { font-size: 9.5px; color: var(--c-dim); }
+#r-citymap .rc-body li .rc-mini { font-size: 10.5px; color: var(--c-dim); }
 #r-citymap .rc-body li:hover { background: rgba(255, 255, 255, .04); color: var(--c-bone-b); }
 #r-citymap .rc-body li.on { border-left-color: var(--c-blood); background: rgba(138, 15, 31, .2); color: var(--c-bone-b); }
 #r-citymap .rc-body li.is-deleted { opacity: .4; text-decoration: line-through; }
@@ -381,7 +381,7 @@
 #r-citymap .rc-chars li.is-off { cursor: grab; }
 #r-citymap .rc-chars li.is-off:hover img { filter: none; border-color: var(--c-bone-2); }
 #r-citymap .rc-chars li.is-off:active { cursor: grabbing; }
-#r-citymap .rc-sub small { margin-left: auto; font-size: 9.5px; letter-spacing: 1px; text-transform: none; font-family: var(--c-font-body); font-style: italic; color: var(--c-dim); }
+#r-citymap .rc-sub small { margin-left: auto; font-size: 10.5px; letter-spacing: 1px; text-transform: none; font-family: var(--c-font-body); font-style: italic; color: var(--c-dim); }
 
 /* Инструмент «Угодья» (план 8): выбор вида угодий прямо в подсказке */
 #r-citymap .rc-hintbar.rc-groundbar { pointer-events: all; flex-wrap: wrap; max-width: 720px; }

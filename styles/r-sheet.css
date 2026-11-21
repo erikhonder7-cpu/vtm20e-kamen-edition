@@ -61,7 +61,7 @@
 .vtm20 .r-rtab-num { display: none; }
 .vtm20 .r-rtab-label {
   display: block; width: 100%; box-sizing: border-box; padding: 0 3px;
-  font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 0; text-transform: uppercase;    /* «Преимущества» — самое длинное */
+  font-family: var(--r-caps); font-size: 10px; letter-spacing: 0; text-transform: uppercase;    /* «Преимущества» — самое длинное */
   text-align: center; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .vtm20 .r-rtab:hover { color: #d8cfbf; }
@@ -253,11 +253,15 @@
 .vtm20 .r-assignat-meta a { color: var(--r-muted); }
 .vtm20 .r-assignat-meta a:hover { color: var(--r-accent); }
 .vtm20 .r-boosts { display: flex; gap: 3px; margin-top: 6px; }
+/* кровь в характеристику: кнопка с каплей — видно, что это трата крови, а не пустая рамка */
 .vtm20 .r-boost-chip {
-  flex: 1 1 0; text-align: center; padding: 2px 0; font-family: var(--r-caps); font-size: 11px; letter-spacing: .5px;
-  color: var(--r-ink-2); border: 1px solid var(--r-line-2);
+  flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 0; height: 22px; padding: 0 4px;
+  font-family: var(--r-caps); font-size: 11px; letter-spacing: .5px; white-space: nowrap;
+  color: var(--r-ink); background: var(--r-s2); border: 1px solid var(--r-line-2);
 }
-.vtm20 .r-boost-chip:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
+.vtm20 .r-boost-chip i { font-size: 9px; color: #c4474c; }
+.vtm20 .r-boost-chip:hover { border-color: #b83a3f; }
+.vtm20 .r-boost-chip.is-on i { color: #f1e9da; }
 .vtm20 .r-boost-chip.is-on { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
 .vtm20 .r-boost-chip b { font-weight: 400; }
 
@@ -512,6 +516,17 @@
 .vtm20 .r-disc-sub { flex: 0 1 auto; min-width: 0; font-size: 12.5px; font-style: italic; color: var(--r-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vtm20 .r-disc-sub b { font-style: normal; font-family: var(--r-caps); letter-spacing: 1px; color: var(--r-accent); font-weight: 400; }
 .vtm20 .r-disc-tools { display: flex; align-items: center; gap: 2px; }
+/* правка и удаление в строке — по наведению на строку или фокусу с клавиатуры (место держится, строка не прыгает);
+   бросок и раскрытие видны всегда; открытая строка и сенсорный экран — всё видно */
+.vtm20 .r-disc-head .r-disc-tools > [data-action="itemEdit"], .vtm20 .r-disc-head .r-disc-tools > [data-action="itemDelete"] { opacity: 0; transition: opacity .12s; }
+.vtm20 .r-disc-head:hover .r-disc-tools > [data-action], .vtm20 .r-disc-head:focus-within .r-disc-tools > [data-action],
+.vtm20 .r-row-wrap.is-open > .r-disc-head .r-disc-tools > [data-action] { opacity: 1; }
+@media (hover: none) { .vtm20 .r-disc-head .r-disc-tools > [data-action] { opacity: 1; } }
+/* удаление в строках листа (черты, Дары, Арканои, Грани, ротэ, обряды…) — так же: по наведению на строку или фокусу;
+   крестики внутри плашек (инструменты, теги) — не строки, остаются видны */
+.vtm20.r-actor :is(li, tr, [class*="-row"], .r-edge, .r-wr-arc-head) :is([data-action$="Del"], [data-action$="Delete"], [data-action$="Remove"]) { opacity: 0; transition: opacity .12s; }
+.vtm20.r-actor :is(li, tr, [class*="-row"], .r-edge, .r-wr-arc-head):is(:hover, :focus-within) :is([data-action$="Del"], [data-action$="Delete"], [data-action$="Remove"]) { opacity: 1; }
+@media (hover: none) { .vtm20.r-actor :is([data-action$="Del"], [data-action$="Delete"], [data-action$="Remove"]) { opacity: 1 !important; } }
 .vtm20 .r-chevron i { transition: transform .15s; }
 .vtm20 .r-row-wrap.is-open > header .r-chevron i, .vtm20 .r-row-wrap.is-open > .r-disc-head .r-chevron i { transform: rotate(180deg); }
 /* Раскрытие Дисциплины — плавно: высота тела растёт от 0 до содержимого (grid 0fr → 1fr) */

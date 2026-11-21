@@ -199,7 +199,7 @@ export async function castEffect(actor, preset = {}) {
       ${S0.realmCastWarn(actor) ? `<p class="r-note is-warn r-cast-realm"><i class="fa-solid fa-dungeon"></i> ${esc(S0.realmCastWarn(actor))}</p>` : ""}
       <input class="r-cast-name" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">
 
-      <h4 class="r-banner r-cast-cap"><span>${esc(mt(actor, "Spheres"))}</span><em>${esc(t("CastHint"))}</em></h4>
+      <h4 class="r-banner r-cast-cap"><span>${esc(mt(actor, "Spheres"))}</span><i class="fa-solid fa-circle-info r-hint-i" data-tooltip="${esc(t("CastHint"))}"></i></h4>
       <div class="r-cast-spheres">${mine.map(k => `<div class="r-cast-sphere${st.ranks[k] ? " is-on" : ""}" data-sphere="${k}" data-tooltip="${esc(t("SphereTip", { n: own(k) }))}">
           <span class="r-cast-sym">${mageGlyph(`sphere-${k}-core`)}</span><b>${esc(sphereName(actor, k))}</b>
           <span class="r-dots">${pips(k, own(k), maxOf(k), st.ranks[k])}</span></div>`).join("")}</div>
@@ -208,7 +208,7 @@ export async function castEffect(actor, preset = {}) {
       <div class="r-cast-kinds">${KINDS.map(([k, icon]) => `<a class="r-cast-kind${k === st.kind ? " is-on" : ""}" data-kind="${k}">
           <i class="fa-solid ${icon}"></i><b>${esc(t(`Kind.${k}`))}</b><span class="r-cast-kn">+${C[k]}</span><em>${esc(t(`KindRisk.${k}`))}</em></a>`).join("")}</div>
 
-      <h4 class="r-banner r-cast-cap" data-tooltip="${esc(t("ModTip"))}"><span>${esc(t("ModCap"))}</span><em>${esc(t("ModHint"))}</em></h4>
+      <h4 class="r-banner r-cast-cap"><span>${esc(t("ModCap"))}</span><i class="fa-solid fa-circle-info r-hint-i" data-tooltip="${esc(t("ModHint"))}. ${esc(t("ModTip"))}"></i></h4>
       <div class="r-cast-row"><span class="r-cast-lbl"><i class="fa-solid fa-sun"></i> ${esc(mt(actor, "Quintessence"))}</span>
         <span class="r-boxes r-cast-quint">${quintMax ? Array.from({ length: quintMax }, (_, i) => `<a class="r-box" data-quint="${i + 1}"></a>`).join("") : ""}</span>
         <em>${esc(quintMax ? t("QuintHint", { n: quintHave, max: quintMax }) : t("QuintNone"))}</em></div>

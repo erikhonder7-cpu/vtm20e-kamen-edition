@@ -98,7 +98,7 @@ body.r-hud-on #hotbar { display: none !important; }
 #r-hud .is-left .rh-grid { right: 24px; grid-template-columns: 62px auto 66px; }
 #r-hud .is-right .rh-grid { left: 34px; grid-template-columns: 84px auto 38px; }
 #r-hud .rh-lbl { display: flex; flex-direction: column; gap: 1px; font-family: var(--h-caps); font-size: 11px; letter-spacing: 1px; color: #a8a090; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#r-hud .rh-lbl small { font-size: 9.5px; letter-spacing: .6px; color: var(--h-muted); }
+#r-hud .rh-lbl small { font-size: 10.5px; letter-spacing: .6px; color: var(--h-muted); }
 #r-hud .rh-scales { display: flex; flex-direction: column; gap: 3px; }
 #r-hud .rh-row { display: flex; align-items: center; gap: 3px; }
 #r-hud .rh-row > :nth-child(5n):not(:last-child) { margin-right: 4px; }
@@ -338,7 +338,7 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
   border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--r-muted); font: inherit; line-height: 1; }
 .vtm20 .r-zulo-slot > span { display: grid; place-items: center; width: 44px; height: 44px; border: 1px dashed rgba(216,207,191,.22); border-radius: 50%;
   color: rgba(216,207,191,.32); font-family: var(--r-display); font-size: 14px; transition: border-color .15s, box-shadow .15s; }
-.vtm20 .r-zulo-slot > b { max-width: 100%; overflow: hidden; color: var(--r-muted); font-family: var(--r-caps); font-size: 9.5px; font-weight: 400;
+.vtm20 .r-zulo-slot > b { max-width: 100%; overflow: hidden; color: var(--r-muted); font-family: var(--r-caps); font-size: 10.5px; font-weight: 400;
   letter-spacing: .8px; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
 .vtm20 .r-zulo-slot.is-on { cursor: pointer; }
 .vtm20 .r-zulo-slot.is-on > span { border: 1px solid var(--r-blood-l); color: #f1d9cf; font-size: 18px;
@@ -346,7 +346,9 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-zulo-slot.is-on > b { color: var(--r-ink); }
 .vtm20 .r-zulo-slot.is-new > span { border-color: #c9a96a; box-shadow: 0 0 0 3px rgba(201,169,106,.14), 0 0 14px rgba(201,169,106,.2); }
 .vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span { border-color: #e06a70; box-shadow: 0 0 0 3px rgba(196,71,76,.28); }
-.vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span i::before { content: "\f00d"; }
+.vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span i::before { content: "\f00d"; color: inherit; }
+/* крестик «снять» виден и поверх значков game-icons (styles/r-icons.css кладёт свой знак в ::after) */
+.vtm20 .r-zulo:not(.is-locked) .r-zulo-slot.is-on:hover > span i::after { content: none; }
 .vtm20 .r-zulo > .r-zulo-grid { position: relative; flex: 1 1 auto; min-height: 150px; overflow-y: auto; padding-right: 6px; overscroll-behavior: contain; scroll-padding-top: 4px; }
 /* разделы над списком: счётчик взятых черт, переход к разделу */
 .vtm20 .r-zulo-nav { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 9px; }
@@ -369,9 +371,9 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-zulo-body { position: relative; flex: 1; }
 .vtm20 .r-zulo-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .vtm20 .r-zulo-tag { flex: 0 0 auto; padding: 1px 6px; border: 1px dashed rgba(216,207,191,.24); color: var(--r-muted);
-  font-family: var(--r-caps); font-size: 9.5px; font-style: normal; letter-spacing: .6px; text-transform: uppercase; white-space: nowrap; }
+  font-family: var(--r-caps); font-size: 10.5px; font-style: normal; letter-spacing: .6px; text-transform: uppercase; white-space: nowrap; }
 .vtm20 .r-zulo-choice.is-auto .r-zulo-tag { border: 1px solid rgba(196,71,76,.5); color: #ecc6bc; background: rgba(140,28,34,.2); }
-.vtm20 .r-zulo-mark { display: none; align-self: flex-start; margin-top: 4px; padding: 0 5px; font-family: var(--r-caps); font-size: 9px; font-style: normal;
+.vtm20 .r-zulo-mark { display: none; align-self: flex-start; margin-top: 4px; padding: 0 5px; font-family: var(--r-caps); font-size: 10px; font-style: normal;
   letter-spacing: .8px; text-transform: uppercase; }
 .vtm20 .r-zulo-choice.is-new .r-zulo-mark { display: inline-block; color: #e5cf9b; border: 1px solid rgba(201,169,106,.5); }
 .vtm20 .r-zulo-choice.is-new { border-color: rgba(201,169,106,.6); }

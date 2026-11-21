@@ -154,7 +154,7 @@
 .vtm20 .r-cl-art-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .vtm20 .r-cl-art-title { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
 .vtm20 .r-cl-art-name { font-family: var(--r-display); font-size: 16px; color: var(--r-ink); cursor: pointer; }
-.vtm20 .r-cl-art-en { font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cl-art-en { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-cl-levels { margin: 0; padding: 0; list-style: none; }
 .vtm20 .r-cl-levels li { display: flex; align-items: center; gap: 8px; padding: 3px 0; border-bottom: 1px dotted var(--r-line); }
 .vtm20 .r-cl-levels li.is-beyond { opacity: .45; }
@@ -407,7 +407,7 @@ body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-in
 .vtm20 .r-cla-art.is-open .r-cla-tools .r-chevron i { transform: rotate(180deg); }
 .vtm20 .r-cla-name { grid-area: name; font-family: var(--r-display); font-size: 19px; line-height: 1.1; color: var(--r-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
 .vtm20 .r-cla-name:hover { color: var(--r-accent); }
-.vtm20 .r-cla-en { grid-area: en; font-family: var(--r-caps); font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--cl-pine-l); }
+.vtm20 .r-cla-en { grid-area: en; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--cl-pine-l); }
 .vtm20 .r-cla-dots { grid-area: dots; }
 .vtm20 .r-cla-dots .r-dot { width: 11px; height: 11px; }
 .vtm20 .r-cla-tools { grid-area: tools; display: inline-flex; align-items: center; gap: 9px; padding-left: 4px; }
@@ -454,7 +454,7 @@ body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-in
 .vtm20 .r-clr-glyph { grid-area: g; align-self: start; width: 26px; height: 26px; }
 .vtm20 .r-clr-glyph .r-sym { width: 26px; height: 26px; }
 .vtm20 .r-clr-name { grid-area: n; display: flex; align-items: baseline; gap: 7px; font-family: var(--r-caps); font-size: 12.5px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--r-ink); white-space: nowrap; overflow: hidden; }
-.vtm20 .r-clr-name small { font-size: 9px; letter-spacing: 1.2px; color: var(--r-muted); }
+.vtm20 .r-clr-name small { font-size: 10px; letter-spacing: 1.2px; color: var(--r-muted); }
 .vtm20 .r-clr-name .fa-leaf { color: var(--cl-pine-l); font-size: 10px; }
 .vtm20 .r-clr-dots { grid-area: d; } .vtm20 .r-clr-dots .r-dot { width: 10px; height: 10px; }
 .vtm20 .r-clr-steps { grid-area: s; display: flex; flex-wrap: wrap; gap: 3px; margin: 0; padding: 0; list-style: none; counter-reset: clr; }
