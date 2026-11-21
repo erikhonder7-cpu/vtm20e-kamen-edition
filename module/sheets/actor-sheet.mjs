@@ -230,10 +230,8 @@ openStrategy: () => openStrategy(),
 
   /** Персонаж ещё не создан (все характеристики 1, способностей нет, мастер не пройден) — вместо листа ворота. */
   /** Заголовок окна: у дампира и ревенанта — свой тип вместо «Гуль». */
-  get title() {
-    const g = this.actor.type === "ghoul" ? this.actor.system.ghoulType : "";
-    return ["revenant", "dhampir"].includes(g) ? `${t(`GhoulType.${g}`)}: ${this.actor.name}` : super.title;
-  }
+  /** Заголовок окна — имя: тип персонажа уже стоит в строке над именем в шапке листа. */
+  get title() { return this.actor.name; }
 
   get needsCreation() {
     const a = this.actor, s = a.system;

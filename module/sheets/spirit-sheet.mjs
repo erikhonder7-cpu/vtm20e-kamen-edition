@@ -50,7 +50,7 @@ export class SpiritSheet extends VtMActorSheet {
     }
   };
 
-  get title() { return `${t("Spirit.title")}: ${this.actor.name}`; }
+  get title() { return this.actor.name; }
 
   async _prepareContext(options) {
     const ctx = await super._prepareContext(options), s = this.actor.system;

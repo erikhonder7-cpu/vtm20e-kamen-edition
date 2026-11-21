@@ -191,10 +191,10 @@ export async function castEffect(actor, preset = {}) {
   let res = null, nameNow = () => "";
   if (preset.fast && calc().high) res = { ...calc(), name: preset.name ?? "" };
   else await foundry.applications.api.DialogV2.wait({
-    window: { title: `${mt(actor, "CastTitle")}: ${actor.name}`, icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage", ...(isTech(actor) ? ["r-mage-tech"] : []), ...(isFallen(actor) ? ["r-mage-fallen"] : [])], position: { width: 600 },
+    window: { title: mt(actor, "CastTitle"), icon: "fa-solid fa-hat-wizard" }, classes: ["vtm20", "r-dialog", "r-cast-dialog", "r-type-mage", ...(isTech(actor) ? ["r-mage-tech"] : []), ...(isFallen(actor) ? ["r-mage-fallen"] : [])], position: { width: 600 },
     content: `<div class="r-cast">
       <header class="r-cast-head"><span class="r-cast-sigil">${mageGlyph(factionGlyph(f, subOf(actor)))}</span>
-        <span class="r-cast-who"><small>${esc(W ? `${t("Wonder")} · ${actor.name}` : f?.name ?? mt(actor, "CastTitle"))}</small><b>${esc(W ? W.name : actor.name)}</b></span>
+        <span class="r-cast-who">${W || f ? `<small>${esc(W ? `${t("Wonder")} · ${actor.name}` : f.name)}</small>` : ""}<b>${esc(W ? W.name : actor.name)}</b></span>
         <span class="r-cast-pool" data-tooltip="${esc(t(W ? "WonderPool" : pool < m.arete ? "CappedHint" : "CapHint"))}"><b>${pool}</b><small>${esc(mt(actor, "Pool"))}</small></span></header>
       ${S0.realmCastWarn(actor) ? `<p class="r-note is-warn r-cast-realm"><i class="fa-solid fa-dungeon"></i> ${esc(S0.realmCastWarn(actor))}</p>` : ""}
       <input class="r-cast-name" type="text" name="name" value="${esc(preset.name ?? "")}" placeholder="${esc(t("CastName"))}">
