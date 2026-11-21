@@ -201,7 +201,7 @@ export async function castEffect(actor, preset = {}) {
 
       <h4 class="r-banner r-cast-cap"><span>${esc(mt(actor, "Spheres"))}</span><em>${esc(t("CastHint"))}</em></h4>
       <div class="r-cast-spheres">${mine.map(k => `<div class="r-cast-sphere${st.ranks[k] ? " is-on" : ""}" data-sphere="${k}" data-tooltip="${esc(t("SphereTip", { n: own(k) }))}">
-          <span class="r-cast-sym">${mageGlyph(`sphere-${k}`)}</span><b>${esc(sphereName(actor, k))}</b>
+          <span class="r-cast-sym">${mageGlyph(`sphere-${k}-core`)}</span><b>${esc(sphereName(actor, k))}</b>
           <span class="r-dots">${pips(k, own(k), maxOf(k), st.ranks[k])}</span></div>`).join("")}</div>
 
       <h4 class="r-banner r-cast-cap"><span>${esc(t("KindCap"))}</span></h4>
@@ -214,8 +214,8 @@ export async function castEffect(actor, preset = {}) {
         <em>${esc(quintMax ? t("QuintHint", { n: quintHave, max: quintMax }) : t("QuintNone"))}</em></div>
       <div class="r-cast-mods">${MODS.map(([k, n]) => `<a class="r-cast-mod${n > 0 ? " is-bad" : ""}" data-mod="${k}"><b>${n > 0 ? "+" : "−"}${Math.abs(n)}</b> ${esc(t(`ModQuick.${k}`))}</a>`).join("")}
         <span class="r-cast-step" data-tooltip="${esc(t("ModTip"))}"><a data-step="-1">−</a><b data-mod-own>0</b><a data-step="1">+</a><small>${esc(t("ModOwn"))}</small></span></div>
-      ${merits.length ? `<div class="r-cast-mods r-cast-merits">${merits.map(m => `<span class="r-cast-mm-name" data-tooltip="${esc(t("MeritsHint"))}"><i class="fa-solid fa-star"></i> ${esc(m.name)}</span>${m.opts.map(o =>
-        `<a class="r-cast-mod${o.n > 0 ? " is-bad" : ""}" data-mm="${o.key}" data-group="${m.group}"><b>${o.n > 0 ? "+" : "−"}${Math.abs(o.n)}</b> ${esc(o.label)}</a>`).join("")}`).join("")}</div>` : ""}
+      ${merits.map(m => `<div class="r-cast-mods r-cast-merits"><span class="r-cast-mm-name" data-tooltip="${esc(t("MeritsHint"))}"><i class="fa-solid fa-star"></i> ${esc(m.name)}</span>${m.opts.map(o =>
+        `<a class="r-cast-mod${o.n > 0 ? " is-bad" : ""}" data-mm="${o.key}" data-group="${m.group}"><b>${o.n > 0 ? "+" : "−"}${Math.abs(o.n)}</b> ${esc(o.label)}</a>`).join("")}</div>`).join("")}
       <label class="r-check r-cast-will"><input type="checkbox" name="will"><span>${esc(t("CastWill"))}</span></label>
       ${resDice ? `<label class="r-check r-cast-will" data-tooltip="${esc(t("CastResTip"))}"><input type="checkbox" name="res"><span>${esc(t("CastRes", { name: top.name, n: resDice }))}</span></label>` : ""}
       ${W ? "" : `<label class="r-check r-cast-will" data-tooltip="${esc(t("CastSaveTip"))}"><input type="checkbox" name="save"><span>${esc(mt(actor, "CastSave"))}</span></label>`}
