@@ -13239,7 +13239,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 8,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 кровь, Ловкость + Рукопашная сл. 8: слепота на (Хитрость) ходов</p>",
    "source": "W20 Changing Breeds"
@@ -13681,7 +13686,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Энигмы против Воли: за успех дезориентация на 2 хода, −3 к пулам; маги со Сферой Времени иммунны.</p>",
    "source": "W20 Changing Breeds"
@@ -13719,7 +13729,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.enigmas",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Манипулирование + Энигмы сл. 5: туман диаметром 50 футов даёт видения (будущее/утраченное знание).</p>",
    "source": "W20 Changing Breeds"
@@ -13795,7 +13810,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Воля, Манипулирование + Энигмы против большей из Ярости/Гнозиса духа: каждый успех снимает 3 Эссенции; мех темнеет; Чутьё Червя неделю видит лёгкую скверну; фиаско — безумие; Многие языки Птаха — «Речь мира» хомидов.</p>",
    "source": "W20 Changing Breeds"
@@ -14073,7 +14093,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.manipulation",
+    "trait2": "abilities.enigmas",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>Манипулирование + Энигмы против Воли: 3+ успеха — паника: Фера бросают на бешенство (лисье), люди бегут; 15 минут.</p>",
    "source": "W20 Changing Breeds"
@@ -14333,7 +14358,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.perception",
+    "trait2": "abilities.brawl",
+    "difficulty": 7,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>Сбрасывает предмет на цель точно: Восприятие + Рукопашная сл. 7.</p>",
    "source": "W20 Changing Breeds"
@@ -14414,7 +14444,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 5,
+    "byTarget": false
+   },
    "cost": {},
    "text": "<p>1 Ярость, на сцену: бросает перья на 50 футов (Ловкость + Рукопашная сл. 5, урон Ловкость + 3 летальный; с «Бритвенными перьями» — губительный); только Корвид/Кринос.</p>",
    "source": "W20 Changing Breeds"
@@ -16128,7 +16163,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.charisma",
+    "trait2": "abilities.performance",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Гнозис, Обаяние + Выступление против Воли: цель во власти на ход за успех; Мудрость древних путей.</p>",
    "source": "W20 Changing Breeds"
@@ -18390,7 +18430,12 @@
     }
    ],
    "teacher": "",
-   "roll": null,
+   "roll": {
+    "trait1": "attributes.dexterity",
+    "trait2": "abilities.brawl",
+    "difficulty": 6,
+    "byTarget": true
+   },
    "cost": {},
    "text": "<p>1 Ярость, Ловкость + Рукопашная против (Ловкость цели + 3): отнимает оружие; Истина Геи. <strong>Ур. 2:</strong> Щебет — «Рык хищника» Детей Фенриса; Выслеживание — «Пульс добычи». <strong>Ур. 3:</strong> Двойник (Стеклоходы); Парализующий взгляд. <strong>Ур. 4:</strong> Открытые раны. <strong>Ур. 5:</strong> Гейс.</p>",
    "source": "W20 Changing Breeds"

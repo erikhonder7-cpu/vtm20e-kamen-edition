@@ -1818,7 +1818,10 @@ def fill_rolls(gifts):
     «Ловкость + Ближний бой», «бросок Гнозиса (сл. 7)», «бросок Воли». Сложность — число в скобках или после «сл.»;
     «сл. = …» или без числа — по цели. Только пары, где обе черты известны (TRAITS)."""
     extra = {"Выразительность": "abilities.expression", "Ближний бой": "abilities.melee", "Академические науки": "abilities.academics",
-             "Обращение с животными": "abilities.animalKen", "Первобытный инстинкт": "abilities.primalUrge"}
+             "Обращение с животными": "abilities.animalKen", "Первобытный инстинкт": "abilities.primalUrge",
+             # варианты названий в пересказах: Манипулирование, Энигмы (Загадки), Рукопашная (Драка), Выступление (Исполнение)
+             "Манипулирование": "attributes.manipulation", "Энигмы": "abilities.enigmas", "Рукопашная": "abilities.brawl",
+             "Выступление": "abilities.performance"}
     names = {**TRAITS, **extra}
     alt = "|".join(sorted((re.escape(k) for k in names), key=len, reverse=True))
     pool = re.compile(rf"({alt})\s*\+\s*({alt})(?:\s*\((?:сл\.|сложность)\s*(\d+)[^)]*\)|[,:]?\s*(?:сл\.|сложность)\s*(\d+))?")
@@ -1894,6 +1897,12 @@ def build():
             "backgrounds": parse_backgrounds(), "fetishes": core_fetishes + s_fetishes, "charms": charms, "kinGifts": parse_kin_gifts(tribes), "totems": parse_totems() + cw_totems, "renownAwards": parse_renown_awards(), "scars": parse_scars(), "sept": parse_sept(), "umbra": parse_umbra(), "fera": fera,
             "deformities": parse_deformities(), "numina": parse_numina(), "kami": parse_kami(), "spirits": parse_spirit_templates(charms), "fetchRites": parse_fetch_rites(tribes), "primalUses": parse_primal_uses(), "fomori": parse_fomori()}
     fill_en(data)
+    # описания Чар, сил фомори и Ками показываются отдельным абзацем — с заглавной буквы
+    cap = lambda t: re.sub(r"^(\s*(?:<[^>]+>\s*)*)([а-яё])", lambda m: m.group(1) + m.group(2).upper(), t, count=1)
+    for lst in (data.get("charms", []), (data.get("fomori") or {}).get("powers", []), (data.get("kami") or {}).get("powers", [])):
+        for x in lst:
+            if isinstance(x.get("text"), str):
+                x["text"] = cap(x["text"])
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     rules = parse_rules()
