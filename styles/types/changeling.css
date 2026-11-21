@@ -109,8 +109,8 @@
 .r-roll-card.r-type-changeling .r-die.is-one { background: #371431; color: #f5d5ef; }
 .r-roll-card.r-type-changeling .r-die.is-will { background: #33122d; }
 .r-roll-card.r-type-changeling .r-card-tally .is-one, .r-roll-card.r-type-changeling .r-card-tally .is-ten em { color: #4fa77a; }
-.r-roll-card.r-type-changeling.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-changeling.is-phenomenal .r-outcome-ribbon { color: #130811; background: linear-gradient(180deg, #fbedf8, #d13db5); border-color: #fbedf8; }
-.r-roll-card.r-type-changeling.is-botch .r-outcome-ribbon { color: #fceff9; background: #461a3e; border-color: #6e2655; }
+.r-roll-card.r-type-changeling.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-changeling.is-phenomenal .r-outcome-ribbon { color: #fbedf8; }
+.r-roll-card.r-type-changeling.is-botch .r-outcome-ribbon { color: #e26a6f; }
 .r-roll-card.r-type-changeling .r-card-hint { border-left-color: rgba(238, 183, 228, .45); }
 .r-item-card.r-type-changeling { --r-accent: #f0bee7; border-color: #31112b; border-left: 3px solid #eeb7e4;
   background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(47, 122, 87, .12), transparent 70%), linear-gradient(180deg, #1d0d1a, #0f070e); }

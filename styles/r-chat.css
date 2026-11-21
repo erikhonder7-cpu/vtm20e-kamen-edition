@@ -61,19 +61,19 @@
 /* Исход */
 /* исход и число успехов — всегда в одну строку: длинная плашка сжимается, а не сталкивает число вниз */
 .r-outcome { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; }
-.r-outcome .r-outcome-ribbon { padding: 3px 8px; }
+/* итог — статус, а не кнопка: без рамки и заливки (рядом настоящие кнопки), значение несут значок и цвет текста */
 .r-outcome-ribbon {
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;   /* в узком чате — в одну строку */
-  font-family: "IM Fell SC", "Forum", serif; font-size: 12px; letter-spacing: .5px; text-transform: uppercase;
-  color: #e6ddcc; background: transparent; border: 1px solid var(--r-line-2);
+  display: inline-flex; align-items: center; gap: 6px; padding: 0; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;   /* в узком чате — в одну строку */
+  font-family: "IM Fell SC", "Forum", serif; font-size: 13px; letter-spacing: .5px; text-transform: uppercase;
+  color: #e6ddcc; background: none; border: 0;
 }
 .r-outcome-num { flex: 0 0 auto; font-size: 12.5px; color: var(--r-muted); font-style: italic; white-space: nowrap; }
 .r-outcome-num b { font-family: "Prata", "Old Standard", serif; font-style: normal; font-size: 21px; color: var(--r-ink); font-weight: 400; margin-right: 2px; }
-.r-roll-card.is-exceptional .r-outcome-ribbon, .r-roll-card.is-phenomenal .r-outcome-ribbon { color: #141416; background: #d8cfbf; border-color: #d8cfbf; }
+.r-roll-card.is-exceptional .r-outcome-ribbon, .r-roll-card.is-phenomenal .r-outcome-ribbon { color: #fff6e4; }
 .r-roll-card.is-failure .r-outcome-ribbon { color: #7d766a; }
-.r-roll-card.is-botch .r-outcome-ribbon, .r-roll-card.is-damage .r-outcome-ribbon { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
+.r-roll-card.is-botch .r-outcome-ribbon, .r-roll-card.is-damage .r-outcome-ribbon { color: #e26a6f; }
 .r-roll-card.is-botch { border-color: #5a1a1e; background: linear-gradient(180deg, #221315, #141113); }
-.r-roll-card.is-soak .r-outcome-ribbon { border-color: #46557a; color: #c5cfe3; }
+.r-roll-card.is-soak .r-outcome-ribbon { color: #c5cfe3; }
 
 .r-card-hint { margin-top: 7px; padding: 4px 8px; font-size: 12.5px; font-style: italic; color: var(--r-ink-2); border-left: 2px solid var(--r-line-2); background: var(--r-s2); }
 .r-roll-card.is-botch .r-card-hint, .r-roll-card.kind-frenzy.is-failure .r-card-hint, .r-roll-card.kind-rotschreck.is-failure .r-card-hint { border-left-color: #b83a3f; }
@@ -188,7 +188,7 @@
 .r-combat-card .r-cc-defend { flex-wrap: wrap; }
 .r-combat-card .r-cc-defend button { flex: 1 1 40%; }
 .r-combat-card.is-pending { border-color: #5a1a1e; }
-.r-combat-card.is-hit .r-outcome-ribbon { color: #f1e9da; background: #8c1c22; border-color: #b83a3f; }
+.r-combat-card.is-hit .r-outcome-ribbon { color: #e26a6f; }
 .r-combat-card.is-miss .r-outcome-ribbon { color: var(--r-muted); }
 
 /* ── Продолжительные, встречные, командные действия ───────────────────── */

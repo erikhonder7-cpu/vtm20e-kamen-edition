@@ -178,8 +178,8 @@ body.r-theme-light .vtm20.r-type-demon {
 .r-roll-card.r-type-demon .r-die.is-one { background: #6a2a0c; color: #f6dcc0; }
 .r-roll-card.r-type-demon .r-die.is-will { background: #2a3550; }
 .r-roll-card.r-type-demon .r-card-tally .is-one, .r-roll-card.r-type-demon .r-card-tally .is-ten em { color: #e08a3a; }
-.r-roll-card.r-type-demon.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-demon.is-phenomenal .r-outcome-ribbon { color: #1a1206; background: linear-gradient(180deg, #f0c46a, #c4842e); border-color: #f0c46a; }
-.r-roll-card.r-type-demon.is-botch .r-outcome-ribbon { color: #fff0dc; background: #8a3a10; border-color: #c0682a; }
+.r-roll-card.r-type-demon.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-demon.is-phenomenal .r-outcome-ribbon { color: #f0c46a; }
+.r-roll-card.r-type-demon.is-botch .r-outcome-ribbon { color: #e26a6f; }
 .r-roll-card.r-type-demon .r-card-hint { border-left-color: rgba(212, 160, 76, .45); }
 
 /* ── Карточка призыва и объявления падшего ── */
