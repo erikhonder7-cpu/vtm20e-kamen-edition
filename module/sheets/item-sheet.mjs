@@ -163,7 +163,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     }
     // Достоинство / недостаток: механика (data/merit-mods.mjs), клан или секта
     if (item.type === "merit" || item.type === "flaw") {
-      ctx.mod = describeMeritMod(item.name);
+      ctx.mods = describeMeritMod(item.name);
       ctx.categoryLabel = loc(VTM20.meritCategories[s.category]?.label ?? s.category ?? "");
       ctx.clanLabel = s.clan ? Codex.clanName(s.clan) : "";
       ctx.sectLabel = s.sect ? loc(`VTM20.Sect.${s.sect}`) : "";

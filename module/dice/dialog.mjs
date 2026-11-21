@@ -167,7 +167,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // Достоинства и недостатки (data/merit-mods.mjs): сами — по совпадению черт, прочие — галочкой
     const mm = meritModsFor(a, { traits: [v.trait1, v.trait2], kind: this.cfg.kind ?? "check", attributeGroups: VTM20.attributeGroups });
-    const meritSit = mm.situ.map(m => ({ ...m, kind: "merit", value: m.dice || m.diff, on: v.fxOn.includes(`merit:${m.label}`) }));
+    const meritSit = mm.situ.map(m => ({ ...m, kind: "merit", value: m.dice || m.diff, on: v.fxOn.includes(`merit:${m.key}`) }));
     for (const m of [...mm.auto, ...meritSit.filter(x => x.on)]) if (m.dice) { pool += m.dice; bd.push({ label: m.label, value: m.dice }); }
     // вещества в выпитой крови (data/vessels.mjs): алкоголь, опиаты, галлюциногены, яд — кубики; стимуляторы и опиаты — к ярости
     const sm = substanceMods(a, { traits: [v.trait1, v.trait2], kind: this.cfg.kind ?? "check" });
@@ -247,7 +247,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       // поправки, которые предлагает сам бросок (Арканос на Консорта и т. п.): галочкой, по умолчанию выключены
       ...(this.cfg.situ ?? [])
     ].map((d, i) => ({ ...d, i, on: v.fxOn.includes(`${d.kind}:${d.label}`), hint: t(`Fx.Situ.${d.kind}`) }))
-      .concat(meritSit.map(m => ({ label: m.label, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
+      .concat(meritSit.map(m => ({ label: m.label, key: m.key, value: m.value, dice: !!m.dice, kind: "merit", on: m.on, hint: m.hint })));
     for (const d of diffSit) if (d.on && d.dice && d.kind !== "merit") { pool += d.value; bd.push({ label: d.label, value: d.value }); }
     const diffShift = diffAuto.filter(d => !d.dice).reduce((s, d) => s + d.value, 0) + diffSit.filter(d => d.on && !d.dice).reduce((s, d) => s + d.value, 0);
     const effDifficulty = Math.clamp(v.difficulty + diffShift, 2, 10);

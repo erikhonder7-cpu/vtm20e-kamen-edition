@@ -2093,6 +2093,7 @@
       "effects": "Effects"
     },
     "FxTab": {
+      "Except": "except {x}",
       "Now": "Active now",
       "NothingNow": "No powers or states are active right now. Activated Discipline powers, frenzy, torpor and blood buffs will appear here.",
       "ClearBoosts": "Clear buffs",

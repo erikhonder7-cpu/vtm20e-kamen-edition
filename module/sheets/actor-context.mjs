@@ -772,7 +772,7 @@ export function prepareEffects(sheet, ctx) {
 
   // Черты с механикой (data/merit-mods.mjs): что, к чему, сами или по обстоятельствам
   const have = a.items.filter(i => i.type === "merit" || i.type === "flaw");
-  ctx.fxTraits = have.filter(i => MERIT_MODS[i.name]).map(i => ({ id: i.id, name: i.name, flaw: i.type === "flaw", ...describeMeritMod(i.name) }));
+  ctx.fxTraits = have.filter(i => MERIT_MODS[i.name]).flatMap(i => describeMeritMod(i.name).map((d, k) => ({ id: i.id, name: k ? "" : i.name, flaw: i.type === "flaw", ...d })));
   ctx.fxEmpty = !ctx.fxPowers.length && !ctx.fxRituals.length && !ctx.fxRitualsOn.length && !ctx.fxStatuses.length && !ctx.fxOther.length && !ctx.fxBoosts.length;
 }
 

@@ -8,13 +8,13 @@
       {{#if clanLabel}}<div class="r-badge"><span>{{localize "VTM20.Details.clan"}}</span><b>{{clanLabel}}</b></div>{{/if}}
       {{#if sectLabel}}<div class="r-badge"><span>{{localize "VTM20.Details.sect"}}</span><b>{{sectLabel}}</b></div>{{/if}}
     </div>
-    {{#if mod}}
+    {{#each mods}}
     <div class="r-item-mech">
       <i class="fa-solid fa-dice-d10"></i>
-      <div><b>{{mod.what}}</b> — {{mod.where}}{{#if mod.hint}}<em> ({{mod.hint}})</em>{{/if}}
-        <span class="r-tag {{#if mod.auto}}is-red{{/if}}">{{#if mod.auto}}{{localize "VTM20.FxTab.Auto"}}{{else}}{{localize "VTM20.FxTab.Situ"}}{{/if}}</span></div>
+      <div><b>{{what}}</b> — {{where}}{{#if hint}}<em> ({{hint}})</em>{{/if}}
+        <span class="r-tag {{#if auto}}is-red{{/if}}">{{#if auto}}{{localize "VTM20.FxTab.Auto"}}{{else}}{{localize "VTM20.FxTab.Situ"}}{{/if}}</span></div>
     </div>
-    {{/if}}
+    {{/each}}
     {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
     {{!-- заголовка нет: в тексте свои разделы «Описание» и «Система» --}}
     <div class="r-editor r-item-text">

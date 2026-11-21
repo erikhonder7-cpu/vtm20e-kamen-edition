@@ -4155,8 +4155,8 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
-  // Черты других линеек в том же окне броска: маг «Лихой водитель» — сам −2 к Вождению, «Жуткий» — сам +3 к социальным, но не
-  // к Запугиванию; Гару «Физически впечатляющий» — сам +1 куб к Запугиванию; подменыш «Хромой» — галочкой к физическим
+  // Черты других линеек в том же окне броска: маг «Лихой водитель» — сам −2 к Вождению, «Жуткий» — сам +3 к сложности социальных,
+  // а Запугивания — −3 (две стороны одной черты); «Благородная кровь» — две раздельные галочки; Гару «Физически впечатляющий» — сам +1 куб к Запугиванию; подменыш «Хромой» — галочкой к физическим
   await check("Маг, Гару, подменыш: черты своих линеек в броске", async () => {
     const r = await page.evaluate(async () => {
       const SYS = game.system.id, { RollDialog } = await import(`/systems/${SYS}/module/dice/dialog.mjs`), out = {};
@@ -4165,7 +4165,15 @@ try {
       const m = await mk("mage", ["Лихой водитель", "Жуткий"]);
       out.drive = new RollDialog(m, { trait1: "attributes.dexterity", trait2: "abilities.drive", difficulty: 6 }).compute().diffAuto.some(d => d.label === "Лихой водитель" && d.value === -2);
       out.creepy = new RollDialog(m, { trait1: "attributes.charisma", trait2: "abilities.empathy", difficulty: 6 }).compute().diffAuto.some(d => d.label === "Жуткий" && d.value === 3);
-      out.creepyIntim = new RollDialog(m, { trait1: "attributes.charisma", trait2: "abilities.intimidation", difficulty: 6 }).compute().diffAuto.some(d => d.label === "Жуткий");
+      // у «Жуткого» две стороны: к Запугиванию не +3, а −3
+      out.creepyIntim = new RollDialog(m, { trait1: "attributes.charisma", trait2: "abilities.intimidation", difficulty: 6 }).compute().diffAuto.filter(d => d.label === "Жуткий").map(d => d.value);
+      // «Благородная кровь»: две галочки (чтят знать −2, презирают +2) — отмечается одна, другая не включается следом
+      await m.createEmbeddedDocuments("Item", [{ name: "Благородная кровь", type: "merit", system: { cost: 1 } }]);
+      const dlg = new RollDialog(m, { trait1: "attributes.charisma", trait2: "abilities.etiquette", difficulty: 4 });   // 4 + «Жуткий» 3 + 2 = 9
+      const noble = dlg.compute().diffSit.filter(d => d.label === "Благородная кровь");
+      dlg.values.fxOn = [`merit:${noble[1]?.key}`];
+      const noble2 = dlg.compute();
+      out.noble = [noble.map(d => d.value), noble2.diffSit.filter(d => d.label === "Благородная кровь" && d.on).map(d => d.value), noble2.effDifficulty];
       const w = await mk("werewolf", ["Физически впечатляющий"]);
       out.imposing = new RollDialog(w, { trait1: "attributes.strength", trait2: "abilities.intimidation", difficulty: 6 }).compute().breakdown.some(d => d.label === "Физически впечатляющий" && d.value === 1);
       const c = await mk("changeling", ["Хромой"]);
@@ -4173,8 +4181,8 @@ try {
       for (const a of [m, w, c]) await a.delete();
       return out;
     });
-    const want = { drive: true, creepy: true, creepyIntim: false, imposing: true, lame: true };
-    for (const [k, v] of Object.entries(want)) if (r[k] !== v) throw new Error(`${k}: ${r[k]} вместо ${v} (${JSON.stringify(r)})`);
+    const want = { drive: true, creepy: true, creepyIntim: [-3], imposing: true, lame: true, noble: [[-2, 2], [2], 9] };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
   // Расстройства: правки бросков (Паранойя — сама +1 к социальным), «Сдержать» — −1 Воля и отметка на сцену, «Проявилось» — напоминание
