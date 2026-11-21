@@ -9,7 +9,7 @@ import { W as werewolfData } from "../werewolf.mjs";
 import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
 import { M as mageData, mageGlyphSrc } from "../mage.mjs";
 import { H as hunterData, growth as hunterGrowth } from "../hunter.mjs";
-import { W as wraithData, wraithGlyphSrc } from "../wraith.mjs";
+import { W as wraithData, wraithGlyphSrc, arcSym } from "../wraith.mjs";
 
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const loc = k => game.i18n.localize(k);
@@ -183,7 +183,7 @@ export class ContextCreator {
       const d = this.discData(k), v = this.value("disc", k);
       return {
         key: k, name: d.name, en: d.en, value: v, inClan: this.isChangeling ? this.clInClan(k) : this.isMage ? k === st.mg.affinity : this.isWraith ? k === st.wr.guild : this.inClan(k),
-        sym: this.isSorcerer ? null : this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isWraith ? (VTM20.wraithDark.includes(k) ? { src: wraithGlyphSrc("arcanos-dark") } : VTM20.wraithArcanoi.includes(k) ? { src: wraithGlyphSrc(`arcanos-${k}`) } : null) : this.isDemon ? null : Codex.disciplineSymbol(k),
+        sym: this.isSorcerer ? null : this.isMage ? { src: mageGlyphSrc(`sphere-${k}`) } : this.isWraith ? (VTM20.wraithDark.includes(k) ? { src: wraithGlyphSrc("arcanos-dark") } : VTM20.wraithArcanoi.includes(k) ? arcSym(k) : null) : this.isDemon ? null : Codex.disciplineSymbol(k),
         guild: d.guild ?? "",
         icon: this.isChangeling ? this.clIcon(k) : this.isSorcerer ? (d.psychic ? "fa-brain" : "fa-hand-sparkles") : this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
         powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v, tip: preview(p.html, 600) })),
