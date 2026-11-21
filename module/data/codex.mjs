@@ -187,6 +187,8 @@ export const Codex = {
   /** Знак: { src, lum } — путь и режим маски (по яркости или по прозрачности). */
   // Путь абсолютный: в CSS-переменной url() иначе считался бы от папки стилей
   _sym(rel) { return rel ? { src: foundry.utils.getRoute(`${SYSTEM_PATH}/${rel}`), lum: LUMINANCE.test(rel) } : null; },
+  /** Герб Дома падших (assets/demon/house-<ключ>.png, tools/wiki_glyphs.mjs) — маска, цвет задаёт CSS. */
+  houseSymbol(key) { return key && this.houses?.some(h => h.key === key) ? this._sym(`assets/demon/house-${key}.png`) : null; },
   clanSymbol(key) {
     const c = this.assets?.clans ?? {};
     return this._sym(c[key] ?? c[CLAN_SYMBOL_PARENT[key]]);

@@ -2175,7 +2175,7 @@ try {
     });
     const want = { claws: [6, true, 1, 1, "lethal"], spikes: [7, 3, true], clinch: 4, back: true, heart: [7, true, 5], botch: [1, 7],
       custom: [8, 2, 2, 2, "lethal", "melee", 1, true, 1, 3], customOff: [false, 0], tpl: [1, 2, true, "Костяной клинок", "8", "3", 0], horrid: [0, 7, 0, 2] };
-    if (!/Костяной клинок.*сл\. 8.*3 тяжёлые минус успехи.*\+1 крови.*Сила \+2.*Сила \+1.*\+1 к прочности.*колется.*\+1 к урону в захвате/i.test(r.sum)) throw new Error(`итог окна: ${r.sum}`);
+    if (!/Костяной клинок.*сл\.\s8.*3 тяжёлые минус успехи.*\+1 крови.*Сила \+2.*Сила \+1.*\+1 к прочности.*колется.*\+1 к урону в захвате/i.test(r.sum)) throw new Error(`итог окна: ${r.sum}`);
     const bad = Object.keys(want).filter(k => JSON.stringify(r[k]) !== JSON.stringify(want[k]));
     if (bad.length) throw new Error(bad.map(k => `${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(want[k])}`).join("; "));
   });

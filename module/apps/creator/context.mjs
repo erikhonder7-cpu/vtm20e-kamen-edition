@@ -144,11 +144,10 @@ export class ContextCreator {
     // II. Дом падшего: Дом, Облик (главное Знание), фракция, Небесное и Истинное имя
     if (this.isDemon) {
       const h = this.houseData;
-      // своих гербов у Домов нет — значок по смыслу Дома, чтобы плитки различались
-      const HOUSE_ICON = { devils: "fa-crown", scourges: "fa-wind", malefactors: "fa-hammer", fiends: "fa-eye", defilers: "fa-water", devourers: "fa-paw", slayers: "fa-skull" };
-      ctx.houses = Codex.houses.map(x => ({ key: x.key, name: x.name, akkadian: x.akkadian, torment: x.torment, active: x.key === st.house, icon: HOUSE_ICON[x.key] ?? "fa-fire-flame-curved",
+      // герб Дома (assets/demon, tools/wiki_glyphs.mjs)
+      ctx.houses = Codex.houses.map(x => ({ key: x.key, name: x.name, akkadian: x.akkadian, torment: x.torment, active: x.key === st.house, sym: Codex.houseSymbol(x.key),
         lores: x.lores.map(k => Codex.lore(k)?.name ?? k).join(", ") }));
-      ctx.house = h ? { ...h, visages: Object.entries(h.visages).map(([k, name]) => ({ key: k, name, lore: Codex.lore(k)?.name ?? k, active: k === st.visage,
+      ctx.house = h ? { ...h, sym: Codex.houseSymbol(h.key), visages: Object.entries(h.visages).map(([k, name]) => ({ key: k, name, lore: Codex.lore(k)?.name ?? k, active: k === st.visage,
         low: Codex.lore(k)?.form?.low ?? [] })) } : null;
       ctx.factions = Codex.factions.map(f => ({ ...f, active: f.key === st.faction }));
     }
@@ -201,7 +200,7 @@ export class ContextCreator {
     // выбор по «Дополнительной Дисциплине» — на шаге Дисциплин и у взятого достоинства
     ctx.extraDisc = this.extraDiscMerit && this.baseClanDisciplines
       ? { value: this.st.extraDisc, name: this.st.extraDisc ? Codex.disciplineLabel(this.st.extraDisc) : "", options: this.extraDiscOptions } : null;
-    ctx.inClanLabel = this.isChangeling && ["hsien", "inanimae", "daf"].includes(this.clVariant) ? t(`FaeCr.InClan.${this.clVariant}`) : this.isWraith ? loc("VTM20.Wraith.HomeGuild") : this.isMage ? loc("VTM20.Mage.AffinityShort") : this.isDemon ? t("Demon.OwnHouse") : t("Sheet.InClan");
+    ctx.inClanLabel = this.isChangeling ? (["hsien", "inanimae", "daf"].includes(this.clVariant) ? t(`FaeCr.InClan.${this.clVariant}`) : "") : this.isWraith ? loc("VTM20.Wraith.HomeGuild") : this.isMage ? loc("VTM20.Mage.AffinityShort") : this.isDemon ? t("Demon.OwnHouse") : t("Sheet.InClan");
     if (this.isMage) ctx.sphereIssues = this.sphereIssues;
     if (this.isSorcerer) ctx.sphereIssues = this.sorcIssues;
     if (this.isWraith) ctx.sphereIssues = this.arcanoiIssues;

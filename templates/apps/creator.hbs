@@ -260,7 +260,7 @@
     <div class="r-cr-clans r-cr-houses">
       {{#each houses}}
       <a class="r-cr-clan {{#if active}}is-active{{/if}}" data-action="house" data-house="{{key}}">
-        <span class="r-cr-clan-sym r-cr-medal"><i class="fa-solid {{icon}}"></i></span>
+        <span class="r-cr-clan-sym r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid fa-fire-flame-curved"></i>{{/if}}</span>
         <b>{{name}}</b><em>«{{akkadian}}» · {{localize "VTM20.Demon.Torment"}} {{#if ../st.earthbound}}10{{else}}{{torment}}{{/if}}</em>
         <span class="r-cr-clan-disc">{{lores}}</span>
       </a>
@@ -269,7 +269,7 @@
     {{#if house}}
     <div class="r-cr-clancard">
       <h4 class="r-banner"><span>{{house.name}}</span></h4>
-      <span class="r-cr-clancard-sym r-cr-medal"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>
+      <span class="r-cr-clancard-sym r-cr-medal">{{#if house.sym}}{{rSym house.sym}}{{else}}<img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt="">{{/if}}</span>
       <div class="r-cr-clancard-body">
         <div class="r-cr-clancard-title">{{house.name}} <em>«{{house.akkadian}}»</em> · <small>{{localize "VTM20.Demon.StartTorment"}} {{#if st.earthbound}}10{{else}}{{house.torment}}{{/if}}</small></div>
         <p class="r-note">{{house.text}}</p>
@@ -650,7 +650,7 @@
       <div class="r-cr-disc {{#if inClan}}is-clan{{/if}}">
         <div class="r-cr-disc-head">
           <span class="r-disc-sigil">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid {{icon}}"></i>{{/if}}</span>
-          <div class="r-cr-disc-title"><b>{{rName this}}</b><em>{{rAlt this}}{{#if inClan}} · {{@root.inClanLabel}}{{/if}}{{#if extra}} · {{localize "VTM20.Creator.ExtraDiscMark"}}{{/if}}{{#if outOfClan}} · {{localize "VTM20.Creator.OutOfClan"}}{{/if}}</em></div>
+          <div class="r-cr-disc-title"><b>{{rName this}}</b><em>{{rAlt this}}{{#if inClan}}{{#if @root.inClanLabel}} · {{@root.inClanLabel}}{{/if}}{{/if}}{{#if extra}} · {{localize "VTM20.Creator.ExtraDiscMark"}}{{/if}}{{#if outOfClan}} · {{localize "VTM20.Creator.OutOfClan"}}{{/if}}</em></div>
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
           {{#if removable}}<a class="r-cr-disc-drop" data-action="dropDisc" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Creator.DropDisc'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>

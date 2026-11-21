@@ -127,9 +127,10 @@ export function prepareHeader(sheet, ctx) {
     ctx.visages = Object.entries(house?.visages ?? {}).map(([k, name]) => ({ value: k, label: name, lore: Codex.lore(k)?.name ?? k, selected: k === s.visage }));
     ctx.visageLore = ctx.visages.find(v => v.selected)?.lore ?? "";
   }
-  // Герб на рельсе и водяной знак: клан, иначе секта; у гуля — герб клана домитора или сердце в цепях; у прочих — кокарда
+  // Герб на рельсе и водяной знак: клан, иначе секта; у гуля — герб клана домитора или сердце в цепях; у падшего — герб Дома; у прочих — кокарда
   const sym = actor => actor.type === "vampire" ? Codex.clanSymbol(actor.system.clan)
-    : actor.type === "ghoul" ? (Codex.clanSymbol(actor.isDhampir ? actor.system.dhampir?.antecedentClan : actor.system.domitorClan) ?? Codex._sym(Codex.assets?.sects?.ghoul)) : null;
+    : actor.type === "ghoul" ? (Codex.clanSymbol(actor.isDhampir ? actor.system.dhampir?.antecedentClan : actor.system.domitorClan) ?? Codex._sym(Codex.assets?.sects?.ghoul))
+    : actor.type === "demon" ? Codex.houseSymbol(actor.system.house) : null;   // падший — герб Дома
   ctx.sigil = { sym: sym(a) ?? Codex.sectSymbol(s.details.sect), label: ctx.house?.name || a.clanLabel || s.details.sect || "", clan: a.type === "vampire" && !!Codex.clan(s.clan),
     img: VTM20.typeSigil(a.type) };
   // Состояние на портрете: раны — кровавая дымка по краям, состояния (ярость, торпор…) — оттенок и значки

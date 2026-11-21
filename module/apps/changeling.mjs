@@ -36,7 +36,7 @@ export function clGlyph(kind, key) {
   const daf = n.startsWith("daf-");
   return { src: foundry.utils.getRoute(`${SYSTEM_PATH}/assets/changeling/${n}.${daf ? "png" : "webp"}`), color: !daf };
 }
-/** Искусства без витража (Players Guide: Вливание, Сказ) — значок по смыслу вместо пустого медальона. */
+/** Запасной значок, если витража нет (у Вливания и Сказа витражи с White Wolf Wiki — tools/wiki_glyphs.mjs). */
 const ART_ICONS = { infusion: "fa-flask-vial", taleCraft: "fa-book-open" };
 /** Знак кита: свой, иначе группы иных фэ (менехуне, нуннехи). */
 export const kithGlyph = key => clGlyph("kith", key) ?? clGlyph("group", kithOf(key)?.group);
