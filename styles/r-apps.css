@@ -2006,3 +2006,13 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 
 /* мастер создания: заголовок раздела после плиток или полей — с отступом, а не вплотную («Сущность», «Фокус», «Секта») */
 .vtm20.r-creator * + .r-h3 { margin-top: 14px; }
+
+/* генератор НПС в узком окне (планшет, ~700–900 px): колонки уже; совсем узко — досье под параметрами на всю ширину */
+.vtm20.r-npc-gen .window-content { container: rng / inline-size; }
+@container rng (max-width: 980px) {
+  .vtm20 .r-ng2 { grid-template-columns: 150px minmax(0, 1fr) minmax(260px, 320px); }
+}
+@container rng (max-width: 760px) {
+  .vtm20 .r-ng2 { grid-template-columns: 140px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  .vtm20 .r-ng2 > .r-ng-dossier { grid-column: 1 / -1; min-height: 0; border-left: 0; border-top: 1px solid #222226; }
+}

@@ -1399,3 +1399,13 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 
 /* лист: кнопка «Инфернализм» вместо двух пустых разделов (Вложения и договоры появляются по ней или с первой записью) */
 .vtm20 .r-infernal-offer { margin: 18px 0 4px; padding-top: 10px; border-top: 1px dashed var(--r-line); text-align: center; }
+
+/* узкий лист (планшет, окно ~700 px): нижняя строка без даты Республики и рассвета — «Развитие» не уезжает за край;
+   вкладка «Витэ» — карточки в столбец по ширине листа, а не экрана */
+@container rsheet (max-width: 820px) {
+  .vtm20 .r-foot { gap: 10px; padding: 4px 12px; }
+  .vtm20 .r-foot-rep, .vtm20 .r-foot-until { display: none; }
+}
+@container rsheet (max-width: 760px) {
+  .vtm20 .r-gh { grid-template-columns: minmax(0, 1fr); }
+}

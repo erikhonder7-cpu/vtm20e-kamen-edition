@@ -571,3 +571,6 @@ body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-in
   border: 1px solid rgba(238, 183, 228, .6); background: linear-gradient(180deg, rgba(160, 60, 140, .55), rgba(90, 30, 80, .6)); }
 .vtm20 .r-cnt-cast:hover:not([disabled]) { box-shadow: 0 0 14px rgba(238, 183, 228, .35); }
 .vtm20 .r-cnt-cast[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* шапка Искусств на узком листе — кнопки переносятся, а не уходят за край */
+.vtm20 .r-cla-head { flex-wrap: wrap; row-gap: 6px; }
