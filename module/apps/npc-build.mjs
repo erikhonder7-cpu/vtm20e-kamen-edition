@@ -864,9 +864,37 @@ export function buildNpc(o) {
   const concept = sub ? lab(`Sub.${sub.key}`, sub.concept) : role ? lab(`Role.${role.key}`, role.label) : lab(`Kind.${kind.key}`, kind.label);
   const ctx = { kind: kind.key, role, sub, power, concept };
   const d = BUILD[kind.key](ctx, o.params ?? {});
+  // кровь вампира у смертного, мага, оборотня, подменыша (apps/ghouled.mjs): гуль или ревенант — по параметру «Кровь вампира»
+  const gk = (o.params ?? {}).ghouled;
+  if ((gk === "ghoul" || gk === "revenant") && GHOULED_ACTORS.includes(d.actor)) addGhouled(d, gk, o.params, ctx);
   return { ...d, kind: kind.key, kindLabel: lab(`Kind.${kind.key}`, kind.label), kindIcon: kind.icon, role: role?.key ?? "",
     roleLabel: role ? lab(`Role.${role.key}`, role.label) : "", roleIcon: role?.icon ?? "", sub: sub?.key ?? "", subLabel: sub ? lab(`Sub.${sub.key}`, sub.label) : "",
     power: power.key, powerLabel: lab(`Power.${power.key}`, power.label), concept: d.system?.details?.concept ?? concept };
+}
+
+/** Кого генератор может сделать гулем или ревенантом (как canGhoul: живые смертные типы; наделённых охотников — нет). */
+export const GHOULED_ACTORS = ["mortal", "mage", "werewolf", "changeling"];
+
+/**
+ * Гуль или ревенант среди смертных (apps/ghouled.mjs): гуль — Могущество и Дисциплины клана домитора (по силе НПС, до 3),
+ * витэ и узы; ревенант — семья с её Дисциплинами и своя витэ (10). Отметка в превью и в записях.
+ */
+function addGhouled(d, kind, p, ctx) {
+  const tier = ctx.power.tier, sys = d.system;
+  const fam = kind === "revenant" ? (REVENANT_FAMILIES[p.ghFamily] ? p.ghFamily : pick(Object.keys(REVENANT_FAMILIES))) : "";
+  const clans = Codex.clans.filter(c => Codex.visible(c) && c.disciplines?.length);
+  const clan = kind === "ghoul" ? (Codex.clan(p.ghClan)?.key ?? pick(clans).key) : "";
+  const own = kind === "revenant" ? REVENANT_FAMILIES[fam].disciplines : ["potence", ...(Codex.clan(clan)?.disciplines ?? []).filter(k => k !== "potence")];
+  const cap = Math.min(3, 1 + Math.floor(tier / 2));
+  const dd = discs(own, ctx.role, Math.max(1, tier + 1), cap, 0, cap, kind === "ghoul" ? { potence: 1 } : Object.fromEntries(own.map(k => [k, 1])));
+  const have = new Set(d.items.filter(i => i.type === "discipline").map(i => i.system?.key));
+  d.items.push(...discItems(Object.fromEntries(Object.entries(dd).filter(([k]) => !have.has(k)))));
+  const vitae = kind === "revenant" ? 10 : Math.min(10, 2 + 2 * tier), bond = kind === "revenant" ? 0 : Math.min(3, 1 + Math.floor(Math.random() * 3));
+  sys.ghouled = { on: true, kind, family: fam, domitor: "", clan, vitae, bond };
+  const title = loc(`VTM20.Ghouled.${kind === "revenant" ? "TitleRevenant" : "TitleGhoul"}`);
+  d.tags = [...(d.tags ?? []), kind === "revenant" ? `${title}: ${REVENANT_FAMILIES[fam].name}` : `${title} · ${Codex.clanName(clan)}`];
+  d.powers = [...(d.powers ?? []), ...discView(dd).filter(x => !(d.powers ?? []).some(y => y.label === x.label))];
+  d.traits = [...(d.traits ?? []), [loc("VTM20.Mage.Ghoul.Vitae"), `${vitae}/10`]];
 }
 
 /** Карточка черновика для окна: характеристики по группам, способности по убыванию, силы, черты, факты. */

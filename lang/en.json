@@ -5512,7 +5512,9 @@
         "spectres": "Spectre Pack",
         "orpheus": "Orpheus Crucible"
       },
-      "AutoGear": "Picked by skills: Firearms and Melee at 2+. Remove anything extra with the cross"
+      "AutoGear": "Picked by skills: Firearms and Melee at 2+. Remove anything extra with the cross",
+      "Ghouled": "Vampire blood",
+      "GhouledNone": "none"
     },
     "Money": {
       "Title": "Purse",

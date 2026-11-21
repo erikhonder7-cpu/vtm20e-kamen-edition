@@ -4098,6 +4098,23 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // генератор НПС: «Кровь вампира» у смертных типов — гуль (Могущество, клан домитора) или ревенант (семья, её Дисциплины, витэ 10)
+  await check("Генератор НПС: гуль и ревенант среди смертных", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, NB = await import(`/systems/${SYS}/module/apps/npc-build.mjs`), out = {};
+      const g = await NB.createNpc(NB.buildNpc({ kind: "mortal", power: "veteran", params: { ghouled: "ghoul", ghClan: "brujah" } }), { name: "E2E — НПС гуль" });
+      out.ghoul = [g.system.ghouled.on, g.system.ghouled.kind, g.system.ghouled.clan, g.discipline("potence") >= 1, g.system.ghouled.vitae > 0];
+      const m = await NB.createNpc(NB.buildNpc({ kind: "mage", power: "normal", params: { ghouled: "revenant", ghFamily: "obertus" } }), { name: "E2E — НПС ревенант" });
+      out.rev = [m.system.ghouled.kind, m.system.ghouled.family, m.system.ghouled.vitae, ["auspex", "obfuscate", "vicissitude"].every(k => m.discipline(k) >= 1)];
+      const plain = NB.buildNpc({ kind: "vampire", power: "normal", params: { ghouled: "ghoul" } });
+      out.vampire = !plain.system.ghouled;
+      for (const x of [g, m]) await x.delete();
+      return out;
+    });
+    const want = { ghoul: [true, "ghoul", "brujah", true, true], rev: ["revenant", "obertus", 10, true], vampire: true };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   // Текст интерфейса (обход tools/.cache/audit.mjs, постоянной проверкой): листы восьми линеек на всех вкладках, первые шаги
   // мастера создания и библиотека — без невставленных ключей перевода, undefined/NaN, неподставленных {name}, сырых тегов и сущностей
   await check("Мастер, листы и библиотека: текст без сырых ключей, undefined и тегов", async () => {

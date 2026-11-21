@@ -21,7 +21,7 @@ import { W as WW } from "./werewolf.mjs";
 import { H as HH } from "./hunter.mjs";
 import { M as MM } from "./mage.mjs";
 import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab, subsForEra } from "./npc-roles.mjs";
-import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup } from "./npc-build.mjs";
+import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup, GHOULED_ACTORS } from "./npc-build.mjs";
 import * as FOES from "../data/changeling-foes.mjs";
 
 /** Заготовки рассказчика (настройка мира): имя и всё, что выбрано в окне. */
@@ -128,6 +128,14 @@ const any = cur => opt("", L("AnyPick"), cur);
 /** Поля выбора для подвида: [{ name, label, options | groups }]. */
 function paramFields(kind, p) {
   const F = [];
+  // кровь вампира — у смертных типов (apps/ghouled.mjs): нет / гуль (клан домитора) / ревенант (семья)
+  const ghouledField = () => {
+    if (!GHOULED_ACTORS.includes(KINDS.find(k => k.key === kind)?.actor)) return;
+    F.push({ name: "ghouled", label: L("Ghouled"), options: [opt("", L("GhouledNone"), p.ghouled), opt("ghoul", loc("VTM20.Ghouled.TitleGhoul"), p.ghouled), opt("revenant", loc("VTM20.Ghouled.TitleRevenant"), p.ghouled)] });
+    if (p.ghouled === "ghoul") F.push({ name: "ghClan", label: L("DomitorClan"), groups: Codex.clanGroups().map(g => ({ label: g.label,
+      options: g.clans.filter(c => Codex.visible(c)).map(c => opt(c.key, c.name, p.ghClan)) })).filter(g => g.options.length), lead: [any(p.ghClan)] });
+    if (p.ghouled === "revenant") F.push({ name: "ghFamily", label: L("Family"), options: [any(p.ghFamily), ...Object.entries(REVENANT_FAMILIES).map(([k, f]) => opt(k, `${f.name} — ${f.nick}`, p.ghFamily))] });
+  };
   const D = WW(), Dh = Codex.dhampir ?? { clans: {}, concepts: [] };
   const clanField = label => ({ name: "clan", label, groups: Codex.clanGroups().map(g => ({ label: g.label,
     options: g.clans.filter(c => Codex.visible(c)).map(c => opt(c.key, c.name, p.clan)) })).filter(g => g.options.length), lead: [any(p.clan)] });
@@ -240,6 +248,7 @@ function paramFields(kind, p) {
       F.push({ name: "faction", label: L("Faction"), options: [any(p.faction), ...Codex.factions.map(f => opt(f.key, f.name, p.faction))] });
       break;
   }
+  ghouledField();
   return F;
 }
 
