@@ -5151,7 +5151,9 @@ try {
       const week0 = game.settings.get(sid, "mageWeek"), c0 = cal.getClock();
       try {
         await game.settings.set(sid, "mageWeek", Math.floor((cal.nightNumber() - 1) / 7));
-        await cal.setClock(c0 + 8 * 86400000); await St.mageWeekTick(); await wait(600);
+        // перевод часов сам запускает такт (хук), повторный вызов при занятом такте выходит — ждём результат до 3 с
+        await cal.setClock(c0 + 8 * 86400000); await wait(800); await St.mageWeekTick();
+        for (let i = 0; i < 15 && !(cab.system.chantry.quint > 0); i++) await wait(200);
         out.week = [cab.system.chantry.quint, cab.system.chantry.tass, a.system.mage.paradox];
       } finally { await cal.setClock(c0); await game.settings.set(sid, "mageWeek", week0); }
       await ChatMessage.deleteDocuments(game.messages.contents.slice(n0).map(m => m.id));
@@ -6793,6 +6795,8 @@ try {
   await check("Гуль: справочники — гули и ревенанты (семейства, правила, черты), дампиры (Права крови, ритуалы, кровь кланов)", async () => {
     const r = await page.evaluate(async () => {
       const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      // хоумрул «Богатыри» добавляет свою группу — проверка ждёт базовые группы, поэтому на время — выключен
+      const bog = game.settings.get(sid, "bogatyri"); if (bog) await game.settings.set(sid, "bogatyri", false);
       const a = await Actor.create({ name: "E2E — ревенант Братович", type: "ghoul", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { ghoulType: "revenant", family: "bratovich" } });
       const d = await Actor.create({ name: "E2E — дампир", type: "ghoul", flags: { world: { e2e: true }, [sid]: { created: true } }, system: { ghoulType: "dhampir", dhampir: { antecedentClan: "brujah" } } });
       try {
@@ -6806,7 +6810,7 @@ try {
         const h = foundry.applications.instances.get("r-atlas-dhampir");
         out.dhampir = [!!h, h?.groups.map(x => x.key).join(","), h?.v.key];
         await h?.close(); await d.sheet.close();
-      } finally { await Actor.deleteDocuments([a.id, d.id]); }
+      } finally { await Actor.deleteDocuments([a.id, d.id]); if (bog) await game.settings.set(sid, "bogatyri", true); }
       return out;
     });
     const want = { ghoul: [true, "families,rules,merits", "Братовичи"], dhampir: [true, "rules,concepts,rights,rituals,clans,backgrounds,merits", "clan:brujah"] };
