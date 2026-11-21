@@ -569,7 +569,7 @@ export class VtMActor extends Actor {
     if (this.isVampire && (h.aggravated >= 7 || (wasFull && type === "aggravated"))) fate = t("Fate.finalDeath");
     else if (over > 0) fate = this.isVampire ? t("Fate.torpor") : t("Fate.death");
     else if (full) fate = t("Fate.incapacitated");
-    const dmg = game.i18n.localize(VTM20.damageTypes[type].label);
+    const dmg = game.i18n.localize(VTM20.damageTypes[type].label).toLocaleLowerCase("ru");   // «(тяжёлые)» — посреди фразы со строчной
     this.#damageNotice(`<i class="fa-solid fa-heart-crack"></i> ${t("Notify.Damaged", { n: amount, type: dmg })}${onExtra ? ` ${t("Zulo.ExtraAlso", { n: onExtra })}` : ""}${fate ? ` <b class="r-fate">${fate}</b>` : ""}`, undo);
     // Смертный умирает сразу; вампиру — карточка ведущему: торпор или Окончательная смерть (apps/torpor.mjs)
     if (fate === t("Fate.death")) await this.toggleStatusEffect?.("dead", { active: true, overlay: true });
@@ -620,12 +620,12 @@ export class VtMActor extends Actor {
         }
         if ((res?.successes ?? 0) < 1) return this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Heal.Wasted", { n: cost })}`);
         await this.healDamage(type, 1);
-        return this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Notify.Healed", { type: game.i18n.localize(VTM20.damageTypes[type].label), n: cost })}`);
+        return this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Notify.Healed", { type: game.i18n.localize(`VTM20.DamageOne.${type}`), n: cost })}`);
       }
     }
     if (!(await this.spendBlood(cost))) return;
     await this.healDamage(type, 1);
-    this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Notify.Healed", { type: game.i18n.localize(VTM20.damageTypes[type].label), n: cost })}`);
+    this.#notice(`<i class="fa-solid fa-hand-holding-droplet"></i> ${t("Notify.Healed", { type: game.i18n.localize(`VTM20.DamageOne.${type}`), n: cost })}`);
   }
 
   /**

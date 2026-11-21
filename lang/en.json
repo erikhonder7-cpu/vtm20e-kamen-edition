@@ -36,6 +36,7 @@
     }
   },
   "VTM20": {
+    "DamageOne": { "bashing": "bashing", "lethal": "lethal", "aggravated": "aggravated" },
     "ClCr": {
       "NeedKith": "Pick a kith.",
       "NeedSeeming": "Pick a seeming.",

@@ -390,7 +390,7 @@ async function regenerate(actor) {
   if (wp.temporary < 1) return ui.notifications.warn(t("QuietNoWill"));
   await actor.update({ "system.willpower.temporary": wp.temporary - 1 });
   await actor.healDamage(type, 1);
-  return say(actor, "fa-heart-pulse", t("Invest.regenDone", { name: esc(actor.name), type: game.i18n.localize(VTM20.damageTypes[type]?.label ?? type) }));
+  return say(actor, "fa-heart-pulse", t("Invest.regenDone", { name: esc(actor.name), type: game.i18n.localize(`VTM20.DamageOne.${type}`) }));
 }
 export function useMageInvestment(actor, id, act) {
   const it = actor.items.get(id);

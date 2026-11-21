@@ -32,7 +32,7 @@ export async function regenerate(actor, { quiet = false } = {}) {
   const h = actor.system.health, type = h.aggravated > 0 ? "aggravated" : h.lethal > 0 ? "lethal" : h.bashing > 0 ? "bashing" : null;
   if (!type) { if (!quiet) ui.notifications.info(t("NoDamage")); return null; }
   await actor.healDamage(type, 1);
-  await notice(actor, "fa-heart-pulse", esc(t("Regen", { name: actor.name, type: game.i18n.localize(VTM20.damageTypes[type]?.label ?? type) })));
+  await notice(actor, "fa-heart-pulse", esc(t("Regen", { name: actor.name, type: game.i18n.localize(`VTM20.DamageOne.${type}`) })));
   return type;
 }
 

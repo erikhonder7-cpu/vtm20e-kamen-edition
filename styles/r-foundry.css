@@ -257,7 +257,8 @@ body.r-skin .chat-message .message-header {
   font-family: var(--rk-caps); letter-spacing: 1.2px; text-transform: uppercase; font-size: 11px;
 }
 body.r-skin .chat-message .message-header .message-sender { font-family: var(--rk-display); text-transform: none; letter-spacing: 0; font-size: 13.5px; color: var(--rk-bone-b); }
-body.r-skin .chat-message .message-header .message-metadata { color: var(--rk-muted); }
+body.r-skin .chat-message .message-header .message-metadata { color: var(--rk-muted); flex: 0 0 auto; white-space: nowrap; }   /* «только что» — одной строкой, имя ужимается */
+body.r-skin .chat-message .message-header .message-sender { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 body.r-skin .chat-message .message-content { font-family: var(--rk-body); font-size: 13.5px; line-height: 1.45; color: var(--rk-bone); }
 body.r-skin .chat-message .message-content .r-roll-card, body.r-skin .chat-message .message-content .r-item-card { margin: 4px -4px; }
 body.r-skin .chat-message.whisper { border-left: 2px solid #46557a; background: linear-gradient(90deg, rgba(70, 85, 122, .12), transparent 45%), #141416; }

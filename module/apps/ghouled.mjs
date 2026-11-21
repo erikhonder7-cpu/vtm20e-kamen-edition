@@ -103,5 +103,5 @@ export async function ghouledHeal(actor) {
   if (!type) return ui.notifications.info(t("NoWounds"));
   await actor.update({ [path(actor, "vitae")]: g.vitae - 1 });
   await actor.healDamage(type, 1);
-  return say(actor, "fa-droplet", t("Healed", { name: esc(actor.name), type: game.i18n.localize(VTM20.damageTypes[type]?.label ?? type), n: g.vitae - 1 }));
+  return say(actor, "fa-droplet", t("Healed", { name: esc(actor.name), type: game.i18n.localize(`VTM20.DamageOne.${type}`), n: g.vitae - 1 }));
 }
