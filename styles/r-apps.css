@@ -652,7 +652,7 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-xw-row .r-dot { pointer-events: none; }
 .vtm20 .r-xw-row .r-dot.is-next { border-style: dashed; border-color: #c4474c; animation: r-xw-next 1.8s ease-in-out infinite; }
 @keyframes r-xw-next { 50% { box-shadow: 0 0 6px rgba(196, 71, 76, .7); } }
-.vtm20 .r-xw-buy { flex: 0 0 auto; min-width: 52px; justify-content: center; }
+.vtm20 .r-xw-buy { flex: 0 0 60px; width: 60px; justify-content: center; }   /* одна ширина у кнопки цены — точки во всех строках по одной линии ("8" и "28") */
 .vtm20 .r-xw-list .r-h2 { margin-top: 14px; }
 .vtm20 .r-xw-list .r-xp-sec:first-child .r-h2 { margin-top: 6px; }
 .vtm20 .r-xw-buy b { font-family: var(--r-display); font-weight: 400; font-size: 15px; letter-spacing: 0; color: var(--r-ink); }

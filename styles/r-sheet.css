@@ -149,6 +149,8 @@
 .vtm20 .r-seal-num { font-family: var(--r-display); font-size: 14px; line-height: 19px; color: #e6ddcc; }
 .vtm20 .r-seal-num.r-seal-icon { font-size: 11px; color: #c4474c; }
 .vtm20 .r-seal-cap { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: #8a8274; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* длинная подпись печати («Красный колпак», «Осквернители») — плотнее и мельче, чтобы влезала целиком */
+.vtm20 .r-seal-cap.is-long { font-size: 9.5px; letter-spacing: .6px; }
 
 /* Имя, амплуа, сведения */
 .vtm20 .r-head-info { grid-area: info; min-width: 0; }
