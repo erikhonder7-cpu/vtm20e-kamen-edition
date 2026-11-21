@@ -4135,6 +4135,26 @@ try {
     for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
   });
 
+  // Достоинства и недостатки в бросках (data/merit-mods.mjs): «Перевозбуждённый» — сам +2 к сложности Восприятия;
+  // «Великий лжец» — галочка в социальном броске; «Тёмная аура» — сама, но не к Запугиванию
+  await check("Вампир: достоинства и недостатки в броске — сами и галочкой", async () => {
+    const r = await page.evaluate(async () => {
+      const SYS = game.system.id, { RollDialog } = await import(`/systems/${SYS}/module/dice/dialog.mjs`), out = {};
+      const a = await Actor.create({ name: "E2E — черты", type: "vampire", flags: { world: { e2e: true }, [SYS]: { created: true } } });
+      await a.createEmbeddedDocuments("Item", ["Перевозбуждённый", "Великий лжец", "Тёмная аура"].map((name, i) => ({ name, type: i === 1 ? "merit" : "flaw", system: { cost: 1 } })));
+      const c1 = new RollDialog(a, { trait1: "attributes.perception", trait2: "abilities.alertness", difficulty: 6 }).compute();
+      out.per = [c1.diffAuto.some(d => d.label === "Перевозбуждённый" && d.value === 2), c1.effDifficulty];
+      const c2 = new RollDialog(a, { trait1: "attributes.manipulation", trait2: "abilities.subterfuge", difficulty: 6 }).compute();
+      out.soc = [c2.diffSit.some(d => d.kind === "merit" && d.label === "Великий лжец"), c2.diffAuto.some(d => d.label === "Тёмная аура")];
+      const c3 = new RollDialog(a, { trait1: "attributes.charisma", trait2: "abilities.intimidation", difficulty: 6 }).compute();
+      out.intim = c3.diffAuto.some(d => d.label === "Тёмная аура");
+      await a.delete();
+      return out;
+    });
+    const want = { per: [true, 8], soc: [true, true], intim: false };
+    for (const [k, v] of Object.entries(want)) if (JSON.stringify(r[k]) !== JSON.stringify(v)) throw new Error(`${k}: ${JSON.stringify(r[k])} вместо ${JSON.stringify(v)}`);
+  });
+
   // Текст интерфейса (обход tools/.cache/audit.mjs, постоянной проверкой): листы восьми линеек на всех вкладках, первые шаги
   // мастера создания и библиотека — без невставленных ключей перевода, undefined/NaN, неподставленных {name}, сырых тегов и сущностей
   await check("Мастер, листы и библиотека: текст без сырых ключей, undefined и тегов", async () => {
