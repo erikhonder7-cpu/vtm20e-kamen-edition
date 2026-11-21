@@ -93,7 +93,7 @@
   <div class="r-cols2 r-infernal">
     <div class="r-col">
       <h2 class="r-h2"><span data-tooltip="{{localize 'VTM20.Infernal.Investments'}}">{{localize "VTM20.Infernal.InvestmentsShort"}}</span><em class="r-h2-total" data-tooltip="{{localize 'VTM20.Infernal.LimitHint'}}">{{infernal.limit.v20}} / {{infernal.limit.max}}</em>
-        {{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="library" data-kind="investment" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="investment" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}</h2>
+        {{#if editable}}<span class="r-h2-tools">{{#if @root.infernal.canHide}}<a class="r-h2-btn is-ghost" data-action="infernalToggle" data-tooltip="{{localize 'VTM20.Infernal.HideHint'}}"><i class="fa-solid fa-eye-slash"></i></a>{{/if}}<a class="r-h2-btn" data-action="library" data-kind="investment" data-tooltip="{{localize 'VTM20.Library.Open'}}"><i class="fa-solid fa-book-skull"></i> <span class="r-h2-lbl">{{localize "VTM20.Library.Open"}}</span></a><a class="r-h2-btn is-ghost" data-action="itemCreate" data-type="investment" data-tooltip="{{localize 'VTM20.Sheet.Own'}}"><i class="fa-solid fa-feather"></i></a></span>{{/if}}</h2>
       {{#each infernal.investments}}
       <div class="r-row-wrap r-mf-row {{#if open}}is-open{{/if}}" data-item-id="{{id}}">
         <div class="r-trait-main">
@@ -153,7 +153,7 @@
     {{!-- узы крови: у смертных и охотников их нет; у Гару — только если уже записаны --}}
     {{#if showBonds}}
     <div class="r-col">
-      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Bonds"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="feedFrom" data-tooltip="{{localize 'VTM20.BondX.FeedTip'}}"><i class="fa-solid fa-hand-holding-droplet"></i> <span class="r-h2-lbl">{{localize "VTM20.BondX.Feed"}}</span></a>{{#if isVampire}}<a class="r-h2-btn" data-action="feedGhoul" data-tooltip="{{localize 'VTM20.BondX.GiveBtnHint'}}"><i class="fa-solid fa-droplet"></i> <span class="r-h2-lbl">{{localize "VTM20.BondX.GiveBtn"}}</span></a>{{/if}}<a class="r-h2-btn" data-action="addBond" data-tooltip="{{localize 'VTM20.Sheet.Add'}}"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Sheet.Add"}}</span></a></span>{{/if}}</h2>
+      <h2 class="r-h2"><span>{{localize "VTM20.Sheet.Bonds"}}</span>{{#if editable}}<span class="r-h2-tools"><a class="r-h2-btn" data-action="feedFrom" data-tooltip="{{localize 'VTM20.BondX.FeedTip'}}"><i class="fa-solid fa-hand-holding-droplet"></i> <span class="r-h2-lbl">{{localize "VTM20.BondX.Feed"}}</span></a>{{#if isVampire}}<a class="r-h2-btn" data-action="feedGhoul" data-tooltip="{{localize 'VTM20.BondX.GiveBtnHint'}}"><i class="fa-solid fa-droplet"></i> <span class="r-h2-lbl">{{localize "VTM20.BondX.GiveBtn"}}</span></a>{{/if}}<a class="r-h2-btn" data-action="addBond" data-tooltip="{{localize 'VTM20.Sheet.Add'}}"><i class="fa-solid fa-plus"></i></a></span>{{/if}}</h2>
       {{#each bonds}}
       <div class="r-trait-main r-bond">
         <select name="system.bonds.{{index}}.role" class="r-mini-select">
@@ -470,4 +470,9 @@
     {{#if stratInfo.pacts.length}}<h4>{{localize "VTM20.Strategy.Pacts"}}</h4><ul class="r-strat-list">{{#each stratInfo.pacts}}<li><i class="fa-solid fa-handshake-simple"></i> <b>{{with}}</b><small>{{kind}} · {{where}}</small></li>{{/each}}</ul>{{/if}}
   </div>
   {{/if}}
+
+  {{!-- блок инфернализма скрыт, пока нет Вложений и договоров: включить — кнопкой в самом низу вкладки --}}
+  {{#if infernalOffer}}{{#if editable}}
+  <p class="r-infernal-offer"><a class="r-h2-btn is-ghost" data-action="infernalToggle" data-tooltip="{{localize 'VTM20.Infernal.ShowHint'}}"><i class="fa-solid fa-file-contract"></i> <span class="r-h2-lbl">{{localize "VTM20.Infernal.Show"}}</span></a></p>
+  {{/if}}{{/if}}
 </section>

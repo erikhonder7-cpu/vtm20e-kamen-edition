@@ -146,7 +146,7 @@ openUuid: VtMActorSheet.#onOpenUuid,
       removeSecondary: VtMActorSheet.#onRemoveSecondary,
       addBond: VtMActorSheet.#onAddBond,
       drinkBond: VtMActorSheet.#onDrinkBond,
-      feedFrom: VtMActorSheet.#onFeedFrom, feedGhoul: VtMActorSheet.#onFeedGhoul,
+      feedFrom: VtMActorSheet.#onFeedFrom, infernalToggle: VtMActorSheet.#onInfernalToggle, feedGhoul: VtMActorSheet.#onFeedGhoul,
       ghoulLife: VtMActorSheet.#onGhoulLife,
       openPath: VtMActorSheet.#onOpenPath, pathShift: VtMActorSheet.#onPathShift, pickPath: VtMActorSheet.#onPickPath, archLib: VtMActorSheet.#onArchLib,
       openCoterie: VtMActorSheet.#onOpenCoterie,
@@ -1012,6 +1012,8 @@ openStrategy: () => openStrategy(),
     const fn = { week: L.withdrawalWeek, refuse: L.refuseVitae, hall: L.hallucinations, purge: L.purge, lose: L.loseDiscipline }[target.dataset.op];
     return fn?.(this.actor);
   }
+  /** Инфернализм на листе: показать блок Вложений и договоров (или скрыть пустой) — флаг infernal. */
+  static async #onInfernalToggle() { return this.actor.setFlag(SYSTEM_ID, "infernal", !this.actor.getFlag(SYSTEM_ID, "infernal")); }
   static async #onFeedGhoul() { return (await import("../apps/bonds.mjs")).feedGhoul(this.actor); }
   static async #onFeedFrom() {
     const { feedFrom } = await import("../apps/bonds.mjs");

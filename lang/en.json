@@ -2911,7 +2911,10 @@
       "CostBloodL": "Blood per use",
       "CostWillL": "Willpower per use",
       "CostWillPermL": "Permanent Willpower",
-      "CostNote": "Cost note"
+      "CostNote": "Cost note",
+      "Show": "Infernalism: investments and pacts",
+      "ShowHint": "Show Investments and demon pacts on the sheet",
+      "HideHint": "Hide the empty infernalism block"
     },
     "Cult": {
       "Title": "Cult",

@@ -547,12 +547,17 @@ export function prepareAdvantages(sheet, ctx) {
   ctx.derangements = byType("derangement").map(i => ({ id: i.id, name: i.name, en: Codex.enOf(i), html: i.system.description, permanent: i.system.permanent, open: sheet._open.has(i.id) }));
   // Инфернализм (apps/infernal.mjs): Вложения и договоры с демонами — у всех, кроме падших; у Гару, призраков и подменышей
   // (в их линейках этих правил нет) — только если уже есть
+  // Блок на листе — только если есть Вложения или договоры либо его включили кнопкой «Инфернализм» (флаг infernal);
+  // иначе — одна кнопка вместо двух пустых разделов (у Гару, призраков и подменышей кнопки нет — в их линейках этих правил нет)
   const foreign = ["werewolf", "wraith", "changeling"].includes(a.type);
-  if (a.type !== "demon" && (!foreign || byType("investment").length || (a.system.pacts ?? []).length)) {
+  const hasInfernal = !!(byType("investment").length || (a.system.pacts ?? []).length);
+  if (a.type !== "demon" && !hasInfernal && !a.getFlag(SYSTEM_ID, "infernal")) ctx.infernalOffer = !foreign;
+  else if (a.type !== "demon") {
     const f = (k, n) => game.i18n.format(`VTM20.Infernal.${k}`, { n });
     const costLine = c => [c.blood ? f("CostBlood", c.blood) : "", c.willpower ? f("CostWill", c.willpower) : "",
       c.willpowerPerm ? f("CostWillPerm", c.willpowerPerm) : ""].filter(Boolean).join(" · ");
     ctx.infernal = {
+      canHide: !hasInfernal,
       limit: investmentLimit(a),
       investments: byType("investment").map(i => ({ id: i.id, name: i.name, html: i.system.description, open: sheet._open.has(i.id),
         rating: i.system.tier === "sabbat" ? i.system.rating : 0, cost: costLine(i.system.cost ?? {}), pact: i.system.pact, deed: i.system.deed })),

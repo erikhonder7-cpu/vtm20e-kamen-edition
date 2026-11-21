@@ -1396,3 +1396,6 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 
 /* хоумрул выключен в мире (module/apps/homerules.mjs): его записи и опустевшие папки в окне компендия */
 .r-homerule-off { display: none !important; }
+
+/* лист: кнопка «Инфернализм» вместо двух пустых разделов (Вложения и договоры появляются по ней или с первой записью) */
+.vtm20 .r-infernal-offer { margin: 18px 0 4px; padding-top: 10px; border-top: 1px dashed var(--r-line); text-align: center; }
