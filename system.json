@@ -78,6 +78,9 @@
     },
     {
       "src": "styles/r-pause.css"
+    },
+    {
+      "src": "styles/r-icons.css"
     }
   ],
   "languages": [
