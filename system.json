@@ -84,6 +84,9 @@
     },
     {
       "src": "styles/r-mood.css"
+    },
+    {
+      "src": "styles/r-depth.css"
     }
   ],
   "languages": [
