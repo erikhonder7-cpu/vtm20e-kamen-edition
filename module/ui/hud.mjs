@@ -7,6 +7,7 @@
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
 import { applyMood } from "./mood.mjs";
+import { snapState, playChanges } from "./pulse.mjs";
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud, grapplesOf, breakGrapple } from "../combat/combat.mjs";
@@ -462,6 +463,7 @@ const hideBtn = () => `<a class="rh-hide" data-act="hide" data-tooltip="${esc(t(
 export function renderHud() {
   if (!enabled()) return;
   const el = mount();
+  const pulse = snapState(el, "hud");   // что было заполнено — после перерисовки покажем изменения (ui/pulse.mjs)
   document.body.classList.add("r-hud-on");
   const a = hudActor();
   el.className = "vtm20 r-hud";
@@ -520,6 +522,7 @@ export function renderHud() {
       <a class="rh-ribbon" data-act="sheet" data-tooltip="${esc(t("Hud.SheetTip"))}"><b>${esc(a.name)}</b><small>${esc(subtitleOf(a, kind))}</small></a>
     </div>`;
   el.classList.toggle("is-turn", myTurn);
+  el.dataset.rActor = a.id; playChanges(el, pulse, "hud");
   fitHud();
 }
 

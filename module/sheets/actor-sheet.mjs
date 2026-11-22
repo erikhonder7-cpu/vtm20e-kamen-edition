@@ -7,6 +7,7 @@
 
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
 import { applyMood } from "../ui/mood.mjs";
+import { snapState, playChanges } from "../ui/pulse.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
 import { CHANGELING_ACTIONS } from "./actor/changeling.mjs";
 import { THAUM_ACTIONS } from "./actor/thaum.mjs";
@@ -421,6 +422,12 @@ openStrategy: () => openStrategy(),
   static #onMakeExtra() { return makeExtra(this.actor); }
   static #onRefreshCodex() { return refreshActor(this.actor); }
 
+  /** Перед перерисовкой — что было заполнено, чтобы после показать изменения (ui/pulse.mjs). */
+  async _preRender(context, options) {
+    await super._preRender(context, options);
+    this._rPulse = snapState(this.element);
+  }
+
   _onRender(context, options) {
     super._onRender(context, options);
     // перерисованы не все части: слушатели вешаем только на свежие, иначе на нетронутых вкладках они удвоятся
@@ -463,6 +470,7 @@ openStrategy: () => openStrategy(),
     this.element.classList.toggle("is-torpor", !!context.torporState);
     this.element.classList.toggle("is-dead", !!context.death);
     applyMood(this.element, this.actor);   // голод, раны, ярость — styles/r-mood.css
+    playChanges(this.element, this._rPulse); this._rPulse = null;   // капля гаснет, клетка вспыхивает, точка проявляется
     // AppV2 заменяет только перерисованные части: убираем ворота после создания и лист — до него
     const gated = this.needsCreation;
     const stale = gated ? Object.keys(this.constructor.PARTS).filter(p => !["header", "gate"].includes(p)) : ["gate"];

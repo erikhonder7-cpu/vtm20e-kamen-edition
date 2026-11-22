@@ -114,6 +114,72 @@
 #r-hud .d.on { box-shadow: inset 0 -1px 2px rgba(0, 0, 0, .55), 0 1px 2px rgba(0, 0, 0, .8); }
 #r-hud .b.on { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 1px 2px rgba(0, 0, 0, .8); }
 #r-hud .dr { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8)) drop-shadow(0 0 3px rgba(196, 50, 58, .35)); }
-#r-hud .dr path:not([stroke^="rgba"]) { fill: url(#r-gloss-blood); }
+#r-hud .dr path[fill="url(#rh-bf-100)"] { fill: url(#r-gloss-blood); }   /* только полные: неполная (запас больше 20) залита своим градиентом снизу */
 #r-hud .rh-frame { filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .9)); }
 #r-hud .rh-frame::before { content: ""; position: absolute; inset: 4px; z-index: 1; pointer-events: none; box-shadow: inset 0 0 22px 4px rgba(0, 0, 0, .65); }
+
+/* ── Худ: кнопки действий — монеты со светом сверху и ободком цвета линейки; наведение приподнимает ── */
+#r-hud .rh-knob {
+  background: radial-gradient(circle at 50% 18%, #4a4750, #232127 42%, #0b0b0d 80%);
+  box-shadow: inset 0 2px 1px -1px rgba(255, 255, 255, .3), inset 0 -6px 8px rgba(0, 0, 0, .8), inset 0 0 0 3px rgba(0, 0, 0, .35),
+    0 0 0 1px #000, 0 0 0 3px rgba(var(--h-acc-rgb), .22), 0 6px 12px rgba(0, 0, 0, .85);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+#r-hud a.rh-seal:hover .rh-knob { transform: translateY(-2px);
+  box-shadow: inset 0 2px 1px -1px rgba(255, 255, 255, .38), inset 0 -6px 8px rgba(0, 0, 0, .75), inset 0 0 0 3px rgba(0, 0, 0, .3),
+    0 0 0 1px #000, 0 0 0 3px rgba(var(--h-acc-rgb), .5), 0 9px 16px rgba(0, 0, 0, .9), 0 0 14px rgba(var(--h-acc-rgb), .45); }
+#r-hud a.rh-seal:active .rh-knob { transform: translateY(0); box-shadow: inset 0 3px 6px rgba(0, 0, 0, .85), 0 0 0 1px #000, 0 0 0 3px rgba(var(--h-acc-rgb), .3); }
+#r-hud .rh-seal.is-on .rh-knob { box-shadow: inset 0 2px 1px -1px rgba(255, 255, 255, .5), inset 0 -6px 8px rgba(0, 0, 0, .45),
+    0 0 0 1px #000, 0 0 0 3px rgba(var(--h-acc-rgb), .55), 0 0 16px rgba(var(--h-acc-rgb), .6); }
+#r-hud .rh-seal-l { text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+
+/* ── Чат: карточки бросков и предметов приподняты, кнопки объёмные, плашки фактов утоплены ── */
+:root {
+  --r-chat-depth: inset 0 1px 0 rgba(255, 255, 255, .05), inset 0 30px 34px -30px rgba(255, 240, 225, .06),
+    inset 0 -26px 30px -26px rgba(0, 0, 0, .8), 0 8px 16px -8px rgba(0, 0, 0, .9);
+}
+.r-roll-card, .r-item-card { box-shadow: var(--r-chat-depth); }
+.r-roll-card.is-exceptional, .r-roll-card.is-phenomenal { box-shadow: inset 3px 0 8px -4px rgba(239, 230, 212, .5), var(--r-chat-depth); }
+.r-notice { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 6px 12px -8px rgba(0, 0, 0, .85); }
+.r-card-img { box-shadow: 0 0 0 1px #000, 0 3px 6px rgba(0, 0, 0, .7); }
+.r-card-buttons button { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 2px 5px -1px rgba(0, 0, 0, .8); }
+.r-card-buttons button:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 3px 7px -1px rgba(0, 0, 0, .85); }
+.r-card-buttons button:active { box-shadow: inset 0 2px 4px rgba(0, 0, 0, .7); }
+.r-card-facts span, .r-card-hint { box-shadow: inset 0 1px 3px rgba(0, 0, 0, .6); }
+.r-outcome-ribbon, .r-outcome-num b { text-shadow: 0 1px 0 #000, 0 0 10px rgba(0, 0, 0, .7); }
+
+/* ── Диалог броска: шаги и сложности — кнопки, выбранная сложность светится, поля и галочки утоплены ── */
+:where(body:not(.r-theme-light)) .vtm20 :is(.r-step, .r-diff) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 2px 4px -1px rgba(0, 0, 0, .75); }
+:where(body:not(.r-theme-light)) .vtm20 .r-diff.is-active { box-shadow: inset 0 1px 0 rgba(255, 190, 190, .3), inset 0 -2px 4px rgba(0, 0, 0, .4), 0 0 10px var(--r-glow); }
+:where(body:not(.r-theme-light)) .vtm20 :is(.r-roll-checks, .r-modes, .r-odds-bar) { box-shadow: var(--r-well); }
+:where(body:not(.r-theme-light)) .vtm20.r-dialog :is(select, input[type="number"], input[type="text"]) { box-shadow: var(--r-well); }
+:where(body:not(.r-theme-light)) .vtm20 .r-roll-total { text-shadow: 0 1px 0 #000, 0 0 16px var(--r-glow); }
+
+/* ── Строка черты под мышью: полоса цвета линейки слева, подпись светлеет, точки чуть светятся — видно, что бросишь по щелчку ── */
+:where(body:not(.r-theme-light)) .vtm20 .r-trait:hover {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--r-accent) 18%, transparent), rgba(255, 255, 255, .03) 55%, transparent);
+  box-shadow: inset 2px 0 0 var(--r-accent);
+}
+:where(body:not(.r-theme-light)) .vtm20 .r-trait:hover .r-trait-label { color: #f1e9da; text-shadow: 0 0 10px var(--r-glow); }
+:where(body:not(.r-theme-light)) .vtm20 .r-trait:hover .r-dot.is-filled { box-shadow: inset 0 -1px 2px rgba(30, 0, 0, .6), 0 0 8px var(--r-glow); }
+
+/* ── Анимация изменений (module/ui/pulse.mjs): капля гаснет и стекает, клетка вспыхивает от урона, новая точка проявляется ── */
+.vtm20 .r-drop.r-fx-drop-out svg, #r-hud .dr.r-fx-drop-out { animation: r-fx-drop-out .55s ease-in; }
+.vtm20 .r-drop.r-fx-drop-in svg, #r-hud .dr.r-fx-drop-in { animation: r-fx-pop .4s cubic-bezier(.3, 1.5, .5, 1); }
+.vtm20 .r-dot.r-fx-dot-in, #r-hud :is(.d, .b).r-fx-dot-in { animation: r-fx-pop .4s cubic-bezier(.3, 1.5, .5, 1); }
+.vtm20 .r-hbox.r-fx-hit .r-hbox-mark, #r-hud .hb.r-fx-hit { animation: r-fx-hit .6s ease-out; }
+@keyframes r-fx-drop-out {
+  0% { transform: translateY(0) scale(1); opacity: 1; filter: drop-shadow(0 0 6px rgba(226, 88, 93, .9)); }
+  45% { transform: translateY(3px) scale(1.05, .9); opacity: .9; }
+  100% { transform: translateY(0) scale(1); opacity: 1; filter: none; }
+}
+@keyframes r-fx-pop { 0% { transform: scale(.3); opacity: 0; } 60% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes r-fx-hit {
+  0% { filter: brightness(2.2) saturate(1.4); transform: scale(1.12); }
+  35% { filter: brightness(1.4); transform: scale(.96); }
+  100% { filter: none; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #r-hud .rh-knob, #r-hud a.rh-seal:hover .rh-knob { transition: none; transform: none; }
+  .r-fx-drop-out, .r-fx-drop-in, .r-fx-dot-in, .r-fx-hit, .r-fx-drop-out svg, .r-fx-drop-in svg, .r-fx-hit .r-hbox-mark { animation: none !important; }
+}
