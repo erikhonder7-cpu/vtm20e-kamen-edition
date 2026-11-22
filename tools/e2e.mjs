@@ -553,14 +553,18 @@ try {
   await check("Звуки интерфейса", async () => {
     const n = await page.evaluate(async () => {
       if (!game.settings.get(game.system.id, "uiSounds")) return -1;
+      // звуки — записи (assets/sounds/, загрузка и разбор асинхронно) и синтез сердца: считаем и то и другое
       window._e2e.snd = 0;
-      const P = AudioContext.prototype, f = P.createOscillator;
+      const P = AudioContext.prototype, f = P.createOscillator, g = P.createBufferSource;
       P.createOscillator = function () { window._e2e.snd++; return f.call(this); };
-      try { (await import(`/systems/${game.system.id}/module/ui/sounds.mjs`)).playSound("success"); }
-      finally { P.createOscillator = f; }
+      P.createBufferSource = function () { window._e2e.snd++; return g.call(this); };
+      try {
+        (await import(`/systems/${game.system.id}/module/ui/sounds.mjs`)).playSound("success");
+        for (let i = 0; i < 15 && !window._e2e.snd; i++) await new Promise(r => setTimeout(r, 100));
+      } finally { P.createOscillator = f; P.createBufferSource = g; }
       return window._e2e.snd;
     });
-    if (n === 0) throw new Error("звук не синтезировался");
+    if (n === 0) throw new Error("звук не прозвучал (запись не загрузилась или не проигралась)");
   });
 
   await check("Мастер создания: секты", async () => {

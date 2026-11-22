@@ -68,25 +68,25 @@ function load(c, file) {
   if (!buffers.has(file)) buffers.set(file, fetch(`${BASE()}${file}.ogg`).then(r => r.arrayBuffer()).then(a => c.decodeAudioData(a)).catch(() => null));
   return buffers.get(file);
 }
-/** Сыграть одну из записей files: громкость gain, задержка at (с), скорость rate (ниже — глуше), лёгкий разброс высоты. */
-function sample(c, out, files, { gain = 1, at = 0, rate = 1 } = {}) {
+/** Сыграть одну из записей files: громкость gain, задержка at (с), скорость rate (ниже — глуше), лёгкий разброс высоты (exact — без него). */
+function sample(c, out, files, { gain = 1, at = 0, rate = 1, exact = false } = {}) {
   load(c, pick(files)).then(buf => {
     if (!buf) return;
     const s = c.createBufferSource(), g = c.createGain();
-    s.buffer = buf; s.playbackRate.value = rate * (.96 + Math.random() * .08);
+    s.buffer = buf; s.playbackRate.value = exact ? rate : rate * (.96 + Math.random() * .08);
     g.gain.value = gain; s.connect(g); g.connect(out);
     s.start(c.currentTime + at);
   });
 }
 
 const F = {
-  click: range("click", 3), blood: range("blood", 3), fail: range("fail", 3), bell: range("bell", 3), botch: range("botch", 3),
+  click: ["click"], blood: range("blood", 3), fail: range("fail", 3), bell: range("bell", 3), botch: range("botch", 3),
   bashing: range("bashing", 3), lethal: range("lethal", 2), aggravated: range("aggravated", 2), heal: range("heal", 3), will: range("will", 2)
 };
 
 /** Звуки: [что звучит, доля эха]. Щелчок едва слышен, удар и провал — заметны. */
 const SOUNDS = {
-  click: [(c, o) => sample(c, o, F.click, { gain: .32 }), .05],
+  click: [(c, o) => sample(c, o, F.click, { gain: .32, exact: true }), .05],   // один и тот же щелчок, без разброса (хлопок пользователь отверг)
   turn: [(c, o) => { sample(c, o, F.bell, { gain: .5, rate: .8 }); sample(c, o, F.bell, { gain: .32, rate: 1.05, at: .28 }); }, .35],
   blood: [(c, o) => { sample(c, o, F.blood, { gain: .7, rate: .85 }); heart(c, o, .45, .14); }, .2],
   damage: [(c, o) => sample(c, o, F.bashing, { gain: .85 }), .22],                      // прежнее имя — ударный
