@@ -375,3 +375,7 @@
 .r-line-result .r-line-sub { margin-top: 3px; font-size: 11.5px; font-style: italic; opacity: .75; }
 .r-line-result.is-bad { border-left-color: #c4474c; }
 .r-line-result.is-ok { border-left-color: #8fb39c; }
+
+/* Сообщения за краем видимой области чата не раскладываются: при переключении вкладок боковой панели браузер раскладывал
+   всю сотню карточек (80+ мс на щелчок по вкладке, замер в Foundry); с этим — 16 мс. Высота запоминается после показа. */
+#sidebar .chat-log .chat-message, .chat-popout .chat-log .chat-message { content-visibility: auto; contain-intrinsic-size: auto 160px; }

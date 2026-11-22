@@ -10,12 +10,12 @@
 /* голод: пустые капли сохнут — бурый рваный контур */
 :is(.vtm20.r-actor, #r-hud)[data-r-hunger] .r-drop:not(.is-filled) svg { stroke: #6b4426; stroke-dasharray: 3 1.6; }
 #r-hud[data-r-hunger] .dr path[stroke^="rgba"] { stroke: #6b4426; stroke-dasharray: 3 1.6; }
-.application.vtm20.r-actor[data-r-hunger] .window-content { box-shadow: inset 0 0 46px rgba(130, 16, 26, .32); }
-.application.vtm20.r-actor[data-r-hunger="empty"] .window-content { animation: r-hunger 3.2s ease-in-out infinite; }
+/* отсвет — градиентом, не размытой тенью: размытие на всё окно перерисовывалось на каждом кадре перетаскивания;
+   при пустом запасе — гуще, без пульса (пульс перерисовывал окно непрерывно, пока персонаж голоден) */
+.application.vtm20.r-actor[data-r-hunger] .window-content { background-image: radial-gradient(ellipse at center, transparent 62%, rgba(130, 16, 26, .30)); }
+.application.vtm20.r-actor[data-r-hunger="empty"] .window-content { background-image: radial-gradient(ellipse at center, transparent 52%, rgba(160, 20, 30, .48)); }
 .application.vtm20.r-actor[data-r-hunger] .r-assignat-num b { color: #e26a6f; }
-#r-hud[data-r-hunger="empty"] .rh-crest { animation: r-hunger-hud 3.2s ease-in-out infinite; }
-@keyframes r-hunger { 0%, 100% { box-shadow: inset 0 0 46px rgba(130, 16, 26, .35); } 50% { box-shadow: inset 0 0 70px rgba(160, 20, 30, .6); } }
-@keyframes r-hunger-hud { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 10px rgba(160, 20, 30, .55)); } }
+#r-hud[data-r-hunger="empty"] .rh-crest { filter: drop-shadow(0 0 8px rgba(160, 20, 30, .5)); }   /* ровно, без пульса: фильтр в анимации пересчитывался каждый кадр */
 
 /* раны: кровь проступает по краям листа, гуще с каждым уровнем */
 .application.vtm20.r-actor[data-r-wound]::after { content: ""; position: absolute; inset: 0; z-index: 30; pointer-events: none;
@@ -39,16 +39,15 @@
 
 /* ярость — красный пульс по краю, Ротшрек — неровное огненное мерцание */
 .application.vtm20.r-actor[data-r-fury]::before { content: ""; position: absolute; inset: 0; z-index: 31; pointer-events: none;
-  box-shadow: inset 0 0 0 2px rgba(196, 40, 48, .55), inset 0 0 60px rgba(196, 30, 40, .45); animation: r-frenzy 1.1s ease-in-out infinite; }
-.application.vtm20.r-actor[data-r-fury="rotschreck"]::before { box-shadow: inset 0 0 0 2px rgba(224, 120, 40, .6), inset 0 0 60px rgba(224, 110, 30, .45); animation: r-fear .9s steps(1) infinite; }
-#r-hud[data-r-fury="frenzy"] .rh-crest { animation: r-frenzy-hud 1.1s ease-in-out infinite; }
-#r-hud[data-r-fury="rotschreck"] .rh-crest { animation: r-fear-hud .9s steps(1) infinite; }
+  /* край — градиентом, мигает прозрачностью: её браузер меняет без перерисовки */
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(196, 30, 40, .42)); box-shadow: inset 0 0 0 2px rgba(196, 40, 48, .55);
+  animation: r-frenzy 1.1s ease-in-out infinite; }
+.application.vtm20.r-actor[data-r-fury="rotschreck"]::before { background: radial-gradient(ellipse at center, transparent 55%, rgba(224, 110, 30, .42)); box-shadow: inset 0 0 0 2px rgba(224, 120, 40, .6); animation: r-fear .9s steps(1) infinite; }
+#r-hud[data-r-fury="frenzy"] .rh-crest { filter: drop-shadow(0 0 10px rgba(220, 30, 40, .7)); }
+#r-hud[data-r-fury="rotschreck"] .rh-crest { filter: drop-shadow(0 0 10px rgba(240, 130, 40, .7)); }
 @keyframes r-frenzy { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 @keyframes r-fear { 0% { opacity: .6; } 20% { opacity: 1; } 35% { opacity: .7; } 55% { opacity: .95; } 70% { opacity: .5; } 85% { opacity: .9; } }
-@keyframes r-frenzy-hud { 0%, 100% { filter: drop-shadow(0 0 4px rgba(196, 30, 40, .5)); } 50% { filter: drop-shadow(0 0 16px rgba(220, 30, 40, .9)); } }
-@keyframes r-fear-hud { 0% { filter: drop-shadow(0 0 6px rgba(224, 110, 30, .6)); } 30% { filter: drop-shadow(0 0 14px rgba(240, 130, 40, .9)); } 60% { filter: drop-shadow(0 0 4px rgba(224, 110, 30, .5)); } 80% { filter: drop-shadow(0 0 12px rgba(240, 140, 40, .85)); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .application.vtm20.r-actor[data-r-hunger="empty"] .window-content, #r-hud[data-r-hunger="empty"] .rh-crest,
-  .application.vtm20.r-actor[data-r-fury]::before, #r-hud[data-r-fury] .rh-crest { animation: none; }
+  .application.vtm20.r-actor[data-r-fury]::before { animation: none; }
 }
