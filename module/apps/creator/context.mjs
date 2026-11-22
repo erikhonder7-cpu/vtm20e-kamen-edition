@@ -48,18 +48,20 @@ export class ContextCreator {
     // Патент справа: живой предпросмотр персонажа и остатки очков по разделам
     const total = arr => arr.reduce((s, v) => s + v, 0);
     const ledger = [];
-    const add = (label, left, all) => ledger.push({
+    // step — шаг мастера, где тратятся эти очки: строка текущего шага подсвечена, по строке — переход к шагу
+    const stepIdx = k => this.steps.indexOf(k);
+    const add = (label, left, all, step) => ledger.push({
       label, left, pct: all ? Math.max(0, Math.min(100, Math.round((all - left) / all * 100))) : 100,
-      state: left < 0 ? "over" : left === 0 ? "done" : "open"
+      state: left < 0 ? "over" : left === 0 ? "done" : "open", i: stepIdx(step), current: step === key
     });
-    add(t("Sheet.Attributes"), total(Object.values(rem.attr)), total(this.rules.attr));
-    add(t("Sheet.Abilities"), total(Object.values(rem.abil)), total(this.rules.abil));
-    if (this.rules.disc) add(this.discLabel, rem.disc, this.rules.disc);
-    add(this.bgLabel, rem.bg, this.rules.bg);
-    if (this.rules.virt) add(t("Sheet.Virtues"), rem.virt, this.rules.virt);
-    if (this.isWerewolf) { const slots = this.giftSlots; add(loc("VTM20.GarouCr.Gifts"), slots.filter(s => !st.ww.gifts[s.key]).length, slots.length); }
-    add(t("Creator.Freebies"), rem.free, this.freeTotal);
-    if (st.xpTotal) add(t("Sheet.Experience"), rem.xp, st.xpTotal);
+    add(t("Sheet.Attributes"), total(Object.values(rem.attr)), total(this.rules.attr), "attributes");
+    add(t("Sheet.Abilities"), total(Object.values(rem.abil)), total(this.rules.abil), "abilities");
+    if (this.rules.disc) add(this.discLabel, rem.disc, this.rules.disc, "disciplines");
+    add(this.bgLabel, rem.bg, this.rules.bg, "advantages");
+    if (this.rules.virt) add(t("Sheet.Virtues"), rem.virt, this.rules.virt, "advantages");
+    if (this.isWerewolf) { const slots = this.giftSlots; add(loc("VTM20.GarouCr.Gifts"), slots.filter(s => !st.ww.gifts[s.key]).length, slots.length, "gifts"); }
+    add(t("Creator.Freebies"), rem.free, this.freeTotal, "freebies");
+    if (st.xpTotal) add(t("Sheet.Experience"), rem.xp, st.xpTotal, "freebies");
     const gen = this.type === "vampire" ? 13 - Math.min(5, this.value("bg", "Поколение")) : null;
     ctx.patent = {
       img: this.actor.img, name: st.name, concept: st.concept, sect: st.sect, sectSym: Codex.sectSymbol(st.sect),
@@ -324,7 +326,9 @@ export class ContextCreator {
             ? [{ ...row("trade", "", loc("VTM20.WraithCr.PsychePool"), loc("VTM20.Wraith.Spectre.Psyche"), this.psychePool), added: st.free.trade ?? 0, price: loc("VTM20.WraithCr.PsycheTradeHint") }]
             : [{ ...row("trade", "", loc("VTM20.WraithCr.ShadowPool"), loc("VTM20.Wraith.Shadow"), this.shadowPool), added: st.free.trade ?? 0, price: game.i18n.localize("VTM20.WraithCr.TradeHint") }])] : [])
       ];
-      return [...new Set(list.map(r => r.group))].map(g => ({ label: g, rows: list.filter(r => r.group === g) }));
+      // цена за точку у раздела — в заголовке, если она у всех строк одна и числом (в свободных пунктах; опыт растёт с уровнем)
+      return [...new Set(list.map(r => r.group))].map(g => { const rs = list.filter(r => r.group === g), pr = rs[0]?.price;
+        return { label: g, rows: rs, price: mode === "free" && typeof pr === "number" && rs.every(r => r.price === pr) ? pr : null }; });
     };
     if (key === "freebies" || key === "xp") ctx.canAddDisc = !!this.rules.disc && !this.isDemon && !this.isMage && !this.isChangeling && (this.clanDisciplines == null || this.type === "vampire");
     if (key === "freebies") {
@@ -411,7 +415,9 @@ export class ContextCreator {
         ctx.garouLine = [ctx.patent.clan, ctx.patent.sect].filter(Boolean).join(" · ");
       }
     }
-    ctx.footFree = rem.free; ctx.footXp = st.xpTotal ? rem.xp : null;
+    // подвал: остаток того, что распределяется на этом шаге (свободные пункты — там, где своих очков нет: концепция, черты, итог)
+    const here = ctx.patent.ledger.filter(x => x.current);
+    ctx.foot = here.length ? here : ctx.patent.ledger.filter(x => x.i === stepIdx("freebies"));
     return ctx;
   }
 }

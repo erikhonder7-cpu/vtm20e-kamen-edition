@@ -2,7 +2,7 @@
 // Числа и таблицы мастера создания: очки по типу персонажа, возрасты, секты, подсказки шагов — без логики.
 
 
-import { plainText } from "../../data/text.mjs";
+import { plainText, plainBody } from "../../data/text.mjs";
 /** Числа создания по типу персонажа. */
 export const RULES = {
   vampire: { attr: [7, 5, 3], abil: [13, 9, 5], disc: 3, bg: 5, virt: 7, free: 15,
@@ -101,6 +101,6 @@ export const EXTRA_DISC_MERIT = "Additional Discipline";
 /** Текст без тегов: теги — пробелом (абзацы не слипаются), перед знаком препинания пробел не нужен. */
 export const plain = plainText;
 /** Начало текста не длиннее n знаков, с многоточием. */
-export const preview = (html, n) => { const s = plain(html); return s.length > n ? s.slice(0, n).replace(/[\s.,;:—-]+$/, "") + "…" : s; };
+export const preview = (html, n) => { const s = plainBody(html); return s.length > n ? s.slice(0, n).replace(/[\s.,;:—-]+$/, "") + "…" : s; };
 /** Примесь: геттеры и методы класса-части — в прототип мастера (линейки лежат по своим файлам). */
 export const mix = (Target, Part) => { for (const [k, d] of Object.entries(Object.getOwnPropertyDescriptors(Part.prototype))) if (k !== "constructor") Object.defineProperty(Target.prototype, k, d); };

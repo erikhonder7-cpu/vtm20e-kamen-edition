@@ -42,7 +42,7 @@
     </div>
     <h4 class="r-cr-ledger-title"><span>{{localize "VTM20.Creator.Ledger"}}</span></h4>
     <ul class="r-cr-ledger">
-      {{#each patent.ledger}}<li class="is-{{state}}"><span>{{label}}</span><b>{{left}}</b><i style="--pct: {{pct}}%"></i></li>{{/each}}
+      {{#each patent.ledger}}<li class="is-{{state}}{{#if current}} is-current{{/if}}"{{#if (gte i 0)}} data-action="goto" data-i="{{i}}"{{/if}}><span>{{label}}</span><b>{{left}}</b><i style="--pct: {{pct}}%"></i></li>{{/each}}
     </ul>
   </aside>
 
@@ -1006,7 +1006,7 @@
     {{> crAddDisc}}
     <div class="r-cr-free">
       {{#each freeGroups}}
-      <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>
+      <div class="r-cr-free-group"><h3 class="r-h3">{{label}}{{#if price}} <small class="r-cr-price">{{localize "VTM20.Creator.PerDot" n=price}}</small>{{/if}}</h3>
         {{#each rows}}
         <div class="r-trait-main {{#if added}}has-add{{/if}}">
           <span class="r-trait-label">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
@@ -1030,7 +1030,7 @@
     {{> crAddDisc}}
     <div class="r-cr-free">
       {{#each xpGroups}}
-      <div class="r-cr-free-group"><h3 class="r-h3">{{label}}</h3>
+      <div class="r-cr-free-group"><h3 class="r-h3">{{label}}{{#if price}} <small class="r-cr-price">{{localize "VTM20.Creator.PerDot" n=price}}</small>{{/if}}</h3>
         {{#each rows}}
         <div class="r-trait-main {{#if added}}has-add is-xp{{/if}}">
           <span class="r-trait-label">{{label}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
@@ -1125,7 +1125,7 @@
 
   <footer class="r-cr-foot">
     {{#unless isFirst}}<a class="r-btn is-ghost" data-action="prev"><i class="fa-solid fa-arrow-left"></i> {{localize "VTM20.Creator.Prev"}}</a>{{/unless}}
-    <span class="r-cr-foot-info">{{localize "VTM20.Creator.Freebies"}}: <b>{{footFree}}</b>{{#if footXp includeZero=true}} · {{localize "VTM20.Sheet.Experience"}}: <b>{{footXp}}</b>{{/if}}</span>
+    <span class="r-cr-foot-info">{{#each foot}}{{#if @index}} · {{/if}}<span class="is-{{state}}">{{label}}: <b>{{left}}</b></span>{{/each}}</span>
     {{#if isLast}}<a class="r-btn is-primary" data-action="finish"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Creator.Finish"}}</a>
     {{else}}<a class="r-btn" data-action="next">{{localize "VTM20.Creator.Next"}} <i class="fa-solid fa-arrow-right"></i></a>{{/if}}
   </footer>

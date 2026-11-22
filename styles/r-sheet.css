@@ -1424,3 +1424,6 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 @container rsheet (max-width: 760px) {
   .vtm20 .r-gh { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* пустое описание предмета: подпись вместо пустой рамки */
+.vtm20 .r-empty-desc { margin: 0; font-style: italic; color: var(--r-muted); }

@@ -22,6 +22,8 @@ const TEMPLATES = { ritual: "ritual", power: "power", discipline: "discipline", 
 const RELIC_KINDS = ["enhanced", "enchanted", "demonic", "ancient", "unique"];
 
 export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
+  /** Заголовок окна — имя предмета: вид уже в строке над именем (как у листа персонажа). */
+  get title() { return this.item.name; }
   static DEFAULT_OPTIONS = {
     classes: ["vtm20", "r-sheet", "r-item"],
     // высота по содержимому: короткие предметы без пустого поля внизу; длинные упираются в max-height (r-sheet.css)
@@ -61,7 +63,10 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const discKey = s.key ?? s.discipline;
     Object.assign(ctx, {
       item, system: s, source: item._source.system, editable: this.isEditable,
-      type: item.type, typeLabel: loc(`TYPES.Item.${item.type}`), kicker: item.kicker,
+      // строка над именем — вид предмета; уровень, цена, урон и школа уже стоят плашками под шапкой.
+      // Сила пути, обряд падших, чудо, реликвия — без таких плашек, у них строка остаётся подробной
+      type: item.type, typeLabel: loc(`TYPES.Item.${item.type}`),
+      kicker: ["power", "thaumPath", "demonRitual", "wonder", "relic", "armor"].includes(item.type) ? item.kicker : loc(`TYPES.Item.${item.type}`),
       is: Object.fromEntries(["discipline", "thaumPath", "ritual", "power", "background", "merit", "flaw", "derangement", "weapon", "armor", "gear"].map(k => [k, item.type === k])),
       hasRoll: ["ritual", "power", "lorePower", "investment"].includes(item.type),
       tierLabel: item.type === "investment" ? loc(`VTM20.Library.InvTier.${s.tier}`) : "",
@@ -77,7 +82,8 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       ghost: s.ghost ? ghostOptions(item) : null,
       thaum: s.thaum ? thaumOptions(item) : null,
       // строка «Источник: …» в конце описания уже показана отдельно (book ниже) — в тексте её не повторять
-      descriptionHTML: await enrich(String(s.description ?? "").replace(/<p>\s*<em>\s*Источник:[^<]*<\/em>\s*<\/p>\s*$/, "")),
+      // строка «Источник: …» в начале или в конце описания — уже есть отдельной строкой под полями
+      descriptionHTML: await enrich(String(s.description ?? "").replace(/^\s*<p>\s*<em>\s*Источник:[^<]*<\/em>\s*<\/p>|<p>\s*<em>\s*Источник:[^<]*<\/em>\s*<\/p>\s*$/g, "")),
       disciplineName: discKey ? (discKey === "obtenebration" && item.type === "ritual" ? game.i18n.localize("VTM20.Sheet.AbyssMysticism") : Codex.disciplineLabel(discKey)) : "",
       roman: ROMAN[(s.level ?? s.value) - 1] ?? String(s.level ?? s.value ?? ""),
       // книга — из шапки описания справочника («… · Источник: V20 Rites of the Blood»), её в окне прячем

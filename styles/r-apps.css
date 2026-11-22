@@ -80,6 +80,14 @@
 .vtm20 .r-cr-ledger li.is-done i { background-image: linear-gradient(90deg, #4a453c, #6e685e); }
 .vtm20 .r-cr-ledger li.is-over b { color: var(--r-accent); }
 .vtm20 .r-cr-ledger li.is-over i { background-image: linear-gradient(90deg, #8c1c22, #c4474c); background-size: 100% 100%; }
+/* строка текущего шага — с меткой слева и светлее; по строке — переход к шагу, где тратятся эти очки */
+.vtm20 .r-cr-ledger li[data-action] { cursor: pointer; }
+.vtm20 .r-cr-ledger li[data-action]:hover span { color: var(--r-ink); }
+.vtm20 .r-cr-ledger li.is-current { margin-left: -10px; padding-left: 8px; border-left: 2px solid var(--r-accent); }
+.vtm20 .r-cr-ledger li.is-current span { color: var(--r-ink); }
+.vtm20 .r-cr-ledger li.is-current i { background-image: linear-gradient(90deg, #8c1c22, #d8cfbf); }
+.vtm20 .r-cr-foot-info .is-done b { color: var(--r-muted); }
+.vtm20 .r-cr-foot-info .is-over b { color: var(--r-accent); }
 
 /* Общие плоские карточки мастера */
 .vtm20 .r-cr-tile, .vtm20 .r-cr-sect, .vtm20 .r-cr-clan, .vtm20 .r-cr-bg, .vtm20 .r-cr-mf, .vtm20 .r-cr-disc, .vtm20 .r-cr-sum-item, .vtm20 .r-cr-clancard {
@@ -327,6 +335,10 @@
 .vtm20 .r-cr-sumrow.is-flaw b { color: var(--r-accent); }
 .vtm20 .r-cr-problems { padding: 8px 12px; border-left: 2px solid #b83a3f; background: rgba(140, 28, 34, .1); font-size: 13.5px; }
 .vtm20 .r-cr-problems ul { margin: 4px 0 0; padding-left: 18px; }
+/* что ещё не распределено — короткие строки в две колонки, а не столбик на пол-окна */
+.vtm20 .r-cr-problems ul { columns: 2 220px; column-gap: 24px; }
+.vtm20 .r-cr-problems li { break-inside: avoid; }
+.vtm20 .r-cr-price { margin-left: 6px; font-family: var(--r-body, inherit); font-size: 12px; font-style: italic; letter-spacing: 0; text-transform: none; color: var(--r-muted); }
 .vtm20 .r-cr-ok { padding: 8px 12px; border-left: 2px solid var(--r-ink-2); background: var(--r-s2); }
 
 @container rcreator (max-width: 1080px) {

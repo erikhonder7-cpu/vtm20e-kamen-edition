@@ -13,7 +13,7 @@
     {{#if book}}<p class="r-item-src">{{localize "VTM20.Item.source"}}: {{book}}</p>{{/if}}
     <h2 class="r-h2"><span>{{localize "VTM20.Item.description"}}</span></h2>
     <div class="r-editor r-item-text">
-      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+      <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{#if descriptionHTML}}{{{descriptionHTML}}}{{else}}<p class="r-empty-desc">{{localize "VTM20.Item.EmptyDesc"}}</p>{{/if}}</prose-mirror>
     </div>
 
     <details class="r-item-setup">

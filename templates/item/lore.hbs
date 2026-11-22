@@ -33,7 +33,7 @@
     <details class="r-item-setup is-text" {{#unless powers.length}}open{{/unless}}>
       <summary><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Item.description"}}</summary>
       <div class="r-editor r-item-text">
-        <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{{descriptionHTML}}}</prose-mirror>
+        <prose-mirror name="system.description" value="{{system.description}}" toggled {{#unless editable}}disabled{{/unless}}>{{#if descriptionHTML}}{{{descriptionHTML}}}{{else}}<p class="r-empty-desc">{{localize "VTM20.Item.EmptyDesc"}}</p>{{/if}}</prose-mirror>
       </div>
     </details>
 
