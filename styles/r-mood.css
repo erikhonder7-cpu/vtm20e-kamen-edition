@@ -1,0 +1,54 @@
+/* ── Состояние персонажа на листе и в худе (module/ui/mood.mjs) ─────────
+   data-r-hunger: low | empty — голод (крови меньше 7 − Самоконтроль; пусто);
+   data-r-wound: wounded | mauled | crippled | incap — от «серьёзно ранен» до «при смерти»;
+   data-r-fury: frenzy | rotschreck — ярость, Красный Ужас.
+   Графика сообщает состояние: сухие пустые капли, кровь по краям, пульс ярости. Без анимации при «меньше движения». */
+:root {
+  --r-seep: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cfilter id='f' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='20' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='.8'/%3E%3C/filter%3E%3Cfilter id='s'%3E%3CfeGaussianBlur stdDeviation='9'/%3E%3C/filter%3E%3C/defs%3E%3Cpath fill='%235a070d' fill-opacity='.55' filter='url(%23s)' fill-rule='evenodd' d='M-20-20H420V620H-20Z M26 26V574H374V26Z'/%3E%3Cg filter='url(%23f)' fill='%237e0c14'%3E%3Cpath fill-rule='evenodd' d='M-20-20H420V620H-20Z M9 9V591H391V9Z'/%3E%3Crect x='246' y='-10' width='5' height='40' rx='2.5'/%3E%3Crect x='318' y='-10' width='7' height='62' rx='3.5'/%3E%3Crect x='362' y='-10' width='4' height='26' rx='2'/%3E%3Crect x='-10' y='330' width='22' height='4' rx='2'/%3E%3Crect x='384' y='430' width='26' height='4' rx='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* голод: пустые капли сохнут — бурый рваный контур */
+:is(.vtm20.r-actor, #r-hud)[data-r-hunger] .r-drop:not(.is-filled) svg { stroke: #6b4426; stroke-dasharray: 3 1.6; }
+#r-hud[data-r-hunger] .dr path[stroke^="rgba"] { stroke: #6b4426; stroke-dasharray: 3 1.6; }
+.application.vtm20.r-actor[data-r-hunger] .window-content { box-shadow: inset 0 0 46px rgba(130, 16, 26, .32); }
+.application.vtm20.r-actor[data-r-hunger="empty"] .window-content { animation: r-hunger 3.2s ease-in-out infinite; }
+.application.vtm20.r-actor[data-r-hunger] .r-assignat-num b { color: #e26a6f; }
+#r-hud[data-r-hunger="empty"] .rh-crest { animation: r-hunger-hud 3.2s ease-in-out infinite; }
+@keyframes r-hunger { 0%, 100% { box-shadow: inset 0 0 46px rgba(130, 16, 26, .35); } 50% { box-shadow: inset 0 0 70px rgba(160, 20, 30, .6); } }
+@keyframes r-hunger-hud { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 10px rgba(160, 20, 30, .55)); } }
+
+/* раны: кровь проступает по краям листа, гуще с каждым уровнем */
+.application.vtm20.r-actor[data-r-wound]::after { content: ""; position: absolute; inset: 0; z-index: 30; pointer-events: none;
+  background: var(--r-seep) center / 100% 100% no-repeat; opacity: var(--r-seep-a, .3); transition: opacity .4s; }
+.application.vtm20.r-actor[data-r-wound="wounded"] { --r-seep-a: .35; }
+.application.vtm20.r-actor[data-r-wound="mauled"] { --r-seep-a: .55; }
+.application.vtm20.r-actor[data-r-wound="crippled"] { --r-seep-a: .75; }
+.application.vtm20.r-actor[data-r-wound="incap"] { --r-seep-a: .92; }
+.application.vtm20.r-actor[data-r-wound="incap"] .window-content { filter: saturate(.55) brightness(.9); }
+/* в худе — по рамке портрета */
+#r-hud[data-r-wound] .rh-frame::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit;
+  background: var(--r-seep) center / 100% 100% no-repeat; opacity: var(--r-seep-a, .3); }
+#r-hud[data-r-wound="wounded"] { --r-seep-a: .3; }
+#r-hud[data-r-wound="mauled"] { --r-seep-a: .5; }
+#r-hud[data-r-wound="crippled"] { --r-seep-a: .7; }
+#r-hud[data-r-wound="incap"] { --r-seep-a: .85; }
+#r-hud[data-r-wound="incap"] .rh-frame img { filter: grayscale(.6) brightness(.75); }
+
+/* торпор: лист блёкнет и холодеет */
+.application.vtm20.r-actor.is-torpor .window-content { filter: grayscale(.6) brightness(.88) sepia(.12) hue-rotate(180deg); }
+
+/* ярость — красный пульс по краю, Ротшрек — неровное огненное мерцание */
+.application.vtm20.r-actor[data-r-fury]::before { content: ""; position: absolute; inset: 0; z-index: 31; pointer-events: none;
+  box-shadow: inset 0 0 0 2px rgba(196, 40, 48, .55), inset 0 0 60px rgba(196, 30, 40, .45); animation: r-frenzy 1.1s ease-in-out infinite; }
+.application.vtm20.r-actor[data-r-fury="rotschreck"]::before { box-shadow: inset 0 0 0 2px rgba(224, 120, 40, .6), inset 0 0 60px rgba(224, 110, 30, .45); animation: r-fear .9s steps(1) infinite; }
+#r-hud[data-r-fury="frenzy"] .rh-crest { animation: r-frenzy-hud 1.1s ease-in-out infinite; }
+#r-hud[data-r-fury="rotschreck"] .rh-crest { animation: r-fear-hud .9s steps(1) infinite; }
+@keyframes r-frenzy { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes r-fear { 0% { opacity: .6; } 20% { opacity: 1; } 35% { opacity: .7; } 55% { opacity: .95; } 70% { opacity: .5; } 85% { opacity: .9; } }
+@keyframes r-frenzy-hud { 0%, 100% { filter: drop-shadow(0 0 4px rgba(196, 30, 40, .5)); } 50% { filter: drop-shadow(0 0 16px rgba(220, 30, 40, .9)); } }
+@keyframes r-fear-hud { 0% { filter: drop-shadow(0 0 6px rgba(224, 110, 30, .6)); } 30% { filter: drop-shadow(0 0 14px rgba(240, 130, 40, .9)); } 60% { filter: drop-shadow(0 0 4px rgba(224, 110, 30, .5)); } 80% { filter: drop-shadow(0 0 12px rgba(240, 140, 40, .85)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .application.vtm20.r-actor[data-r-hunger="empty"] .window-content, #r-hud[data-r-hunger="empty"] .rh-crest,
+  .application.vtm20.r-actor[data-r-fury]::before, #r-hud[data-r-fury] .rh-crest { animation: none; }
+}

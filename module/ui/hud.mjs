@@ -6,6 +6,7 @@
 // с листа, облик падшего, второе зрение), прочее. В бою — монеты брони и инициативы. Цвет — по виду (rh-t-*).
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { applyMood } from "./mood.mjs";
 import { Codex } from "../data/codex.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { openAttack, openDefense, weaponsOf, pendingAttacks, defendFromHud, grapplesOf, breakGrapple } from "../combat/combat.mjs";
@@ -464,6 +465,7 @@ export function renderHud() {
   document.body.classList.add("r-hud-on");
   const a = hudActor();
   el.className = "vtm20 r-hud";
+  applyMood(el, null);
   if (hidden()) {
     el.classList.add("is-hidden");
     el.innerHTML = `<a class="rh-show" data-act="show" data-tooltip="${esc(t("Hud.Show"))}"><i class="fa-solid fa-eye"></i><span>${esc(a?.name ?? t("Hud.ShowShort"))}</span></a>`;
@@ -475,6 +477,7 @@ export function renderHud() {
   }
   const s = a.system, kind = kindOf(a);
   el.classList.add(`rh-t-${kind}`);
+  applyMood(el, a);   // голод, раны, ярость — styles/r-mood.css
   if (kind === "mage") { const g = factionOf(a)?.group; if (g === "technocracy") el.classList.add("is-tech"); else if (g === "nephandi") el.classList.add("is-fallen"); }
   const tabs = tabsOf(a, kind), cur = tabs.find(x => x.key === tabOf.get(a.id)) ?? tabs[0];
   const group = cur.key === "powers" && pop ? powerGroups(a, kind).find(g => g.id === pop) : null;

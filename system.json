@@ -81,6 +81,9 @@
     },
     {
       "src": "styles/r-icons.css"
+    },
+    {
+      "src": "styles/r-mood.css"
     }
   ],
   "languages": [

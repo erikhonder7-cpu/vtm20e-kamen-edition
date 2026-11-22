@@ -516,3 +516,16 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 #r-hud .rh-tb.is-warn { border-style: dashed; border-color: rgba(var(--h-acc-rgb), .7); }
 #r-hud .rh-tb.is-warn b { color: #e7a1a1; font-family: var(--h-caps); font-size: 11px; }
 #r-hud .rh-tb.is-full b, #r-hud .rh-tb.is-moved small { color: #e7a1a1; }
+
+/* Глубина: пустые точки и клетки выдавлены, полные — с бликом, капли объёмные (#r-gloss-blood), тень под портретом */
+#r-hud .d:not(.on), #r-hud .b:not(.on), #r-hud .hb:not(.is-bashing, .is-lethal, .is-aggravated) {
+  background: radial-gradient(circle at 50% 65%, rgba(0, 0, 0, .6), rgba(0, 0, 0, .25) 70%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .85), 0 1px 0 rgba(255, 255, 255, .06);
+}
+#r-hud .hb.is-current:not(.is-bashing, .is-lethal, .is-aggravated) { box-shadow: inset 0 1px 2px rgba(0, 0, 0, .85), 0 0 0 1px #0a0a0c, 0 0 0 2px rgba(232, 163, 165, .65); }
+#r-hud .d.on { box-shadow: inset 0 -1px 2px rgba(0, 0, 0, .55), 0 1px 2px rgba(0, 0, 0, .8); }
+#r-hud .b.on { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 1px 2px rgba(0, 0, 0, .8); }
+#r-hud .dr { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8)) drop-shadow(0 0 3px rgba(196, 50, 58, .35)); }
+#r-hud .dr path:not([stroke^="rgba"]) { fill: url(#r-gloss-blood); }
+#r-hud .rh-frame { filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .9)); }
+#r-hud .rh-frame::before { content: ""; position: absolute; inset: 4px; z-index: 1; pointer-events: none; box-shadow: inset 0 0 22px 4px rgba(0, 0, 0, .65); }

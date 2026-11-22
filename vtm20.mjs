@@ -261,6 +261,11 @@ Hooks.on("renderPlayers", (app, html) => {
 });
 
 Hooks.once("ready", async () => {
+  // объём капель крови на листе и в худе: общий градиент, на него ссылается CSS (fill: url(#r-gloss-blood))
+  if (!document.getElementById("r-gloss-blood")) document.body.insertAdjacentHTML("beforeend",
+    `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="r-gloss-blood" x1=".15" y1="0" x2=".85" y2="1">`
+    + `<stop offset="0" stop-color="#ee7a80"/><stop offset=".3" stop-color="#b8262d"/><stop offset=".72" stop-color="#7a1016"/><stop offset="1" stop-color="#36070a"/>`
+    + `</linearGradient></defs></svg>`);
   // кнопки системы с клавиатуры и для дикторов (module/ui/a11y.mjs) — после загрузки перевода
   registerA11y();
   // маркер хода системы — по умолчанию один раз (рассказчик может сменить в настройках трекера боя)

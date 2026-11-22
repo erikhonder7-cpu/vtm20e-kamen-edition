@@ -6,6 +6,7 @@
 // (правая колонка: мораль, воля, кровь, здоровье, быстрые действия).
 
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
+import { applyMood } from "../ui/mood.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
 import { CHANGELING_ACTIONS } from "./actor/changeling.mjs";
 import { THAUM_ACTIONS } from "./actor/thaum.mjs";
@@ -461,6 +462,7 @@ openStrategy: () => openStrategy(),
     this.element.classList.toggle("is-dhampir", !!this.actor.isDhampir);     // styles/types/dhampir.css
     this.element.classList.toggle("is-torpor", !!context.torporState);
     this.element.classList.toggle("is-dead", !!context.death);
+    applyMood(this.element, this.actor);   // голод, раны, ярость — styles/r-mood.css
     // AppV2 заменяет только перерисованные части: убираем ворота после создания и лист — до него
     const gated = this.needsCreation;
     const stale = gated ? Object.keys(this.constructor.PARTS).filter(p => !["header", "gate"].includes(p)) : ["gate"];
