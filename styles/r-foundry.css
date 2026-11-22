@@ -363,12 +363,102 @@ body.r-skin .prosemirror menu button, body.r-skin prose-mirror menu button { bac
 body.r-skin .prosemirror menu button:hover, body.r-skin prose-mirror menu button:hover { color: var(--rk-bone-b); border-color: var(--rk-blood-l); }
 body.r-skin prose-mirror .editor-menu .pm-dropdown ul { background: var(--rk-coal-3); border: 1px solid var(--rk-line); }
 
-/* Журналы: текст как печатный лист */
-body.r-skin .journal-entry-page h1, body.r-skin .journal-entry-page h2, body.r-skin .journal-entry-page h3 { font-family: var(--rk-display); font-weight: 400; color: var(--rk-bone-b); border-bottom-color: var(--rk-line-2); }
-body.r-skin .journal-entry-page { font-family: var(--rk-body); color: var(--rk-bone); }
-/* таблицы справочников: поля ячеек уже, а широкая таблица (7–8 колонок) прокручивается внутри страницы, а не уходит за край окна */
-body.r-skin .journal-entry-page table { display: block; max-width: 100%; width: max-content; overflow-x: auto; }
-body.r-skin .journal-entry-page :is(th, td) { padding: .35em .6em; }
+/* ── Журналы: страница книги правил ────────────────────────────────────
+   Как разворот справочника White Wolf: страница — светлая потёртая бумага с тёмным текстом, оглавление — тёмный
+   переплёт. Таблицы с чёрной шапкой, примеры — врезкой, заголовки разделов — цветом линейки
+   (module/ui/journal-skin.mjs ставит data-r-line; журналы мира — цвет крови). Бумага — процедурное зерно и потёртые края. */
+body.r-skin .journal-entry {
+  --rj-paper: #d6cfc2; --rj-paper-2: #c8c0b1; --rj-ink: #1e1b19; --rj-ink-2: #4a433d; --rj-rule: rgba(30, 27, 25, .28); --rj-accent: #7a151b;
+  --rj-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .1 0 0 0 0 .08 0 0 0 -.9 .62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --rj-blots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .24 0 0 0 0 .16 0 0 -1.7 0 .62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E");
+}
+body.r-skin .journal-entry[data-r-line="werewolf"] { --rj-accent: #24543d; }
+body.r-skin .journal-entry[data-r-line="mage"] { --rj-accent: #43307f; }
+body.r-skin .journal-entry[data-r-line="wraith"] { --rj-accent: #34404c; }
+body.r-skin .journal-entry[data-r-line="changeling"] { --rj-accent: #742a66; }
+body.r-skin .journal-entry[data-r-line="demon"] { --rj-accent: #874a0f; }
+body.r-skin .journal-entry[data-r-line="hunter"] { --rj-accent: #6e3f18; }
+body.r-skin .journal-entry .window-content { background: #0d0c0e; }
+/* лист: бумага, пятна, края потемнее */
+body.r-skin .journal-entry .journal-entry-content { color: var(--rj-ink);
+  background: var(--rj-grain), var(--rj-blots) 0 0 / 700px 700px, var(--rj-paper);
+  box-shadow: inset 0 0 60px rgba(60, 45, 30, .35), inset 0 0 8px rgba(40, 30, 20, .4); }
+/* оглавление — тёмный переплёт; текущая страница — закладка цвета бумаги, которая выходит на лист;
+   номер главы — квадратная вырубка, как на обрезе справочника */
+body.r-skin .journal-entry .journal-sidebar { padding: 0; border-right: 0; background: linear-gradient(90deg, #0e0d10, #16141a 92%, #0b0a0c); box-shadow: inset -6px 0 10px -6px #000; }
+body.r-skin .journal-entry .journal-sidebar search { padding: 10px 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+body.r-skin .journal-entry .journal-sidebar search input { border: 0; border-bottom: 1px solid var(--rk-line-2); border-radius: 0; background: transparent; font-family: var(--rk-body); font-style: italic; }
+body.r-skin .journal-entry .toc { padding: 8px 0 8px 10px; }
+body.r-skin .journal-entry .toc > ol { counter-reset: r-pg; margin: 0; padding: 0; }
+body.r-skin .journal-entry .toc li.page { counter-increment: r-pg; margin: 0 0 2px; border: 0; border-radius: 0; }
+body.r-skin .journal-entry .toc li.page .page-heading { align-items: center; gap: 10px; min-height: 34px; padding: 4px 12px 4px 8px; }
+body.r-skin .journal-entry .toc .page-index { position: relative; flex: 0 0 22px; height: 22px; font-size: 0; border: 1px solid rgba(216, 207, 191, .18); }
+body.r-skin .journal-entry .toc .page-index::before { content: counter(r-pg); position: absolute; inset: 0; display: grid; place-items: center; padding-top: 1px; font-family: var(--rk-body); font-size: 12px; line-height: 1; font-variant-numeric: lining-nums; color: var(--rk-muted); }
+/* длинное название переносится по словам, а не посреди слова */
+body.r-skin .journal-entry .toc .page-title { font-family: var(--rk-display); font-size: 14px; line-height: 1.25; white-space: normal; word-break: normal; overflow-wrap: normal; hyphens: manual; text-overflow: clip; overflow: visible; color: var(--rk-bone-2); }
+body.r-skin .journal-entry .toc li.page:not(.active):hover { background: rgba(255, 255, 255, .04); }
+body.r-skin .journal-entry .toc li.page:not(.active):hover .page-title { color: var(--rk-bone-b); }
+body.r-skin .journal-entry .toc li.page:not(.active):hover .page-index { border-color: rgba(216, 207, 191, .4); }
+/* закладка: бумага, тёмный текст, без шва с листом справа */
+body.r-skin .journal-entry .toc li.page.active { position: relative; background: var(--rj-grain), var(--rj-paper); box-shadow: -3px 0 0 var(--rj-accent), 0 2px 6px rgba(0, 0, 0, .45); }
+body.r-skin .journal-entry .toc li.page.active .page-title { color: var(--rj-ink); }
+body.r-skin .journal-entry .toc li.page.active .page-index { background: var(--rj-accent); border-color: var(--rj-accent); }
+body.r-skin .journal-entry .toc li.page.active .page-index::before { color: var(--rj-paper); }
+/* разделы текущей страницы — на той же закладке */
+body.r-skin .journal-entry .toc ol.headings { margin: 0 12px 0 19px; padding: 0 0 6px 12px; border-left: 1px solid var(--rj-rule); }
+body.r-skin .journal-entry .toc ol.headings li { margin: 0; padding: 3px 4px; white-space: normal; word-break: normal; overflow-wrap: normal; hyphens: manual; border: 0; font-family: var(--rk-body); font-size: 13px; line-height: 1.3; color: var(--rj-ink-2); cursor: pointer; }
+body.r-skin .journal-entry .toc ol.headings li:hover { color: var(--rj-accent); }
+body.r-skin .journal-entry .journal-sidebar .action-buttons { padding: 8px 10px; border-top: 1px solid rgba(255, 255, 255, .06); }
+/* колонтитул: название книги слева, двойная линейка — верх печатной полосы */
+body.r-skin .journal-entry .journal-header { max-width: 780px; width: 100%; margin: 0 auto; padding: 16px 34px 0; }
+body.r-skin .journal-entry .journal-header input.title { height: auto; padding: 0 0 5px; border: 0; border-bottom: 3px double var(--rj-rule); border-radius: 0; background: none; box-shadow: none;
+  font-family: var(--rk-caps); font-size: 12.5px; letter-spacing: 1px; text-transform: uppercase; text-align: left; color: var(--rj-ink-2); text-overflow: ellipsis; }
+/* страница */
+body.r-skin .journal-entry .journal-entry-page { font-family: var(--rk-body); color: var(--rj-ink); }
+body.r-skin .journal-entry .journal-entry-page.text { max-width: 780px; margin: 0 auto; padding: 4px 34px 56px; }
+body.r-skin .journal-entry .journal-page-header h1 { margin: 18px 0 14px; padding: 0 0 8px; border: 0; border-bottom: 2px solid var(--rj-ink);
+  font-family: var(--rk-display); font-weight: 400; font-size: 32px; line-height: 1.1; color: var(--rj-ink); text-wrap: balance; }
+body.r-skin .journal-entry .journal-page-content { font-size: 15.5px; line-height: 1.55; color: var(--rj-ink); hyphens: auto; text-shadow: none; }
+body.r-skin .journal-entry .journal-page-content p { margin: 0 0 .65em; }
+body.r-skin .journal-entry .journal-page-content :is(h1, h2) { margin: 1.5em 0 .5em; padding: 0 0 4px; border: 0; border-bottom: 1px solid var(--rj-rule);
+  font-family: var(--rk-display); font-weight: 400; font-size: 23px; line-height: 1.2; color: var(--rj-ink); }
+body.r-skin .journal-entry .journal-page-content h3 { margin: 1.35em 0 .35em; border: 0;
+  font-family: var(--rk-caps); font-weight: 400; font-size: 17px; letter-spacing: .6px; color: var(--rj-accent); }
+body.r-skin .journal-entry .journal-page-content h3 small { font-family: var(--rk-body); font-style: italic; font-size: 14px; letter-spacing: 0; color: var(--rj-ink-2); }
+body.r-skin .journal-entry .journal-page-content :is(h4, h5, h6) { margin: 1.1em 0 .3em; border: 0; font-family: var(--rk-body); font-weight: 700; font-size: 15.5px; color: var(--rj-ink); }
+body.r-skin .journal-entry .journal-page-content > :is(h1, h2, h3, h4):first-child { margin-top: .2em; }
+body.r-skin .journal-entry .journal-page-content :is(strong, b) { font-weight: 700; color: var(--rj-ink); }
+body.r-skin .journal-entry .journal-page-content ul { margin: .3em 0 .8em; padding-left: 1.3em; list-style: none; }
+body.r-skin .journal-entry .journal-page-content ul > li { position: relative; margin: .25em 0; }
+body.r-skin .journal-entry .journal-page-content ul > li::before { content: ""; position: absolute; left: -1em; top: .62em; width: 6px; height: 6px; background: var(--rj-accent); }
+body.r-skin .journal-entry .journal-page-content ol { margin: .3em 0 .8em; padding-left: 1.6em; }
+body.r-skin .journal-entry .journal-page-content ol > li { margin: .3em 0; padding-left: .2em; }
+body.r-skin .journal-entry .journal-page-content ol > li::marker { font-family: var(--rk-display); color: var(--rj-accent); }
+body.r-skin .journal-entry .journal-page-content hr { margin: 1.4em 0; border: 0; border-top: 1px solid var(--rj-rule); }
+/* врезка с примером — как серая плашка в книге */
+body.r-skin .journal-entry .journal-page-content blockquote { margin: 1em 0; padding: 10px 14px; border: 0; border-top: 3px solid var(--rj-ink); background: rgba(40, 30, 20, .1);
+  font-style: normal; font-size: 14.5px; color: var(--rj-ink); }
+body.r-skin .journal-entry .journal-page-content blockquote p:last-child { margin-bottom: 0; }
+body.r-skin .journal-entry .journal-page-content blockquote b:first-child { font-family: var(--rk-caps); font-weight: 400; letter-spacing: .6px; color: var(--rj-accent); }
+/* таблицы: чёрная шапка, тонкие линейки, строки через одну */
+/* таблица ужимается под ширину листа и переносит текст в ячейках, а не уходит за край */
+body.r-skin .journal-entry .journal-entry-page table { display: table; width: auto; max-width: 100%; overflow: visible; margin: .6em 0 1.1em; border: 0; border-collapse: collapse; background: none; font-size: 14.5px; line-height: 1.4; color: var(--rj-ink); }
+body.r-skin .journal-entry .journal-entry-page :is(th, td) { padding: .4em .8em; border: 0; text-align: left; vertical-align: top; background: none; }
+body.r-skin .journal-entry .journal-entry-page thead th { background: var(--rj-ink); color: var(--rj-paper); font-family: var(--rk-caps); font-weight: 400; font-size: 13px; letter-spacing: .6px; }
+body.r-skin .journal-entry .journal-entry-page tbody tr { border-bottom: 1px solid var(--rj-rule); }
+body.r-skin .journal-entry .journal-entry-page tbody tr:nth-child(even) { background: rgba(40, 30, 20, .07); }
+/* широкие таблицы (6 колонок и больше) — плотнее, чтобы ячейки не ломались в столбик */
+body.r-skin .journal-entry .journal-entry-page table:has(th:nth-child(6)) { font-size: 13.5px; }
+body.r-skin .journal-entry .journal-entry-page table:has(th:nth-child(6)) :is(th, td) { padding: .35em .5em; }
+body.r-skin .journal-entry .journal-entry-page :is(th, td) { overflow-wrap: break-word; hyphens: auto; }
+/* сноска источника и словарик терминов */
+body.r-skin .journal-entry .journal-page-content p.r-src { margin: 0 0 1.1em; font-size: 12.5px; line-height: 1.45; font-style: italic; color: var(--rj-ink-2); }
+body.r-skin .journal-entry .journal-page-content p.r-src b { font-weight: 400; color: var(--rj-ink-2); }
+body.r-skin .journal-entry .journal-page-content p.r-terms { margin: 0 0 1em; font-size: 13.5px; line-height: 1.5; color: var(--rj-ink-2); }
+body.r-skin .journal-entry .journal-page-content p.r-terms b { color: var(--rj-ink-2); }
+body.r-skin .journal-entry .journal-page-content a.content-link { border: 0; border-bottom: 1px solid var(--rj-accent); background: none; padding: 0; color: var(--rj-accent); }
+body.r-skin .journal-entry .journal-page-content a.content-link i { color: inherit; }
+body.r-skin .journal-entry .journal-page-content ::selection { background: rgba(122, 21, 27, .25); }
 
 /* ── Трекер боя (module/ui/combat-tracker.mjs) ─────────────────────────── */
 body.r-skin #combat .combatant.r-ct { position: relative; border-left: 3px solid transparent; transition: background .15s; }
