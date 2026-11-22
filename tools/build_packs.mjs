@@ -702,16 +702,15 @@ BUILDERS["dhampir-rules"] = function () {
   const roll = r => !r ? "" : `<p><em>${[attr(r.trait1), attr(r.trait2)].filter(Boolean).join(" + ")}, ${r.difficulty ? `сл. ${r.difficulty}` : "сложность по цели"}</em></p>`;
   p.addBook({ name: d.rules.name, pages: d.rules.pages, key: `dhampir-rules:${d.rules.key}` });
   const pages = d.bloodrights.map(r => ({ name: `${r.name}${r.rare ? " (редкое)" : ""}`,
-    html: `<p><strong>${r.en}</strong>${r.req ? ` · требует: ${r.key === "dririmancy" ? "магия крови" : disc[r.req] ?? r.req} I` : ""}</p><p>${r.text}</p>`
-      + r.levels.map(l => `<h3>${r.scaling ? "I–III" : roman[l.level - 1]}. ${l.name} <small>(${l.en})</small></h3>${roll(l.roll)}${l.cost ? `<p><em>Цена: ${l.cost}</em></p>` : ""}<p>${l.text}</p>`).join("") }));
-  pages.push({ name: "Ритуалы Дриримантии", html: "<p>Смекалка + Оккультизм, сложность 5 + уровень; почти всегда — уровень летального урона себе.</p>"
-    + d.rituals.map(r => `<h3>${roman[r.level - 1]}. ${r.name} <small>(${r.en})</small></h3><p>${r.text}</p>`).join("") });
+    html: `${r.req ? `<p><em>Требует: ${r.key === "dririmancy" ? "магия крови" : disc[r.req] ?? r.req}, первый уровень.</em></p>` : ""}<p>${r.text}</p>`
+      + r.levels.map(l => `<h3>${r.scaling ? "I–III" : roman[l.level - 1]}. ${l.name}</h3>${roll(l.roll)}${l.cost ? `<p><em>Цена: ${l.cost}</em></p>` : ""}<p>${l.text}</p>`).join("") }));
+  pages.push({ name: "Ритуалы Дриримантии", html: "<p>Ритуалы Дриримантии — магия крови самого дампира. Бросок — Смекалка + Оккультизм со сложностью 5 + уровень ритуала, и почти каждый стоит тяжёлого повреждения себе.</p>"
+    + d.rituals.map(r => `<h3>${roman[r.level - 1]}. ${r.name}</h3><p>${r.text}</p>`).join("") });
   p.addBook({ name: "Кровные права", pages, key: "dhampir-rules:bloodrights" });
   const clans = Object.fromEntries(data("clans").map(c => [c.key, c.name]));
   p.addBook({ name: "Концепции и кланы дампиров", key: "dhampir-rules:concepts", pages: [
-    { name: "Концепции", html: d.concepts.map(c => `<h3>${c.name} <small>(${c.en}; ${c.nick})</small></h3><p>${c.text}</p><p><em>${c.tips}</em></p>`).join("") },
-    { name: "Дампиры кланов", html: "<p>Дампир клана страдает ослабленной слабостью клана Предка; Дисциплины этого клана растут за текущее × 15 опыта, "
-      + "на создании точку Мощи можно заменить Дисциплиной клана.</p>" + Object.entries(d.clans).map(([k, c]) =>
+    { name: "Концепции", html: d.concepts.map(c => `<h3>${c.name} <small>· ${c.nick.replace(/s*([^)]*)/, "")}</small></h3><p>${c.text}</p><p><em>${c.tips}</em></p>`).join("") },
+    { name: "Дампиры кланов", html: "<p>Кровь Предка оставляет след: дампир несёт ослабленное проклятие его клана, Дисциплины клана растут у него за текущее × 15 опыта, а при создании точку Мощи можно заменить Дисциплиной клана. Ниже — прозвища дампиров каждого клана, Кровные права, которые им даются легче, и их изъяны.</p>" + Object.entries(d.clans).map(([k, c]) =>
         `<h3>${clans[k] ?? k}${c.nick !== "—" ? ` <small>(${c.nick})</small>` : ""}</h3>${c.rights.length ? `<p><em>Кровные права: ${c.rights.map(x => d.bloodrights.find(r => r.key === x)?.name ?? x).join(", ")}</em></p>` : ""}<p>${c.weakness}</p>`).join("") }
   ] });
   return p;
