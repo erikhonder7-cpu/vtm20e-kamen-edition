@@ -5,21 +5,14 @@
    остаются за линейками, отсюда — только объём. Цвет свечения — акцент листа (--r-accent). Файл грузится последним. */
 
 :where(body:not(.r-theme-light)) .vtm20 {
-  --r-depth:
-    inset 0 1px 0 rgba(255, 255, 255, .06),
-    inset 0 26px 30px -24px rgba(255, 240, 225, .05),
-    inset 0 -30px 34px -28px rgba(0, 0, 0, .85),
-    0 14px 22px -12px rgba(0, 0, 0, .95);
-  --r-depth-sm:
-    inset 0 1px 0 rgba(255, 255, 255, .05),
-    inset 0 -16px 20px -16px rgba(0, 0, 0, .75),
-    0 8px 14px -9px rgba(0, 0, 0, .9);
+  /* тени без размытых внутренних слоёв: их рисовать дорого на каждой перерисовке; свет и тень внутри — градиентом фона */
+  --r-depth: inset 0 1px 0 rgba(255, 255, 255, .06), 0 9px 12px -9px rgba(0, 0, 0, .95);
+  --r-depth-sm: inset 0 1px 0 rgba(255, 255, 255, .05), 0 5px 8px -6px rgba(0, 0, 0, .9);
   --r-well: inset 0 2px 6px rgba(0, 0, 0, .7), 0 1px 0 rgba(255, 255, 255, .04);
   --r-glow: color-mix(in srgb, var(--r-accent) 40%, transparent);
 }
 
 /* ── Окно ── */
-:where(body:not(.r-theme-light)) .application.vtm20:not([data-r-hunger]) .window-content { box-shadow: inset 0 0 80px rgba(0, 0, 0, .5); }
 :where(body:not(.r-theme-light)) .application.vtm20 .window-header { background: linear-gradient(180deg, #17161a, #0a0a0c); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05); }
 :where(body:not(.r-theme-light)) .application.vtm20 .window-header .window-title { text-shadow: 0 1px 0 #000, 0 0 14px var(--r-glow); }
 
@@ -27,7 +20,7 @@
 :where(body:not(.r-theme-light)) .vtm20 :is(.r-vcard, .r-tcol, .r-disc, .r-gate-card, .r-card-sec, .r-gs-card, .r-cr-panel, .r-lib-card, .r-fx-card) {
   background:
     radial-gradient(120% 90% at 30% 0%, rgba(255, 240, 225, .05), transparent 60%),
-    linear-gradient(180deg, rgba(255, 255, 255, .015), rgba(0, 0, 0, .28)),
+    linear-gradient(180deg, rgba(255, 255, 255, .02), transparent 30%, rgba(0, 0, 0, .36)),
     linear-gradient(var(--r-card-bg), var(--r-card-bg)),
     rgba(0, 0, 0, .32);
 }
@@ -67,9 +60,8 @@
 }
 :where(body:not(.r-theme-light)) .vtm20 .r-dot.is-filled {
   background: radial-gradient(circle at 34% 26%, rgba(255, 255, 255, .55) 0, rgba(255, 255, 255, 0) 28%), var(--r-dot-fill);
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .75));
 }
-:where(body:not(.r-theme-light)) .vtm20 .r-dot.is-filled { box-shadow: inset 0 -1px 2px rgba(30, 0, 0, .6), 0 0 6px var(--r-glow); }
+:where(body:not(.r-theme-light)) .vtm20 .r-dot.is-filled { box-shadow: inset 0 -1px 2px rgba(30, 0, 0, .6), 0 1px 1px rgba(0, 0, 0, .7), 0 0 5px var(--r-glow); }
 :where(body:not(.r-theme-light)) .vtm20 .r-vc-will .r-box.is-filled {
   background: linear-gradient(180deg, #f3ebda, #c9c0ad 45%, #8a8273); border-color: #5d574d;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -2px 2px rgba(0, 0, 0, .25), 0 1px 2px rgba(0, 0, 0, .8);
@@ -82,7 +74,7 @@
 :where(body:not(.r-theme-light)) .vtm20 .r-hbox.is-aggravated .r-hbox-mark { box-shadow: inset 0 1px 0 rgba(255, 180, 180, .3), 0 1px 2px rgba(0, 0, 0, .8), 0 0 8px rgba(196, 71, 76, .5); }
 :where(body:not(.r-theme-light)) .vtm20 .r-hbox.is-current .r-hbox-mark { box-shadow: inset 0 2px 4px rgba(0, 0, 0, .8), 0 0 0 1px #0a0a0c, 0 0 0 2px rgba(232, 163, 165, .65); }
 /* капли крови: объём — общий градиент #r-gloss-blood (vtm20.mjs); пустые — тёмная выемка */
-:where(body:not(.r-theme-light)) .vtm20 .r-drop.is-filled svg { fill: url(#r-gloss-blood); stroke: #e06a70; stroke-width: .8; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8)) drop-shadow(0 0 3px rgba(196, 50, 58, .35)); }
+:where(body:not(.r-theme-light)) .vtm20 .r-drop.is-filled svg { fill: url(#r-gloss-blood); stroke: #e06a70; stroke-width: .8; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8)); }
 :where(body:not(.r-theme-light)) .vtm20 .r-drop:not(.is-filled) svg { fill: rgba(0, 0, 0, .45); stroke: #6a2025; }
 
 /* ── Поля ввода и тексты — утоплены ── */
@@ -96,7 +88,7 @@
 :where(body:not(.r-theme-light)) .vtm20 :is(.r-btn, .r-vc-btn, .r-h2-btn, .r-cr-foot button, .form-footer button):active { box-shadow: inset 0 2px 4px rgba(0, 0, 0, .65); }
 
 /* ── Портреты, печати, медальоны — тень и затемнение краёв ── */
-:where(body:not(.r-theme-light)) .vtm20 :is(.r-portrait-frame, .r-cr-patent-frame, .r-seal, .r-cr-medal) { filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .8)); }
+:where(body:not(.r-theme-light)) .vtm20 :is(.r-portrait-frame, .r-cr-patent-frame, .r-seal, .r-cr-medal) { box-shadow: 0 10px 14px -6px rgba(0, 0, 0, .85); }
 :where(body:not(.r-theme-light)) .vtm20 .r-portrait-frame::after { content: ""; position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1; pointer-events: none;
   box-shadow: inset 0 0 26px 6px rgba(0, 0, 0, .7), inset 0 -2px 0 var(--r-accent); }
 /* вкладки: активная монета светится изнутри, остальные утоплены */
@@ -113,7 +105,7 @@
 #r-hud .hb.is-current:not(.is-bashing, .is-lethal, .is-aggravated) { box-shadow: inset 0 1px 2px rgba(0, 0, 0, .85), 0 0 0 1px #0a0a0c, 0 0 0 2px rgba(232, 163, 165, .65); }
 #r-hud .d.on { box-shadow: inset 0 -1px 2px rgba(0, 0, 0, .55), 0 1px 2px rgba(0, 0, 0, .8); }
 #r-hud .b.on { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 1px 2px rgba(0, 0, 0, .8); }
-#r-hud .dr { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8)) drop-shadow(0 0 3px rgba(196, 50, 58, .35)); }
+#r-hud .dr { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8)); }
 #r-hud .dr path[fill="url(#rh-bf-100)"] { fill: url(#r-gloss-blood); }   /* только полные: неполная (запас больше 20) залита своим градиентом снизу */
 #r-hud .rh-frame { filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .9)); }
 #r-hud .rh-frame::before { content: ""; position: absolute; inset: 4px; z-index: 1; pointer-events: none; box-shadow: inset 0 0 22px 4px rgba(0, 0, 0, .65); }
@@ -135,8 +127,7 @@
 
 /* ── Чат: карточки бросков и предметов приподняты, кнопки объёмные, плашки фактов утоплены ── */
 :root {
-  --r-chat-depth: inset 0 1px 0 rgba(255, 255, 255, .05), inset 0 30px 34px -30px rgba(255, 240, 225, .06),
-    inset 0 -26px 30px -26px rgba(0, 0, 0, .8), 0 8px 16px -8px rgba(0, 0, 0, .9);
+  --r-chat-depth: inset 0 1px 0 rgba(255, 255, 255, .05), 0 7px 10px -7px rgba(0, 0, 0, .9);   /* без размытых внутренних слоёв: в чате сотня карточек */
 }
 .r-roll-card, .r-item-card { box-shadow: var(--r-chat-depth); }
 .r-roll-card.is-exceptional, .r-roll-card.is-phenomenal { box-shadow: inset 3px 0 8px -4px rgba(239, 230, 212, .5), var(--r-chat-depth); }
@@ -183,3 +174,42 @@
   #r-hud .rh-knob, #r-hud a.rh-seal:hover .rh-knob { transition: none; transform: none; }
   .r-fx-drop-out, .r-fx-drop-in, .r-fx-dot-in, .r-fx-hit, .r-fx-drop-out svg, .r-fx-drop-in svg, .r-fx-hit .r-hbox-mark { animation: none !important; }
 }
+
+/* ── Лист предмета: значок — монета, номера уровней — плашки (изученные с бликом, прочие выдавлены),
+      строка силы под мышью подсвечена, раскрытая сила утоплена, плашки свойств объёмные ── */
+:where(body:not(.r-theme-light)) .vtm20 .r-item-img { box-shadow: 0 0 0 3px rgba(0, 0, 0, .55), 0 0 0 4px var(--r-line-2), 0 8px 14px -6px rgba(0, 0, 0, .85); }
+:where(body:not(.r-theme-light)) .vtm20 .r-power-lvl { box-shadow: inset 0 1px 3px rgba(0, 0, 0, .7), 0 1px 0 rgba(255, 255, 255, .04); }
+:where(body:not(.r-theme-light)) .vtm20 :is(.r-ipower.is-owned, .r-power.is-elder) .r-power-lvl {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), inset 0 -2px 3px rgba(0, 0, 0, .35), 0 1px 2px rgba(0, 0, 0, .8), 0 0 6px var(--r-glow);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .6);
+}
+:where(body:not(.r-theme-light)) .vtm20 .r-ipower > summary { margin: 0 -6px; padding: 0 6px; transition: background .12s; }
+:where(body:not(.r-theme-light)) .vtm20 .r-ipower > summary:hover {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--r-accent) 16%, transparent), rgba(255, 255, 255, .025) 55%, transparent);
+  box-shadow: inset 2px 0 0 var(--r-accent);
+}
+:where(body:not(.r-theme-light)) .vtm20 .r-ipower[open] > .r-ipower-body { margin: 0 -6px 8px; padding-left: 40px; background: rgba(0, 0, 0, .22); box-shadow: inset 0 2px 6px rgba(0, 0, 0, .55); }
+:where(body:not(.r-theme-light)) .vtm20 .r-badge:not(.is-steps) { box-shadow: var(--r-depth-sm); }
+:where(body:not(.r-theme-light)) .vtm20 .r-badge.is-level { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), inset 0 -10px 14px -10px rgba(0, 0, 0, .6), 0 5px 8px -6px rgba(0, 0, 0, .9); }
+:where(body:not(.r-theme-light)) .vtm20 .r-badge.is-level > b { text-shadow: 0 1px 0 #000, 0 0 12px var(--r-glow); }
+:where(body:not(.r-theme-light)) .vtm20 .r-item-setup > summary:hover { background: rgba(255, 255, 255, .03); }
+
+/* ── Подсказки, контекстные меню, свои выпадающие списки, уведомления — как карточки: свет сверху, кровавая кромка, тень;
+      пункт под мышью — полоса цвета слева, как строка черты ── */
+body.r-skin #tooltip, body.r-skin .locked-tooltip, body.r-skin #context-menu, body.r-skin #context-menu-root {
+  background: linear-gradient(180deg, #1b1a1e, #0c0c0e 70%);
+  border-top-color: rgba(196, 71, 76, .6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 12px 26px rgba(0, 0, 0, .85);
+}
+body.r-skin #context-menu .context-item { transition: background .1s; }
+body.r-skin #context-menu .context-item:hover { box-shadow: inset 2px 0 0 #c4474c; }
+body.r-skin #context-menu .context-item:hover > i { color: #e8a3a5; }
+.r-combo-pop.vtm20.vtm20 {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--r-option-bg) 85%, #fff 4%), var(--r-option-bg) 60%);
+  border-top-color: color-mix(in srgb, var(--r-accent) 60%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 12px 26px rgba(0, 0, 0, .7);
+}
+.r-combo-pop .r-combo-item.is-active { box-shadow: inset 2px 0 0 var(--r-accent); }
+body.r-skin #notifications .notification { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 3px 0 0 rgba(196, 71, 76, .7), 0 10px 22px rgba(0, 0, 0, .75); }
+body.r-skin #notifications .notification.warning { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 3px 0 0 #c9a46a, 0 10px 22px rgba(0, 0, 0, .75); }
+body.r-skin #notifications .notification.info { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), inset 3px 0 0 #8d9bb8, 0 10px 22px rgba(0, 0, 0, .75); }

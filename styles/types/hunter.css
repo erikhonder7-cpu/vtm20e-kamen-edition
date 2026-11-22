@@ -180,7 +180,6 @@ body.r-theme-light .vtm20.r-type-hunter {
 .vtm20.r-type-hunter .r-hvirtues .r-virtue.is-primary .r-trait-label { color: #ffd59c; }
 .vtm20.r-type-hunter .r-hvirtues .r-virtue.is-primary .r-trait-label::before { content: "◆ "; color: #e0893a; font-size: 9px; }
 .vtm20.r-type-hunter .r-hvirtues .r-virtue.is-over .r-hv-num b { color: var(--r-blood-l, #ff6b5a); }
-.vtm20.r-type-hunter .r-hv-num { font-family: var(--r-display); font-size: 15px; text-align: right; }
 .vtm20.r-type-hunter .r-hv-num small { color: var(--r-muted); font-size: 11px; }
 .vtm20.r-type-hunter .r-hvirtues .r-dots.is-small .r-dot { width: 9px; height: 9px; }
 .vtm20.r-type-hunter .r-vc-hint.is-warn { color: #ff7b6b; }
@@ -216,7 +215,6 @@ body.r-theme-light .vtm20.r-type-hunter {
 .vtm20.r-type-hunter .r-edge-fifth { border: 1px dashed rgba(255, 107, 90, .45); padding: 6px 10px; color: #f0c9a0; }
 .vtm20.r-type-hunter .r-edge-fifth i { color: #ff8a5c; }
 /* Деяния и Грани «свыше» (Players Guide, гл. 2) */
-.vtm20.r-type-hunter .r-hv-temp { font-style: normal; font-size: .8em; color: #c9a26b; margin-left: 4px; }
 .vtm20.r-type-hunter .r-edge-call { border: 1px dashed rgba(239, 229, 214, .2); padding: 8px 10px; margin: 6px 0 10px; display: grid; gap: 6px; }
 .vtm20.r-type-hunter .r-edge-call > .r-vc-btn { justify-self: start; }
 .vtm20.r-type-hunter .r-edge.is-called { display: flex; gap: 8px; align-items: flex-start; }

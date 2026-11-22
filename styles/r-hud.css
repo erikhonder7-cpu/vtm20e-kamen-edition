@@ -196,9 +196,7 @@ body.r-hud-on #chat-notifications > #chat-message { display: none !important; }
 .vtm20 .r-atk-dmg b { font-family: var(--r-display); font-weight: 400; font-size: 17px; color: var(--r-ink); }
 .vtm20 .r-atk-dmg em { font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-diab-track { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--r-muted); }
-.vtm20 .r-diab-track b { font-family: var(--r-display); font-weight: 400; font-size: 17px; color: var(--r-ink); }
 .vtm20 .r-diab-bar { flex: 1 1 auto; height: 6px; border: 1px solid var(--r-line-2); }
-.vtm20 .r-diab-bar i { display: block; height: 100%; background: linear-gradient(90deg, #4a0d11, #c4474c); }
 
 /* ── Окно атаки: условия плитками-чипами, редкое под «Ещё» ── */
 .vtm20 .r-atk-target { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 10px; }

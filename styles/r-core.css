@@ -207,7 +207,6 @@ body.r-theme-light .vtm20 {
 .vtm20 .r-icon-btn:hover { color: var(--r-ink); }
 .vtm20 .r-icon-btn.is-danger:hover { color: var(--r-accent); }
 .vtm20 .r-link { color: var(--r-muted); }
-.vtm20 .r-link:hover { color: var(--r-accent); }
 
 .vtm20 .r-chip {
   display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px;
@@ -279,9 +278,7 @@ body.r-theme-light .vtm20 {
   font-family: var(--r-body); font-size: 13.5px; letter-spacing: 0; text-transform: none; color: var(--r-ink);
   background-color: var(--r-s2); border: 1px solid var(--r-line-2); border-radius: 0; box-shadow: none;
 }
-.vtm20 input.r-h2-find.is-short { width: 180px; flex-basis: 180px; }
 .vtm20 input.r-h2-find.is-short.is-gear { width: 140px; flex-basis: 140px; min-width: 0; flex-shrink: 1; }
-.vtm20 input.r-h2-find::placeholder { color: var(--r-muted); font-style: italic; }
 .vtm20 input.r-h2-find:focus { border-color: var(--r-accent); }
 .vtm20 .r-h2-tool:hover { color: var(--r-accent); }
 

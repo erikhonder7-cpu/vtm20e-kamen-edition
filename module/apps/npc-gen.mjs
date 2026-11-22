@@ -25,9 +25,7 @@ import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, group
 import * as FOES from "../data/changeling-foes.mjs";
 
 /** Заготовки рассказчика (настройка мира): имя и всё, что выбрано в окне. */
-export function registerNpcPresets() {
-  game.settings.register(SYSTEM_ID, "npcPresets", { scope: "world", config: false, type: Array, default: [] });
-}
+// настройка «npcPresets» объявлена в vtm20.mjs: этот модуль грузится по первому открытию генератора
 const presets = () => foundry.utils.deepClone(game.settings.get(SYSTEM_ID, "npcPresets") ?? []);
 
 const { HandlebarsApplicationMixin, ApplicationV2 } = foundry.applications.api;

@@ -373,7 +373,7 @@ body.r-theme-light .vtm20.r-type-mage.r-mage-tech { --r-ink: #10222b; --r-ink-2:
   --r-bg: linear-gradient(180deg, #eaf1f4, #d6e2e8); --r-option-bg: #eef4f6; --r-gap-ring: #e3ecf0; }
 .vtm20.r-mage-tech .r-mg, .r-mage-tech .r-mg { background: linear-gradient(170deg, #ffffff, #7fcbe6); }
 /* жёстко заданный аметист корешка, окна и карточек — поворотом тона в циан */
-.vtm20.r-type-mage.r-mage-tech .r-rail, .vtm20.r-type-mage.r-mage-tech .r-wheel, .vtm20.r-type-mage.r-mage-tech .r-cr-rail { filter: hue-rotate(-58deg) saturate(.9); }
+.vtm20.r-type-mage.r-mage-tech .r-rail, .vtm20.r-type-mage.r-mage-tech .r-wheel { filter: hue-rotate(-58deg) saturate(.9); }
 .r-roll-card.r-type-mage.r-mage-tech, .r-notice.r-type-mage.r-mage-tech, .r-item-card.r-type-mage.r-mage-tech { filter: hue-rotate(-58deg) saturate(.9); }
 .vtm20.r-mage-tech .r-cast-sigil { background: radial-gradient(circle at 50% 35%, rgba(87, 182, 217, .22), rgba(0, 0, 0, .5) 72%); box-shadow: inset 0 0 0 1px rgba(200, 225, 235, .5), 0 0 16px rgba(87, 182, 217, .2); }
 .application.vtm20.r-dialog.r-cast-dialog.r-mage-tech .form-footer button[data-action=ok] { color: #071318; border-color: #ffffff; background: linear-gradient(180deg, #ffffff, #8fd3ee); }

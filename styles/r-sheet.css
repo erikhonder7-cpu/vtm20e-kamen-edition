@@ -637,18 +637,11 @@
 /* ── Снаряжение ───────────────────────────────────────────────────────── */
 
 .vtm20 .r-table { width: 100%; border-collapse: collapse; margin: 0 0 6px; border: 1px solid var(--r-line); }
-.vtm20 .r-table th {
-  padding: 6px; font-family: var(--r-caps); font-weight: 400; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--r-muted); background: rgba(0, 0, 0, .3); border: 0; border-bottom: 1px solid var(--r-line-2); text-align: left;
-}
+
 .vtm20 .r-table td { padding: 5px 6px; border: 0; border-top: 1px solid var(--r-line); vertical-align: middle; }
-.vtm20 .r-table tr:hover td { background: var(--r-s2); }
 .vtm20 .r-table tbody tr:hover td:first-child { box-shadow: inset 2px 0 0 #b83a3f; }
-.vtm20 .r-table tr.is-off td { opacity: .5; }
 .vtm20 .r-table .r-num { text-align: center; font-family: var(--r-display); font-size: 13px; }
-.vtm20 .r-td-name a { font-size: 14.5px; }
 .vtm20 .r-td-name a:hover { color: var(--r-accent); }
-.vtm20 .r-td-sub { display: block; font-size: 11.5px; font-style: italic; color: var(--r-muted); font-family: var(--r-body); }
 .vtm20 .r-td-tools { white-space: nowrap; text-align: right; }
 .vtm20 .r-attack {
   width: 30px; height: 30px; display: grid; place-items: center; border-radius: 3px; color: #f4ecdd;
@@ -730,13 +723,8 @@
 
 /* Быстрые действия (диалоги) */
 .vtm20 .r-actions { display: flex; flex-direction: column; gap: 4px; }
-.vtm20 .r-action {
-  display: flex; align-items: center; gap: 8px; padding: 5px 10px;
-  font-family: var(--r-caps); font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--r-ink-2);
-  border: 1px solid var(--r-line); background: var(--r-s1);
-}
+
 .vtm20 .r-action i { width: 16px; text-align: center; color: var(--r-accent); }
-.vtm20 .r-action b { margin-left: auto; font-family: var(--r-display); font-weight: 400; color: var(--r-ink); }
 .vtm20 .r-action:hover { color: var(--r-ink); border-color: var(--r-line-2); background: var(--r-s3); }
 .vtm20 .r-night-tools, .r-night-tools { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
 
@@ -867,7 +855,7 @@
 body.r-theme-light .vtm20 .r-assignat { background: rgba(255, 255, 255, .35); }
 body.r-theme-light .vtm20 .r-drop svg { stroke: #8c1c22; }
 body.r-theme-light .vtm20 .r-head-acts { background: rgba(60, 45, 30, .07); }
-body.r-theme-light .vtm20 .r-seal, body.r-theme-light .vtm20 .r-table th { background: rgba(60, 45, 30, .08); }
+body.r-theme-light .vtm20 .r-seal { background: rgba(60, 45, 30, .08); }
 body.r-theme-light .vtm20 .r-seal-num { color: var(--r-ink); }
 body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 
@@ -1276,14 +1264,10 @@ body.r-theme-light .vtm20 .r-motto { color: rgba(140, 28, 34, .75); }
 .vtm20 .r-head-acts:has(> :nth-child(11)) .r-act.is-minor { padding: 0 8px; }
 
 /* ── Ритусы Шабаша (templates/actor/advantages.hbs): группы сворачиваются, строка раскрывает правила ── */
-.vtm20 .r-ritae-group { margin: 0 0 8px; }
 .vtm20 .r-ritae-group > summary { display: flex; align-items: center; gap: 8px; padding: 4px 2px; cursor: pointer; list-style: none;
   font-family: var(--r-caps); font-size: 11.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--r-ink-2); border-bottom: 1px solid var(--r-line); }
-.vtm20 .r-ritae-group > summary::-webkit-details-marker { display: none; }
 .vtm20 .r-ritae-group > summary::after { content: "\25BE"; margin-left: auto; font-size: 10px; color: var(--r-muted); transition: transform .15s; }
-.vtm20 .r-ritae-group[open] > summary::after { transform: rotate(180deg); }
 .vtm20 .r-ritae-group > summary i { color: var(--r-accent); width: 14px; text-align: center; }
-.vtm20 .r-ritae-group > summary small { font-family: var(--r-display); font-size: 13px; letter-spacing: 0; color: var(--r-muted); }
 .vtm20 .r-ritae { list-style: none; margin: 0; padding: 2px 0 0; }
 .vtm20 .r-ritae .r-edge { display: flex; align-items: flex-start; gap: 8px; padding: 6px 2px; border-bottom: 1px dotted var(--r-line); }
 .vtm20 .r-ritae .r-edge:last-child { border-bottom: 0; }

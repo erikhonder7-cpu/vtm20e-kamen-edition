@@ -14,7 +14,9 @@ import { VtMItemSheet } from "./module/sheets/item-sheet.mjs";
 import { RollDialog } from "./module/dice/dialog.mjs";
 import { rollPool, evaluate, rollDamage, soakAndApply, onChatCardClick } from "./module/dice/roll.mjs";
 import { openDamageDialog } from "./module/apps/damage.mjs";
-import { openCreator, VtMCreator } from "./module/apps/creator.mjs";
+// мастер создания и генератор персонажей — по первому открытию (dynamic import): 16 файлов и ~340 КБ не грузятся при входе в мир
+const openCreator = (...a) => import("./module/apps/creator.mjs").then(m => { game.vtm20.VtMCreator = m.VtMCreator; return m.openCreator(...a); });
+const openNpcGenerator = (...a) => import("./module/apps/npc-gen.mjs").then(m => m.openNpcGenerator(...a));
 import { openHunt, nightfall, endScene, endStory, registerNightTools } from "./module/apps/night.mjs";
 import { openSceneNexus, refreshSceneNexus, execSceneTeleport, SceneNexus } from "./module/apps/scene-nexus.mjs";
 import { NEXUS_SCOPE } from "./module/constants/scene-nexus.mjs";
@@ -34,7 +36,6 @@ import { openAttack, openDefense, registerGrapple } from "./module/combat/combat
 import { openHazard } from "./module/apps/hazard.mjs";
 import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
-import { openNpcGenerator, registerNpcPresets } from "./module/apps/npc-gen.mjs";
 import { openLoreSearch, registerLoreSearch } from "./module/apps/lore-search.mjs";
 import { registerBogatyr } from "./module/apps/bogatyr.mjs";
 import { registerHomerulePacks } from "./module/apps/homerules.mjs";
@@ -89,7 +90,7 @@ Hooks.once("init", () => {
   CONFIG.VTM20 = VTM20;
   game.vtm20 = {
     config: VTM20, codex: Codex,
-    rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator, VtMCreator,
+    rollPool, evaluate, rollDamage, soakAndApply, openDamageDialog, RollDialog, openCreator,
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
     openLibrary, openNpcGenerator, openClans, openLoreSearch, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)),
     openWorkshop: (actor, mode) => import("./module/apps/thaum-workshop.mjs").then(x => x.openWorkshop(actor, mode)), openBoons, openDowntime, openSessionXp, openSessionPanel, newSession: newSessionAll, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
@@ -215,7 +216,7 @@ Hooks.once("init", () => {
   registerRankChallenge();
   registerKlaives();
   registerGeneration();
-  registerNpcPresets();
+  game.settings.register(SYSTEM_ID, "npcPresets", { scope: "world", config: false, type: Array, default: [] });   // заготовки генератора (apps/npc-gen.mjs)
   registerPause();
   registerThemes();
   registerDemonHooks();
@@ -261,6 +262,22 @@ Hooks.on("renderPlayers", (app, html) => {
 });
 
 Hooks.once("ready", async () => {
+  // шаблоны листов, предметов, броска — заранее, в простое после загрузки, по одному за раз. Handlebars компилирует шаблон
+  // при первом вызове, а не при загрузке: без этого первое открытие листа за сессию стоило около полусекунды подвисания
+  const warmQueue = [
+    "header", "tabs", "gate", "vitals", "traits", "foot", "disciplines", "advantages", "gear", "bio", "effects", "vitae",
+    "edges", "spheres", "arcanoi", "arts", "gifts", "lores", "parts/dots", "parts/disciplines-body", "parts/power"
+  ].map(n => `${SYSTEM_PATH}/templates/actor/${n}.hbs`).concat([
+    "chat/roll-card", "dice/roll-dialog", "item/item-sheet", "item/discipline", "item/power", "item/weapon", "item/background", "item/trait"
+  ].map(n => `${SYSTEM_PATH}/templates/${n}.hbs`));
+  const idle = globalThis.requestIdleCallback ?? (f => setTimeout(() => f({ timeRemaining: () => 10 }), 300));
+  const warmStep = async deadline => {
+    if (deadline.timeRemaining() > 8 && warmQueue.length) {
+      try { const fn = await foundry.applications.handlebars.getTemplate(warmQueue.shift()); try { fn({}); } catch { /* пустые данные — компиляция уже случилась */ } } catch { /* нет файла — пропускаем */ }
+    }
+    if (warmQueue.length) idle(warmStep, { timeout: 4000 });
+  };
+  idle(warmStep, { timeout: 4000 });
   // объём капель крови на листе и в худе: общий градиент, на него ссылается CSS (fill: url(#r-gloss-blood))
   if (!document.getElementById("r-gloss-blood")) document.body.insertAdjacentHTML("beforeend",
     `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="r-gloss-blood" x1=".15" y1="0" x2=".85" y2="1">`

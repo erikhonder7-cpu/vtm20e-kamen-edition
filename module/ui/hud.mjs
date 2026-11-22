@@ -41,6 +41,15 @@ function hudActor() {
 
 const enabled = () => game.settings.get(SYSTEM_ID, "hud");
 
+/** Касается ли документ худа: персонаж в худе, его предмет или эффект — или участник идущего боя. */
+function concernsHud(doc) {
+  const a = doc instanceof Actor ? doc : doc?.parent instanceof Actor ? doc.parent : doc?.parent?.parent instanceof Actor ? doc.parent.parent : null;
+  if (!a) return true;
+  const me = hudActor();
+  if (!me || a === me || a.uuid === me.uuid || a.id === me.id) return true;
+  return !!game.combat?.combatants?.some(c => c.actor === a || c.actorId === a.id);
+}
+
 function mount() {
   let el = document.getElementById(ID);
   if (el) return el;
@@ -471,11 +480,11 @@ export function renderHud() {
   if (hidden()) {
     el.classList.add("is-hidden");
     el.innerHTML = `<a class="rh-show" data-act="show" data-tooltip="${esc(t("Hud.Show"))}"><i class="fa-solid fa-eye"></i><span>${esc(a?.name ?? t("Hud.ShowShort"))}</span></a>`;
-    fitHud(); return;
+    fitFirst(el); return;
   }
   if (!a) {
     el.innerHTML = `<p class="rh-empty"><i class="fa-solid fa-user-slash"></i> ${esc(t(game.user.isGM ? "Hud.PickToken" : "Hud.NoCharacter"))}${hideBtn()}</p>`;
-    fitHud(); return;
+    fitFirst(el); return;
   }
   const s = a.system, kind = kindOf(a);
   el.classList.add(`rh-t-${kind}`);
@@ -523,7 +532,7 @@ export function renderHud() {
     </div>`;
   el.classList.toggle("is-turn", myTurn);
   el.dataset.rActor = a.id; playChanges(el, pulse, "hud");
-  fitHud();
+  fitFirst(el);
 }
 
 async function onClick(ev) {
@@ -700,6 +709,10 @@ function fitHud() {
   el.style.setProperty("--rh-scale", Math.min(1.15, room / 840).toFixed(3));
 }
 
+/** Масштаб герба меряем только при первом показе: дальше его пересчитывают изменения окна и боковой панели (registerHud).
+ *  Мерить при каждой перерисовке нельзя — чтение размеров заставляет браузер заново раскладывать весь экран, вместе с открытыми листами. */
+function fitFirst(el) { if (!el.style.getPropertyValue("--rh-scale")) fitHud(); }
+
 /** Перерисовать не чаще раза в кадр. */
 function refreshHud() {
   if (frame) return;
@@ -723,9 +736,11 @@ export function registerHud() {
     window.addEventListener("resize", () => requestAnimationFrame(fitHud));
     const right = document.getElementById("ui-right");
     if (right) new ResizeObserver(() => fitHud()).observe(right);
-    for (const h of ["controlToken", "updateActor", "createItem", "updateItem", "deleteItem", "createChatMessage", "deleteChatMessage",
-      "updateCombat", "createCombat", "deleteCombat", "createCombatant", "updateCombatant", "deleteCombatant", "canvasReady", "updateUser",
-      "createActiveEffect", "updateActiveEffect", "deleteActiveEffect"])
+    for (const h of ["controlToken", "createChatMessage", "deleteChatMessage", "updateCombat", "createCombat", "deleteCombat",
+      "createCombatant", "updateCombatant", "deleteCombatant", "canvasReady", "updateUser"])
       Hooks.on(h, refreshHud);
+    // правки персонажей, предметов, эффектов — только если они про того, кто в худе, или про участника боя (полоса хода)
+    for (const h of ["updateActor", "createItem", "updateItem", "deleteItem", "createActiveEffect", "updateActiveEffect", "deleteActiveEffect"])
+      Hooks.on(h, doc => { if (concernsHud(doc)) refreshHud(); });
   });
 }

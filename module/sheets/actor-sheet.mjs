@@ -8,6 +8,7 @@
 import { MAGE_ACTIONS } from "./actor/mage.mjs";
 import { applyMood } from "../ui/mood.mjs";
 import { snapState, playChanges } from "../ui/pulse.mjs";
+import { morphPart } from "../ui/morph.mjs";
 import { WRAITH_ACTIONS, arcFold } from "./actor/wraith.mjs";
 import { CHANGELING_ACTIONS } from "./actor/changeling.mjs";
 import { THAUM_ACTIONS } from "./actor/thaum.mjs";
@@ -42,7 +43,6 @@ import { RollDialog } from "../dice/dialog.mjs";
 import { rollVirtueCheck } from "../dice/virtue-checks.mjs";
 import { golcondaView, seekTeaching, suspire } from "../apps/golconda.mjs";
 import { openDamageDialog } from "../apps/damage.mjs";
-import { openCreator } from "../apps/creator.mjs";
 
 import { openHunt } from "../apps/night.mjs";
 import { openDowntime } from "../apps/downtime.mjs";
@@ -86,6 +86,10 @@ import { TextEditor, t, ROMAN, dots, prepareHeader, prepareTraits, prepareRegist
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
+
+/** Правка только этих полей не трогает Черты, Дисциплины и Биографию (_configureRenderOptions). */
+const VITALS_ONLY = /^system\.(blood|willpower|health)\./;
+const VITALS_SAFE_TABS = new Set(["traits", "disciplines", "bio"]);
 
 export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -260,6 +264,12 @@ openStrategy: () => openStrategy(),
     if (!tabs.includes(active)) return;
     options.parts = options.parts.filter(p => !tabs.includes(p) || p === active);
     for (const p of tabs) if (p !== active) this._staleTabs.add(p);
+    // потратил кровь, получил урон, потратил Волю — меняются шапка, шкалы и подвал; Черты, Дисциплины и Биография
+    // этих чисел не показывают, их не перерисовываем (вкладка — самая тяжёлая часть листа)
+    if (options.renderContext === "updateActor" && options.renderData && VITALS_SAFE_TABS.has(active)) {
+      const keys = Object.keys(foundry.utils.flattenObject(options.renderData)).filter(k => k !== "_id" && !k.startsWith("_stats"));
+      if (keys.length && keys.every(k => VITALS_ONLY.test(k))) options.parts = options.parts.filter(p => p !== active);
+    }
   }
 
   /** Вкладка «Витэ»: живой персонаж отмечен гулем или ревенантом (apps/ghouled.mjs). */
@@ -422,6 +432,23 @@ openStrategy: () => openStrategy(),
   static #onMakeExtra() { return makeExtra(this.actor); }
   static #onRefreshCodex() { return refreshActor(this.actor); }
 
+  /**
+   * Части листа — обновлять на месте, а не заменять (ui/morph.mjs): потратил кровь — у капли меняется класс, а не
+   * пересобираются сотни узлов шапки и шкал. Строение разошлось (новая строка, другой набор) — часть заменяется как раньше.
+   * Снимок — прошлый вывод шаблона, нетронутый: с ним сравниваем новый вывод, отличия переносим на живую разметку.
+   */
+  _replaceHTML(result, content, options) {
+    const snaps = (this._rSnap ??= {}), rest = {};
+    this._rMorphed = new Set();
+    for (const [id, el] of Object.entries(result)) {
+      const live = options.isFirstRender ? null : content.querySelector(`[data-application-part="${id}"]`);
+      if (live && morphPart(snaps[id], el, live)) { snaps[id] = el; this._rMorphed.add(id); continue; }
+      snaps[id] = el.cloneNode(true);
+      rest[id] = el;
+    }
+    if (Object.keys(rest).length) super._replaceHTML(rest, content, options);
+  }
+
   /** Перед перерисовкой — что было заполнено, чтобы после показать изменения (ui/pulse.mjs). */
   async _preRender(context, options) {
     await super._preRender(context, options);
@@ -431,7 +458,8 @@ openStrategy: () => openStrategy(),
   _onRender(context, options) {
     super._onRender(context, options);
     // перерисованы не все части: слушатели вешаем только на свежие, иначе на нетронутых вкладках они удвоятся
-    const fresh = (options.parts ?? []).map(p => this.element.querySelector(`[data-application-part="${p}"]`)).filter(Boolean);
+    // обновлённые на месте части (_replaceHTML) — с прежними элементами и их слушателями; вешаем только на заменённые
+    const fresh = (options.parts ?? []).filter(p => !this._rMorphed?.has(p)).map(p => this.element.querySelector(`[data-application-part="${p}"]`)).filter(Boolean);
     const all = sel => fresh.flatMap(root => [...root.querySelectorAll(sel)]);
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     // имя не влезает рядом с амплуа — шрифт на ступень меньше, ещё не влезает — ещё на одну (по ширине, а не по числу букв)
@@ -732,7 +760,7 @@ openStrategy: () => openStrategy(),
   }
 
   static #onTakeDamage() { return openDamageDialog(this.actor); }
-  static #onOpenCreator() { return openCreator(this.actor); }
+  static async #onOpenCreator() { const { openCreator } = await import("../apps/creator.mjs"); return openCreator(this.actor); }   // мастер — по первому открытию
 
   /** Заполнить лист вручную, без мастера. */
   static async #onSkipCreation() {

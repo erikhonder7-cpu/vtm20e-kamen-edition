@@ -164,7 +164,6 @@
 .vtm20 .r-cr-gen b { font-family: var(--r-display); font-weight: 400; font-size: 16px; color: var(--r-ink); }
 .vtm20 .r-cr-gen small { font-size: 10px; color: var(--r-muted); }
 .vtm20 .r-cr-gen.is-active { border-color: #b83a3f; background: rgba(140, 28, 34, .2); }
-.vtm20 .r-cr-path { width: 100%; height: 28px; }
 
 /* Распределение (характеристики, способности, добродетели) */
 .vtm20 .r-cr-panel { min-width: 0; }
@@ -613,7 +612,6 @@ body.r-theme-light .vtm20 .r-ng-card { background: var(--r-paper); border-color:
 body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 
 /* ── Окно кошелька ────────────────────────────────────────────────────── */
-.vtm20 .r-money-form .r-money-now { margin: 0; font-size: 14px; color: var(--r-ink-2); }
 .vtm20 .r-money-form .r-money-now b { font-family: var(--r-display); font-weight: 400; font-size: 17px; color: var(--r-ink); }
 .vtm20 .r-money-lsd { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .vtm20 .r-money-lsd label { display: flex; flex-direction: column; gap: 2px; }
@@ -696,7 +694,6 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .r-feed-range input { flex: 1; accent-color: var(--r-blood-l); }
 .r-feed-range output { min-width: 26px; text-align: center; font-family: "Forum", serif; font-size: 22px; color: var(--r-blood-l); }
 .r-feed-hint { margin: 0; font-size: 12px; font-style: italic; color: var(--r-bone-d); }
-.r-hunt-mods { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 /* ── Окно охоты ─────────────────────────────────────────────────────────── */
 .vtm20 .r-roll-form .r-tiles-cap { display: block; flex: 0 0 auto; width: auto; height: auto; margin: 0 0 -7px; }
@@ -1295,11 +1292,8 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20.r-exorcist .r-exo-acts select { flex: 1 1 200px; min-width: 0; }
 .vtm20.r-exorcist .r-exo-score { margin-right: auto; font-family: var(--r-display); color: var(--r-ink); }
 .vtm20.r-exorcist .r-exo-warn { margin: 0; color: var(--r-blood-l); }
-.vtm20 .r-card-helpers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .vtm20 .r-card-helpers li { display: flex; align-items: center; gap: 8px; }
-.vtm20 .r-card-helpers li.r-exo-drop { justify-content: center; padding: 9px 10px; border: 1px dashed var(--r-line-2); font-size: 12.5px; font-style: italic; color: var(--r-muted); text-align: center; }
 .vtm20 .r-card-helpers li.r-exo-drop i { font-style: normal; color: var(--r-accent); }
-.vtm20 .r-card-helpers li .r-vc-btn { margin-left: auto; }
 .vtm20.r-exorcist .r-exo-research { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .vtm20.r-exorcist .r-exo-research li { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1.2fr) auto auto auto auto; align-items: center; gap: 6px; }
 .vtm20.r-exorcist .r-exo-research li.is-done input[type=text] { text-decoration: line-through; opacity: .7; }
@@ -1368,15 +1362,12 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20 .r-lib-status i { margin-right: 3px; font-style: normal; color: var(--r-accent); }
 
 /* мастер создания: особый смертный — Родня, Ками, фомор */
-.vtm20 .r-cr-eb.is-mark .r-cr-mark-opts { display: flex; gap: 6px; flex-wrap: wrap; }
 .vtm20 .r-cr-mark-row { display: flex; gap: 12px; flex-wrap: wrap; }
 .vtm20 .r-cr-mark-field { display: flex; flex-direction: column; gap: 3px; margin: 8px 0 4px; min-width: 180px; }
 .vtm20 .r-cr-mark-field.is-wide { flex: 1 1 260px; }
 .vtm20 .r-cr-mark-field > span { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-cr-mark-powers { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
-.vtm20 .r-cr-mark-pw { padding: 3px 9px; border: 1px solid var(--r-line-2); font-size: 12.5px; color: var(--r-ink-2); cursor: pointer; }
 .vtm20 .r-cr-mark-pw:hover { border-color: var(--r-accent); color: var(--r-ink); }
-.vtm20 .r-cr-mark-pw.is-on { border-color: var(--r-blood-l); color: #f1e9da; background: rgba(140, 28, 34, .45); }
 .vtm20 .r-cr-mark-pw.is-own { cursor: default; font-style: italic; }
 
 /* проверка деградации: иерархия грехов Пути */
@@ -1586,9 +1577,7 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-bw-scale { display: flex; justify-content: space-between; margin-top: -2px; font-size: 11px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-bw-dots { display: flex; justify-content: center; padding: 4px 0 2px; }
 .vtm20 .r-bw-dots .r-dot { width: 15px; height: 15px; cursor: pointer; }
-.vtm20 .r-bw-wdmg { display: flex; align-items: center; gap: 10px; transition: opacity .15s; }
 .vtm20 .r-bw-wdmg .r-bw-tiles { flex: 1 1 auto; }
-.vtm20 .r-bw-wdmg.is-off { opacity: .35; pointer-events: none; }
 .vtm20 .r-bw-sub { flex: 0 0 auto; font-size: 12.5px; color: var(--r-muted); }
 .vtm20 .r-bw-form textarea { min-height: 46px; resize: vertical; }
 .vtm20 .r-bw-sum { padding: 8px 10px; border: 1px dashed var(--r-line-2); background: rgba(0, 0, 0, .22); font-size: 12.5px; line-height: 1.4; color: var(--r-muted); text-align: center; }

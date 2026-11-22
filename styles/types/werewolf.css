@@ -173,7 +173,6 @@ body.r-theme-light .vtm20.r-type-werewolf {
 .vtm20.r-type-werewolf .r-hvirtues .r-virtue.is-primary .r-trait-label { color: #eef3f0; }
 .vtm20.r-type-werewolf .r-hvirtues .r-virtue.is-primary .r-trait-label::before { content: "◆ "; color: #b9c8c3; font-size: 9px; }
 .vtm20.r-type-werewolf .r-hvirtues .r-virtue.is-over .r-hv-num b { color: var(--r-blood-l, #d06a4a); }
-.vtm20.r-type-werewolf .r-hv-num { font-family: var(--r-display); font-size: 15px; text-align: right; }
 .vtm20.r-type-werewolf .r-hv-num small { color: var(--r-muted); font-size: 11px; }
 .vtm20.r-type-werewolf .r-hvirtues .r-dots.is-small .r-dot { width: 9px; height: 9px; }
 .vtm20.r-type-werewolf .r-vc-hint.is-warn { color: #d9785a; }
@@ -209,7 +208,6 @@ body.r-theme-light .vtm20.r-type-werewolf {
 .vtm20.r-type-werewolf .r-edge-fifth { border: 1px dashed rgba(208, 106, 74, .45); padding: 6px 10px; color: #dfe8e3; }
 .vtm20.r-type-werewolf .r-edge-fifth i { color: #cf7a58; }
 /* Деяния и Грани «свыше» (Players Guide, гл. 2) */
-.vtm20.r-type-werewolf .r-hv-temp { font-style: normal; font-size: .8em; color: #a9bdb4; margin-left: 4px; }
 .vtm20.r-type-werewolf .r-edge-call { border: 1px dashed rgba(228, 235, 230, .2); padding: 8px 10px; margin: 6px 0 10px; display: grid; gap: 6px; }
 .vtm20.r-type-werewolf .r-edge-call > .r-vc-btn { justify-self: start; }
 .vtm20.r-type-werewolf .r-edge.is-called { display: flex; gap: 8px; align-items: flex-start; }
@@ -229,7 +227,6 @@ body.r-theme-light .vtm20.r-type-werewolf {
 .vtm20.r-type-werewolf .r-ww-form.is-active { cursor: default; border-color: var(--w-moon); color: var(--w-moon-l);
   background: radial-gradient(ellipse at 50% 0%, rgba(185, 200, 195, .16), transparent 70%), var(--r-card-bg); box-shadow: inset 0 -2px 0 var(--w-moon); }
 .vtm20.r-type-werewolf .r-ww-form.is-active i { color: var(--w-moon-l); filter: drop-shadow(0 0 5px rgba(220, 235, 228, .5)); }
-.vtm20.r-type-werewolf .r-ww-add { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
 .vtm20.r-type-werewolf .r-ww-add select { flex: 1; }
 .vtm20.r-type-werewolf .r-ww-gifts .r-edge.is-foreign .r-edge-lvl { opacity: .7; }
 .vtm20.r-type-werewolf .r-gifts .r-edge-text p { margin: 2px 0 0; }
@@ -253,9 +250,7 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20.r-type-werewolf .r-boxes.is-rage .r-box.is-filled { background: linear-gradient(180deg, #d06a4a, #6b2c1c); border-color: #d06a4a; }
 .vtm20.r-type-werewolf .r-boxes.is-gnosis .r-box.is-filled { background: linear-gradient(180deg, #eef3f0, #7f9a8a); border-color: #b9c8c3; }
 /* Шапка: Ранг и Слава одной строкой, щелчок — окно правки */
-.vtm20.r-type-werewolf .r-ww-standing { cursor: pointer; text-decoration: none; }
 .vtm20.r-type-werewolf .r-ww-rank-num { color: var(--r-ink); font-weight: 600; }
-.vtm20.r-type-werewolf .r-ww-standing:hover .r-ww-rank-num { color: var(--w-moon-l); }
 .vtm20.r-type-werewolf .r-ww-standing .r-ww-up { color: var(--w-rage-l); filter: drop-shadow(0 0 4px rgba(208, 106, 74, .6)); }
 
 /* Окно «Слава и Ранг»: медальон Ранга, три карточки Славы — кружки (постоянная) и квадратики (временная) */
@@ -369,7 +364,6 @@ body.r-theme-light .vtm20.r-type-werewolf .r-form-badge.is-down { color: #7a2a18
 .vtm20 .r-sn-btn.is-wide { display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; white-space: nowrap; }
 .vtm20 .r-sn-btn:hover { color: var(--sn); border-color: var(--sn); }
 .vtm20 .r-sn-btn.is-del:hover { color: #e06a5a; border-color: #e06a5a; }
-.vtm20 .r-sn-empty { padding: 4px 0 4px 30px; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 .vtm20 .r-sn-add { display: flex; align-items: center; gap: 6px; }
 .vtm20 .r-sn-add select { flex: 1; min-width: 0; }
 .vtm20 .r-sn-fetch { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -720,9 +714,7 @@ body.r-theme-light .vtm20 .r-vc-btn.is-umbra { color: var(--w-moon-l); box-shado
 .vtm20.r-type-werewolf .r-ww-fera.is-fera ~ .r-ww-forms { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
 
 /* Окно Первобытного инстинкта: приёмы раскрываются по щелчку */
-.vtm20.r-dialog .r-primal details { margin: 4px 0; }
 .vtm20.r-dialog .r-primal summary { cursor: pointer; }
-.vtm20.r-dialog .r-primal summary small { opacity: .75; margin-left: 6px; }
 
 /* Печать под портретом: знак аугурии (у Фера — рода) вместо значка */
 .vtm20.r-type-werewolf .r-seal-glyph { display: inline-grid; place-items: center; }

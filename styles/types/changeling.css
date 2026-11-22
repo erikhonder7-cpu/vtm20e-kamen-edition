@@ -150,7 +150,6 @@
 .vtm20.r-type-changeling .r-boxes.is-banality .r-box.is-filled { background: linear-gradient(180deg, #a5b2c2, #3c4756); border-color: #a5b2c2; }
 .vtm20.r-type-changeling .r-boxes.is-nightmare .r-box.is-filled { background: linear-gradient(180deg, #8e6aa8, #2e1a3c); border-color: #9f7fbd; }
 .vtm20.r-type-changeling .r-vc-dream .is-warn { color: #6fbf93; font-style: italic; }
-.vtm20.r-type-changeling .r-vc-dream.is-mists { box-shadow: inset 0 0 22px rgba(165, 178, 194, .2); }
 .vtm20.r-type-changeling .r-vc-dream.is-bedlam { box-shadow: inset 0 0 26px rgba(142, 106, 168, .35); }
 
 /* Вкладка «Искусства» (templates/actor/arts.hbs) */
@@ -167,19 +166,15 @@
   color: var(--r-ink); border: 1px solid var(--r-line-2); }
 .vtm20 .r-cl-lvl-name { flex: 1 1 auto; min-width: 0; cursor: pointer; }
 .vtm20 .r-cl-lvl-name em { color: var(--r-muted); font-size: 11.5px; }
-.vtm20 .r-cl-chip { flex: none; font-size: 10.5px; padding: 1px 6px; border: 1px solid var(--r-line-2); color: var(--r-muted); }
 .vtm20 .r-cl-chip.is-wyrd { color: #f9c6ef; border-color: rgba(111, 191, 147, .5); }
-.vtm20 .r-cl-bunks { margin: 6px 0 0; font-size: 12px; }
 .vtm20 .r-cl-realms { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 6px 0 14px; }
 .vtm20 .r-cl-realm.is-mod { opacity: .9; }
 .vtm20 .r-cl-realm.is-affinity { box-shadow: inset 2px 0 0 #6fbf93; }
-.vtm20 .r-cl-rlevels { margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: var(--r-muted); }
 .vtm20 .r-cl-rlevels li.is-known { color: var(--r-ink); }
 .vtm20 .r-cl-add { margin: 4px 0 8px; }
 
 /* Окно кантрипа и плашки в чате */
 .vtm20.r-type-changeling .r-cantrip .r-checks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
-.vtm20.r-type-changeling .r-cantrip .r-check small { color: var(--r-muted); }
 .r-notice.r-type-changeling.is-warn { border-left-color: #9f7fbd; }
 /* Вирд, Порог Бедлама, Банальность места; вторая строка кнопок карточки Грёзы; карточка Бедлама в чате */
 .vtm20.r-type-changeling .r-cl-states { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 6px 0 0; }
@@ -188,7 +183,6 @@
 .vtm20.r-type-changeling .r-cl-state.is-bedlam { border-color: #a87ad6; color: #d7bff2; }
 .vtm20.r-type-changeling .r-cl-state a { color: inherit; opacity: .7; }
 .vtm20.r-type-changeling .r-cl-state a:hover { opacity: 1; }
-.vtm20.r-type-changeling .r-cl-tools2 { margin-top: 4px; }
 .vtm20.r-type-changeling .r-vc-btn.is-on { color: #f6dc97; border-color: #f0c96a; }
 .r-notice.r-type-changeling .r-cl-bedlam { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .r-notice.r-type-changeling .r-cl-bedlam button { flex: 1 1 45%; font-size: 12px; line-height: 1.2; padding: 3px 6px; }
@@ -204,7 +198,6 @@
 .vtm20.r-type-changeling .r-cl-oath-fx { margin: 4px 0 0; font-size: 12px; color: var(--r-muted); }
 .vtm20.r-type-changeling .r-cl-oath.is-broken { opacity: .75; border-color: #a87ad6; }
 /* Химерические раны — лиловая дорожка под обычной */
-.vtm20.r-type-changeling .r-cl-chim-head { margin-top: 8px; }
 .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox { border-color: rgba(184, 155, 228, .45); min-height: 22px; }
 .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox.is-bashing .r-hbox-mark, .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox.is-lethal .r-hbox-mark,
 .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox.is-aggravated .r-hbox-mark { background: linear-gradient(180deg, #9b7ad0, #4e2f86); border-color: #b89be4; color: #f3ecff; box-shadow: none; }
@@ -215,7 +208,6 @@
 .vtm20.r-type-changeling .r-cl-treasure { border-color: rgba(233, 196, 106, .4); }
 /* ── Карточка Грёзы одной полосой: три Темпера рядом (узкое окно — друг под другом), кнопки — одним рядом ── */
 .vtm20.r-type-changeling .r-vc-dream { display: flex; flex-direction: column; gap: 6px; }
-.vtm20.r-type-changeling .r-cl-tempers { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 14px; align-items: start; }
 .vtm20.r-type-changeling .r-cl-temper { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .vtm20.r-type-changeling .r-cl-temper-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
 .vtm20.r-type-changeling .r-cl-temper-head .r-banner { margin: 0; font-size: 12px; letter-spacing: 2px; }
@@ -227,14 +219,10 @@
 .vtm20.r-type-changeling .r-cl-temper .r-boxes { justify-content: flex-start; gap: 2px; flex-wrap: nowrap; }
 .vtm20.r-type-changeling .r-cl-temper .r-box { width: 12px; height: 12px; }
 .vtm20.r-type-changeling .r-cl-temper .r-cl-states { margin: 2px 0 0; }
-.vtm20.r-type-changeling .r-cl-bar { flex-wrap: wrap; gap: 4px; margin-top: 2px; }
 .vtm20.r-type-changeling .r-cl-bar .r-cl-gm { display: inline-flex; gap: 4px; margin-left: auto; }
 /* химерические раны: кнопки — в строке заголовка, клетки ниже обычных */
-.vtm20.r-type-changeling .r-cl-chim-head { align-items: center; gap: 6px; margin-top: 6px; }
 .vtm20.r-type-changeling .r-cl-chim-head .r-banner { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.vtm20.r-type-changeling .r-cl-chim-btns { display: flex; align-items: center; justify-content: flex-end; gap: 3px; margin-top: 4px; }
 .vtm20.r-type-changeling .r-cl-chim-lbl { margin-right: auto; font-size: 11px; color: var(--r-muted); font-style: italic; }
-.vtm20.r-type-changeling .r-cl-chim-btns .r-vc-btn { width: 20px; height: 20px; min-width: 20px; font-size: 11px; }
 .vtm20.r-type-changeling .r-hboxes.is-chimerical .r-hbox-mark { height: 20px; }
 /* Закрашенные точки — обводка и свечение в гамме Грёзы (общее правило r-core.css даёт вампирский красный); Банальность — сталь */
 .vtm20.r-type-changeling .r-dot.is-filled { border-color: #e58ed5; box-shadow: 0 0 4px rgba(111, 191, 147, .3); }
@@ -261,7 +249,6 @@
 .vtm20 .r-ly-pts { width: 3.4em; text-align: center; }
 
 /* витражи Искусств и Царств на вкладке (assets/changeling) */
-.vtm20 .r-cl-art-sym { flex: 0 0 auto; width: 34px; height: 34px; margin-right: 6px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .5)); }
 .vtm20 .r-cl-art-sym.is-small { width: 24px; height: 24px; margin-right: 4px; }
 
 /* панель Грёзы наверху вкладки «Искусства» (arts.hbs): три Темпера рядом, ниже — действия с подписями */
@@ -358,7 +345,6 @@ body.r-theme-light .vtm20.r-type-changeling.r-cl-dark { --r-ink: #10162e; --r-in
 /* «Тёмные века»: кружки без розовой обводки «Шиповника» — серебро и васильковый свет */
 .vtm20.r-type-changeling.r-cl-dark .r-dot.is-filled { border-color: #b9c9f5; box-shadow: 0 0 4px rgba(111, 143, 232, .35); }
 .vtm20.r-type-changeling.r-cl-dark .r-dots.is-glamour { --r-dot-fill: radial-gradient(circle at 38% 32%, #f4f7ff, #6f8fe8 55%, #10183a); --r-dot-border: rgba(185, 201, 245, .4); }
-.vtm20.r-type-changeling.r-cl-dark .r-cl-chip.is-wyrd { color: #dfe6f7; border-color: rgba(185, 201, 245, .5); }
 /* панель Грёзы (и Мглы / Плетения, Чи и Югэна): точки и клетки как у Воли в шапке — 17 px, тот же шаг, по центру колонки */
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots { display: flex; justify-content: center; gap: 6px; width: 100%; margin: 4px 0 2px; }
 .vtm20.r-type-changeling .r-cl-dream .r-cl-temper > .r-dots .r-dot { width: 17px; height: 17px; margin: 0; }
