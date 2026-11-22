@@ -18,7 +18,7 @@
       "runtimeExecutable": "node",
       "runtimeArgs": [
         "D:/FoundryVTT-WindowsPortable-14.365/App/resources/app/main.mjs",
-        "--dataPath=D:/FoundryVTT-WindowsPortable-14.365",
+        "--dataPath=D:/FoundryTestData",
         "--port=30002",
         "--noupnp",
         "--world=vtm20-test"

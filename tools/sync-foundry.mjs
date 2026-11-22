@@ -10,15 +10,11 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const DEST = "D:/FoundryVTT-WindowsPortable-14.365/Data/systems/vtm20e-kamen-edition";
+// установки: Foundry пользователя и тестовый (своя папка данных D:/FoundryTestData — e2e не мешают ему играть)
+const DESTS = ["D:/FoundryVTT-WindowsPortable-14.365/Data/systems/vtm20e-kamen-edition", "D:/FoundryTestData/Data/systems/vtm20e-kamen-edition"];
 const dry = process.argv.includes("--dry"), packs = process.argv.includes("--packs");
 const DIRS = ["module", "templates", "styles", "lang", "assets", "data", "fonts", "lib", ...(packs ? ["packs"] : [])];
 const FILES = ["system.json", "vtm20.mjs", "README.md"];
-
-const dst = fs.lstatSync(DEST, { throwIfNoEntry: false });
-if (!dst) { console.error(`Нет установленной системы: ${DEST}`); process.exit(1); }
-if (dst.isSymbolicLink()) { console.error("Установленная система — ссылка на репозиторий; синхронизировать нечего."); process.exit(1); }
-if (!fs.existsSync(path.join(DEST, "system.json"))) { console.error("В папке назначения нет system.json — не похоже на систему, останавливаюсь."); process.exit(1); }
 
 let changed = 0;
 const robo = (from, to, extra) => {
@@ -30,7 +26,14 @@ const robo = (from, to, extra) => {
   for (const l of lines.slice(0, 8)) console.log("  " + l.replace(/\s+/g, " "));
   if (lines.length > 8) console.log(`  … и ещё ${lines.length - 8}`);
 };
-for (const d of DIRS) { console.log(`${d}/`); robo(path.join(ROOT, d), path.join(DEST, d), ["/MIR"]); }
-console.log("файлы в корне");
-robo(ROOT, DEST, FILES);   // только эти файлы, без /MIR: корень системы не зеркалим
+for (const DEST of DESTS) {
+  const dst = fs.lstatSync(DEST, { throwIfNoEntry: false });
+  if (!dst) { console.log(`— нет установки: ${DEST}`); continue; }
+  if (dst.isSymbolicLink()) { console.log(`— ссылка на репозиторий, пропускаю: ${DEST}`); continue; }
+  if (!fs.existsSync(path.join(DEST, "system.json"))) { console.log(`— нет system.json, пропускаю: ${DEST}`); continue; }
+  console.log(`== ${DEST}`);
+  for (const d of DIRS) { console.log(`${d}/`); robo(path.join(ROOT, d), path.join(DEST, d), ["/MIR"]); }
+  console.log("файлы в корне");
+  robo(ROOT, DEST, FILES);   // только эти файлы, без /MIR: корень системы не зеркалим
+}
 console.log(dry ? `Пробный прогон: изменений ${changed}.` : `Готово: изменений ${changed}. В Foundry — F5${packs ? "" : " (компендии не трогали; --packs при закрытом Foundry)"}.`);
