@@ -424,8 +424,10 @@ body.r-theme-light .vtm20 .r-sym { background: linear-gradient(170deg, #3a3029, 
   .vtm20 .r-btn, .vtm20 button, .vtm20 .r-tile, .vtm20 .r-rail a, .vtm20 .r-rail button { transition: color .14s, background-color .14s, border-color .14s, box-shadow .18s, opacity .14s; }
   .vtm20 .r-chevron i { transition: transform .2s ease; }
   /* худ: всплывающий список сил; трекер: заявки */
-  #r-hud .rh-pop { animation: r-pop-in .16s ease-out; }
-  @keyframes r-pop-in { from { opacity: 0; transform: translateX(-50%) translateY(6px); } to { opacity: 1; transform: translateX(-50%); } }
+  /* своё имя: у списков с поиском ниже тоже r-pop-in, и та, без translateX(-50%), перекрывала эту — список сил появлялся
+     сдвинутым вправо на полширины и прыгал на место */
+  #r-hud .rh-pop { animation: rh-pop-in .16s ease-out; }
+  @keyframes rh-pop-in { from { opacity: 0; transform: translateX(-50%) translateY(6px); } to { opacity: 1; transform: translateX(-50%); } }
   .r-ct-decl, .r-ct-turn-phase { animation: r-reveal .2s ease-out; }
   /* карточки в чате появляются мягко */
   #chat-log .chat-message, .chat-log .chat-message { animation: r-reveal .22s ease-out; }
