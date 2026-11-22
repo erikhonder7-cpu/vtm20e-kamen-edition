@@ -27,7 +27,9 @@
   {{/if}}
 
   <div class="r-dice-tray">
-    {{#each dice}}<span class="r-die {{cls}}"><span>{{value}}</span></span>{{/each}}
+    {{!-- d10 — слои граней (маски в styles/r-chat.css): SVG в сообщениях чата Foundry вырезает --}}
+    {{#each dice}}<span class="r-die is-d10 {{cls}}"><i class="r-d10-e"></i><i class="r-d10-l"></i><i class="r-d10-u"></i><i class="r-d10-f"></i><span>{{value}}</span></span>{{/each}}
+    {{#unless (or dice.length willpower auto)}}<em class="r-dice-none">{{localize "VTM20.Roll.NoDice"}}</em>{{/unless}}
     {{#if willpower}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.WillpowerSuccess'}}"><i class="fa-solid fa-star"></i></span>{{/if}}
     {{#if auto}}<span class="r-die is-will" data-tooltip="{{localize 'VTM20.Roll.AutoSuccess'}}"><i class="fa-solid fa-hand-fist"></i><small>{{auto}}</small></span>{{/if}}
   </div>
@@ -54,7 +56,7 @@
 
   <div class="r-outcome">
     <span class="r-outcome-ribbon"><i class="fa-solid {{outcome.icon}}"></i> {{outcome.label}}</span>
-    {{#unless (or (eq kind "damage") (eq kind "soak"))}}<span class="r-outcome-num"><b>{{successes}}</b> {{localize "VTM20.Roll.Successes"}}</span>{{/unless}}
+    <span class="r-outcome-num"><b>{{successes}}</b> {{#if outcome.unit}}{{outcome.unit}}{{else}}{{localize "VTM20.Roll.Successes"}}{{/if}}</span>
   </div>
 
   {{!-- итог чародейства: что вышло по таблице успехов и чем заплачено Парадоксом --}}

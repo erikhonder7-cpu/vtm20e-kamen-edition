@@ -108,6 +108,11 @@
 .r-roll-card.r-type-changeling .r-die.is-double::before { color: #4a1a41; }
 .r-roll-card.r-type-changeling .r-die.is-one { background: #371431; color: #f5d5ef; }
 .r-roll-card.r-type-changeling .r-die.is-will { background: #33122d; }
+/* d10 в карточке броска: цвета гранёного куба */
+.r-roll-card.r-type-changeling .r-die.is-d10.is-miss { --d-face: #200f1d; }
+.r-roll-card.r-type-changeling .r-die.is-d10.is-hit { --d-face: #f4d2ed; --d-side: #e183d0; }
+.r-roll-card.r-type-changeling .r-die.is-d10.is-ten { --d-face: #f5d2ef; --d-side: #4fa77a; }
+.r-roll-card.r-type-changeling .r-die.is-d10.is-one { --d-face: #371431; }
 .r-roll-card.r-type-changeling .r-card-tally .is-one, .r-roll-card.r-type-changeling .r-card-tally .is-ten em { color: #4fa77a; }
 .r-roll-card.r-type-changeling.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-changeling.is-phenomenal .r-outcome-ribbon { color: #fbedf8; }
 .r-roll-card.r-type-changeling.is-botch .r-outcome-ribbon { color: #e26a6f; }

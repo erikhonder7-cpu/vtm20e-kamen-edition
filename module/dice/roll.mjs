@@ -240,8 +240,8 @@ export async function rollPool(o) {
 /** Подписи исхода и подсказки по виду броска. */
 function outcomeView(state, ev) {
   const k = state.kind;
-  if (k === "damage") return { css: "is-damage", icon: "fa-burst", label: t("Roll.DamageResult", { n: ev.successes }) };
-  if (k === "soak") return { css: "is-soak", icon: "fa-shield-halved", label: t("Roll.SoakResult", { n: ev.successes }) };
+  if (k === "damage") return { css: "is-damage", icon: "fa-burst", label: t("Roll.DamageResult"), unit: t("Roll.Levels") };
+  if (k === "soak") return { css: "is-soak", icon: "fa-shield-halved", label: t("Roll.SoakResult"), unit: t("Roll.Levels") };
   if (ev.outcome === "botch") return { css: "is-botch", icon: "fa-skull", label: t("Outcome.botch") };
   if (ev.outcome === "failure") return { css: "is-failure", icon: "fa-xmark", label: t("Outcome.failure") };
   return { css: `is-success is-${ev.degree}`, icon: "fa-check", label: t(`Degree.${ev.degree}`) };
@@ -261,7 +261,7 @@ function hintFor(state, ev) {
   }
   if (k === "attack" && ev.outcome === "success") {
     if (state.extra?.targetName) return t("Combat.AwaitDefense", { name: state.extra.targetName, n: ev.successes });
-    return t("Roll.AttackHint", { n: Math.max(0, ev.successes - 1) });
+    return ev.successes > 1 ? t("Roll.AttackHint", { n: ev.successes - 1 }) : t("Roll.AttackHit");
   }
   if (k === "attack" && ev.outcome === "botch") return t("Roll.AttackBotch");
   if (k === "defense") return ev.outcome === "botch" ? t("Combat.DefenseBotch") : t("Combat.DefenseHint", { n: ev.successes });

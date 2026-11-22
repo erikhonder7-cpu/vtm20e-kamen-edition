@@ -138,6 +138,11 @@ body.r-theme-light .vtm20.r-type-spirit {
 .r-roll-card.r-type-spirit .r-die.is-double::before { color: #2c3d3e; }
 .r-roll-card.r-type-spirit .r-die.is-one { background: #1e2d2e; color: #dde9e8; }
 .r-roll-card.r-type-spirit .r-die.is-will { background: #1c2a2b; }
+/* d10 в карточке броска: цвета гранёного куба */
+.r-roll-card.r-type-spirit .r-die.is-d10.is-miss { --d-face: #121c1d; }
+.r-roll-card.r-type-spirit .r-die.is-d10.is-hit { --d-face: #e2ebea; --d-side: #a6bfbc; }
+.r-roll-card.r-type-spirit .r-die.is-d10.is-ten { --d-face: #d5e6e4; --d-side: #7f9a98; }
+.r-roll-card.r-type-spirit .r-die.is-d10.is-one { --d-face: #1e2d2e; }
 .r-roll-card.r-type-spirit .r-card-tally .is-one, .r-roll-card.r-type-spirit .r-card-tally .is-ten em { color: #8ca9a6; }
 .r-roll-card.r-type-spirit.is-exceptional .r-outcome-ribbon, .r-roll-card.r-type-spirit.is-phenomenal .r-outcome-ribbon { color: #eef6f5; }
 .r-roll-card.r-type-spirit.is-botch .r-outcome-ribbon { color: #e26a6f; }

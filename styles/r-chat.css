@@ -45,25 +45,58 @@
 
 /* Кости: ромбы d10 */
 .r-dice-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 7px 2px; border-top: 1px solid var(--r-line); border-bottom: 1px solid var(--r-line); }
+.r-dice-tray:has(.is-double) { row-gap: 11px; padding-bottom: 12px; }
 .r-die {
   position: relative; width: 26px; height: 30px; display: grid; place-items: center;
   clip-path: polygon(50% 0, 100% 42%, 50% 100%, 0 42%);
   background: #3a3833; font-family: "Prata", "Old Standard", serif; font-size: 12.5px; color: #d8cfbf;
 }
-.r-die > span { position: relative; top: 2px; }
+.r-die > span { position: relative; z-index: 1; top: 2px; }
 .r-die.is-miss { background: #26252a; color: #7d766a; }
 .r-die.is-hit { background: #cfc6b4; color: #141416; }
 .r-die.is-ten { background: #ede5d4; color: #141416; box-shadow: none; }
 .r-die.is-double::before { content: "×2"; position: absolute; top: 3px; font-family: "Forum", serif; font-size: 8px; color: #8c1c22; z-index: 1; }
 .r-die.is-one { background: #8c1c22; color: #f1e9da; }
 .r-die.is-will { background: #2f3b55; color: #d8cfbf; font-size: 11px; }
+/* d10 — гранёный куб в духе гравюры: грань с числом по центру, бока в штриховке; единица — перевёрнутый куб (видно формой,
+   а не только цветом). Слои — <i> с масками граней (зазор между гранями — ребро цвета --d-edge); SVG в чате Foundry вырезает.
+   Цвета — переменные --d-face (грань) и --d-side (верхние бока; нижние темнее), у линеек — свои (styles/types/*). */
+.r-die.is-d10 {
+  width: 33px; height: 36px; background: none !important; clip-path: none !important; display: block;
+  --d-face: #3a3833; --d-side: color-mix(in srgb, var(--d-face) 74%, #000); --d-low: color-mix(in srgb, var(--d-side) 72%, #000);
+  --d-edge: color-mix(in srgb, var(--d-face) 45%, #000);
+  --d-hatch: repeating-linear-gradient(125deg, rgba(0, 0, 0, .34) 0 1px, transparent 1px 3.2px);
+  --d10-all: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20110'%3E%3Cpolygon%20points%3D'50%2C3%2097%2C55%2073%2C93%2050%2C107%2027%2C93%203%2C55'%2F%3E%3C%2Fsvg%3E");
+  --d10-up: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20110'%3E%3Cpolygon%20points%3D'51.14%2C4.52%2095.52%2C53.81%2081.45%2C55.18'%2F%3E%3Cpolygon%20points%3D'48.86%2C4.52%2018.55%2C55.18%204.48%2C53.81'%2F%3E%3C%2Fsvg%3E");
+  --d10-low: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20110'%3E%3Cpolygon%20points%3D'4.42%2C56.27%2018.89%2C58.68%2048.12%2C81.71%2048.89%2C105.46%2027.34%2C91.13'%2F%3E%3Cpolygon%20points%3D'95.58%2C56.27%2072.66%2C91.13%2051.11%2C105.46%2051.88%2C81.71%2081.11%2C58.68'%2F%3E%3C%2Fsvg%3E");
+  --d10-face: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20110'%3E%3Cpolygon%20points%3D'50%2C4.9%2080.15%2C56.58%2050%2C80.1%2019.85%2C56.58'%2F%3E%3C%2Fsvg%3E");
+}
+.r-die.is-d10 > i { position: absolute; inset: 0; mask: center / 100% 100% no-repeat; -webkit-mask: center / 100% 100% no-repeat; }
+.r-die.is-d10 > .r-d10-e { background: var(--d-edge); mask-image: var(--d10-all); -webkit-mask-image: var(--d10-all); }
+.r-die.is-d10 > .r-d10-l { background: var(--d-hatch), var(--d-low); mask-image: var(--d10-low); -webkit-mask-image: var(--d10-low); }
+.r-die.is-d10 > .r-d10-u { background: var(--d-hatch), var(--d-side); mask-image: var(--d10-up); -webkit-mask-image: var(--d10-up); }
+.r-die.is-d10 > .r-d10-f { background: var(--d-face); mask-image: var(--d10-face); -webkit-mask-image: var(--d10-face); }
+.r-die.is-d10 > span { position: absolute; z-index: 1; left: 0; right: 0; top: 29%; text-align: center; line-height: 1; font-size: 14px; }
+.r-die.is-d10.is-ten > span { font-size: 12.5px; letter-spacing: -.5px; top: 33%; }
+.r-die.is-d10.is-one > i { transform: rotate(180deg); }
+.r-die.is-d10.is-one > span { top: 42%; }
+/* промах: цифра и рёбра светлее цвета линейки — тёмно-лиловые у магов и т. п. на тёмной карточке почти не видны */
+.r-die.is-d10.is-miss { --d-face: #2e2c31; --d-ink: color-mix(in srgb, currentColor 62%, #d8cfbf); --d-edge: color-mix(in srgb, var(--d-ink) 55%, transparent); }
+.r-die.is-d10.is-miss > span { color: var(--d-ink); }
+.r-die.is-d10.is-hit { --d-face: #e6ddc9; }
+.r-die.is-d10.is-ten { --d-face: #f6efdf; --d-side: #c9a46a; }
+.r-die.is-d10.is-one { --d-face: #8c1c22; --d-edge: color-mix(in srgb, currentColor 55%, transparent); }
+/* «×2» специализации — под кубом цветом боков десятки (у линеек свой) */
+.r-die.is-d10.is-double::before { z-index: 2; top: auto; bottom: -9px; left: 50%; transform: translateX(-50%); font-size: 9.5px; line-height: 1; background: none; color: var(--d-side) !important; }
+.r-dice-none { padding: 6px 0; font-size: 12px; color: var(--r-muted); }
 
 /* Исход */
 /* исход и число успехов — всегда в одну строку: длинная плашка сжимается, а не сталкивает число вниз */
 .r-outcome { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; }
 /* итог — статус, а не кнопка: без рамки и заливки (рядом настоящие кнопки), значение несут значок и цвет текста */
 .r-outcome-ribbon {
-  display: inline-flex; align-items: center; gap: 6px; padding: 0; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;   /* в узком чате — в одну строку */
+  /* длинный исход («Исключительный успех») в узком чате переносится на вторую строку, а не обрезается под число */
+  display: inline-flex; align-items: center; gap: 6px; padding: 0; min-width: 0; flex: 0 1 auto; line-height: 1.15; text-wrap: balance;
   font-family: "IM Fell SC", "Forum", serif; font-size: 13px; letter-spacing: .5px; text-transform: uppercase;
   color: #e6ddcc; background: none; border: 0;
 }
@@ -115,6 +148,9 @@
 
 /* Короткое уведомление */
 .r-notice { padding: 4px 8px; font-size: 13px; font-style: italic; border-left: 2px solid #4a453c; background: rgba(0, 0, 0, .25); color: #d8cfbf; }
+/* значок в начале — в своей колонке: перенесённая строка встаёт под текст, а не под значок */
+.r-notice:has(> i[class*="fa-"]:first-child) { position: relative; padding-left: 28px; }
+.r-notice > i[class*="fa-"]:first-child { position: absolute; left: 8px; top: 6px; width: 1.25em; margin: 0; text-align: center; }
 .r-notice i { color: #c4474c; margin-right: 4px; }
 .r-notice .r-fate { font-style: normal; font-family: "IM Fell SC", "Forum", serif; letter-spacing: 1.5px; text-transform: uppercase; color: #c4474c; }
 .r-notice.is-warn { border-left-color: #b83a3f; }
@@ -199,6 +235,21 @@
 .r-contest-card .r-cc-head b { font-weight: 400; color: var(--r-ink); }
 .r-contest-card .r-cc-head i { color: var(--r-accent); font-size: 12px; }
 .r-contest-card .r-cc-line { margin: 0 0 6px; font-size: 12.5px; color: var(--r-ink-2); }
+/* встречное: две стороны друг против друга, у каждой своё число; проигравший приглушён */
+.r-cc-duel { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--r-line); border-bottom: 1px solid var(--r-line); }
+.r-cc-side { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--r-muted); }
+.r-cc-side.is-b { flex-direction: row-reverse; text-align: right; }
+.r-cc-side b { flex: 1 1 auto; min-width: 0; font-family: "Prata", "Old Standard", Georgia, serif; font-weight: 400; font-size: 13.5px; line-height: 1.15; overflow-wrap: anywhere; }
+.r-cc-side span { flex: 0 0 auto; font-family: "Prata", "Old Standard", serif; font-size: 24px; line-height: 1; }
+.r-cc-side.is-win { color: var(--r-ink); }
+.r-cc-side.is-win span { color: #fff6e4; }
+.r-cc-vs { font-family: "IM Fell SC", "Forum", serif; font-style: normal; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-muted); }
+/* командное: кто сколько внёс */
+.r-cc-team { margin: 0; padding: 4px 0; list-style: none; border-top: 1px solid var(--r-line); border-bottom: 1px solid var(--r-line); }
+.r-cc-team li { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; padding: 2px 0; }
+.r-cc-team b { min-width: 0; font-family: "Prata", "Old Standard", Georgia, serif; font-weight: 400; font-size: 13.5px; color: var(--r-ink); }
+.r-cc-team span { flex: 0 0 auto; font-family: "Prata", "Old Standard", serif; font-size: 15px; color: var(--r-ink); }
+.r-cc-team .is-botch span { color: #e26a6f; font-size: 12px; }
 .vtm20 .r-roll-mode { flex: 1 1 auto; height: 28px; }
 .vtm20 .r-roll-need { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-style: italic; color: var(--r-muted); white-space: nowrap; }
 
@@ -268,7 +319,7 @@
 .r-notice { position: relative; margin: 2px 0; padding: 7px 10px; font-size: 13px; font-style: normal; line-height: 1.4;
   background: linear-gradient(180deg, #1a1a1d, #141416); border: 1px solid #2c2c31; border-left: 3px solid #3a3833; color: #d8cfbf; }
 .r-notice::before { content: ""; position: absolute; left: -3px; top: -1px; width: 26px; height: 2px; background: #8c1c22; }
-.r-notice > i:first-child { color: #c4474c; margin-right: 6px; }
+.r-notice > i[class*="fa-"]:first-child { color: #c4474c; margin-right: 6px; }
 .r-notice b { font-family: "Prata", "Old Standard", Georgia, serif; font-weight: 400; color: #e9dfcf; }
 .r-notice .r-muted { font-size: 12px; font-style: italic; color: #7d766a; }
 .r-notice em { color: #b3aa98; }
