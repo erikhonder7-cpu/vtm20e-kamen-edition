@@ -463,8 +463,14 @@ openStrategy: () => openStrategy(),
     const all = sel => fresh.flatMap(root => [...root.querySelectorAll(sel)]);
     attachCombos(this.element);                         // Натура, Маска, Секта — свой список вместо <datalist>
     // имя не влезает рядом с амплуа — шрифт на ступень меньше, ещё не влезает — ещё на одну (по ширине, а не по числу букв)
+    // меряем только при новом поле, другом имени или ширине окна: чтение scrollWidth заставляет браузер разложить окно заново
+    // (на каждой правке крови и ран — до 50+ мс), а шапка теперь обновляется на месте и поле остаётся прежним
     const nameEl = this.element.querySelector("input.r-name");
-    if (nameEl) for (const cls of ["is-long", "is-xlong"]) { if (nameEl.scrollWidth <= nameEl.clientWidth + 1) break; nameEl.classList.remove("is-long"); nameEl.classList.add(cls); }
+    const nameKey = nameEl && `${nameEl.value}|${Math.round(this.position.width)}`;
+    if (nameEl && (nameEl !== this._rNameEl || nameKey !== this._rNameKey)) {
+      this._rNameEl = nameEl; this._rNameKey = nameKey;
+      for (const cls of ["is-long", "is-xlong"]) { if (nameEl.scrollWidth <= nameEl.clientWidth + 1) break; nameEl.classList.remove("is-long"); nameEl.classList.add(cls); }
+    }
     // строки-списки (Дары, ритуалы, фетиши, шрамы, Грани, Кровные права): текст свёрнут, щелчок по имени раскрывает;
     // раскрытые переживают перерисовку, как Дисциплины (ключ — имя в списке)
     for (const row of this.element.querySelectorAll(".r-edge")) {
