@@ -5,7 +5,6 @@
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { createRequire } from "node:module";
 
@@ -26,7 +25,10 @@ export async function checkPacks(root) {
   const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8" });
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "system.json"), "utf8"));
   const ClassicLevel = classicLevel();
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vtm20-packs-"));
+  // временная копия — в tools/.cache/tmp проекта (диск проекта, не системный C), удаляется в finally
+  const base = path.join(root, "tools", ".cache", "tmp");
+  fs.mkdirSync(base, { recursive: true });
+  const tmp = fs.mkdtempSync(path.join(base, "vtm20-packs-"));
   const problems = [], counts = {};
   try {
     for (const pack of manifest.packs ?? []) {

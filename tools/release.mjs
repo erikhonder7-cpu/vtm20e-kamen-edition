@@ -7,7 +7,6 @@
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import net from "node:net";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -128,7 +127,10 @@ done.push("тег отправлен");
 
 // 7. Архив и релиз
 step("Релиз на GitHub");
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vtm20-release-"));
+// архив и заметки — во временной папке проекта (tools/.cache/tmp, не системный C); после релиза она удаляется
+fs.mkdirSync(path.join(ROOT, "tools", ".cache", "tmp"), { recursive: true });
+const tmp = fs.mkdtempSync(path.join(ROOT, "tools", ".cache", "tmp", "vtm20-release-"));
+process.on("exit", () => { try { fs.rmSync(tmp, { recursive: true, force: true }); } catch { /* занято — останется в tools/.cache */ } });
 const zip = path.join(tmp, `${manifest.id}.zip`);
 run("git", ["archive", "--format=zip", "-o", zip, `v${version}`, "system.json", "vtm20.mjs", "module", "templates", "styles", "lang", "assets", "data", "packs", "fonts", "lib", "README.md"]);
 fs.copyFileSync(path.join(ROOT, "system.json"), path.join(tmp, "system.json"));
