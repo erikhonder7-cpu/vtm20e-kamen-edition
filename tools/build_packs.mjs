@@ -685,8 +685,8 @@ BUILDERS["hunter-rules"] = function () {
   const roman = ["I", "II", "III", "IV", "V"], V = h.virtues;
   const pages = h.creeds.map(c => ({ name: `${c.name} (${V[c.virtue]})`, html: h.edges.filter(e => e.path === c.key).map(e => {
     const roll = !e.roll ? "без броска" : `${[e.roll.trait1 === "pick" ? "любой Атрибут" : e.roll.trait1 ? ru.VTM20.Attr?.[e.roll.trait1.split(".")[1]] ?? e.roll.trait1 : "",
-      e.roll.trait2.startsWith("hunter.") ? V[e.roll.trait2.slice(7)] : "Фехтование или Драка"].filter(Boolean).join(" + ")}, ${e.roll.byTarget ? "сложность по цели" : `сл. ${e.roll.difficulty}`}`;
-    return `<h3>${roman[e.level - 1]}. ${e.name}</h3><p><em>${roll}${e.conviction ? ` · Убеждённость ${e.conviction}` : ""}</em></p><p>${e.text}</p>`;
+      e.roll.trait2.startsWith("hunter.") ? V[e.roll.trait2.slice(7)] : "Фехтование или Драка"].filter(Boolean).join(" + ")}, ${e.roll.byTarget ? "сложность по цели" : `сложность ${e.roll.difficulty}`}`;
+    return `<h3>${roman[e.level - 1]}. ${e.name}</h3><p><em>${roll}${e.conviction ? ` · Убеждённость ${e.conviction}` : ""}</em></p><p>${e.text.replace(/(?<![А-Яа-яЁё])сл. /g, "сложность ")}</p>`;
   }).join("") }));
   p.addBook({ name: "Грани охотников", pages, key: "hunter-rules:edges" });
   return p;
