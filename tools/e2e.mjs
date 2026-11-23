@@ -7332,6 +7332,112 @@ try {
     if (temp.length) await Actor.deleteDocuments(temp);
   });
 
+  // Справочники со знака листа: плашки-ссылки и «назад», «В книге правил», «В чат», строки Даров с броском и ценой
+  await check("Справочники: ссылки между карточками, «назад», «В книге правил», «Показать в чат», строки Даров с броском", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const { openAtlas } = await import(`/systems/${sid}/module/apps/atlas.mjs`);
+      const app = await openAtlas("wraith", "arc:argos"); await wait(900);
+      const h2 = () => app.element.querySelector(".r-cl-card h2")?.textContent.trim();
+      out.start = h2();
+      // ссылки на связанные карточки — плашки или значения фактов (союзные Гильдии)
+      out.chips = app.element.querySelectorAll('[data-action="jump"]').length;
+      app.element.querySelector('[data-action="jump"]')?.click(); await wait(700);
+      out.jumped = h2() !== out.start;
+      out.tools = app.element.querySelectorAll(".r-cl-tool").length;                 // назад + книга + чат
+      app.element.querySelector(".r-cl-tool")?.click(); await wait(700);
+      out.back = h2();
+      // «Показать в чат»
+      const n0 = game.messages.size;
+      [...app.element.querySelectorAll(".r-cl-tool")].at(-1)?.click(); await wait(900);
+      const msg = game.messages.contents.at(-1);
+      out.chat = game.messages.size === n0 + 1 && /r-atlas-chat/.test(msg?.content ?? "");
+      if (out.chat) await msg.delete();
+      // «В книге правил» — открывается журнал книги призраков
+      app.element.querySelectorAll(".r-cl-tool")[0]?.click(); await wait(4000);
+      const j = [...foundry.applications.instances.values()].find(a => a.document?.documentName === "JournalEntry");
+      out.rules = j?.document?.pack === `${sid}.wraith-books`;
+      await j?.close(); await app.close();
+      // Дары: в строке — бросок и сложность
+      const w = await openAtlas("werewolf", ""); await wait(900);
+      out.gift = [...w.element.querySelectorAll(".r-cl-trait summary em")].some(e => /сложность/.test(e.textContent));
+      await w.close();
+      return out;
+    });
+    const bad = [];
+    if (r.start !== "Аргос") bad.push(`карточка «${r.start}»`);
+    if (!r.chips || !r.jumped) bad.push(`ссылки не ведут на карточку (${r.chips})`);
+    if (r.tools !== 3) bad.push(`кнопок в шапке ${r.tools} вместо 3`);
+    if (r.back !== "Аргос") bad.push(`«назад» привёл на «${r.back}»`);
+    if (!r.chat) bad.push("карточка не ушла в чат");
+    if (!r.rules) bad.push("«В книге правил» не открыл книгу призраков");
+    if (!r.gift) bad.push("в строках Даров нет броска со сложностью");
+    if (bad.length) throw new Error(bad.join("; "));
+  });
+
+  // Книга правил: первое упоминание племени — ссылка на карточку, термины — с подсказкой; щелчок по ссылке открывает справочник
+  await check("Справочники: книги правил — ссылки на карточки и подсказки терминов", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const docs = await game.packs.get(`${sid}.werewolf-rules`).getDocuments();
+      const j = docs.find(d => d.pages.contents.some(p => p.name === "Племена"));
+      const pg = j.pages.contents.find(p => p.name === "Племена");
+      await j.sheet.render(true, { pageId: pg.id }); await wait(1500);
+      j.sheet.goToPage?.(pg.id); await wait(1800);
+      const el = j.sheet.element;
+      const out = { links: el.querySelectorAll("a.r-atlas-link").length, terms: el.querySelectorAll(".r-term").length };
+      el.querySelector("a.r-atlas-link")?.click(); await wait(1500);
+      const atlas = foundry.applications.instances.get("r-atlas-werewolf");
+      out.opened = !!atlas?.element?.querySelector(".r-cl-card h2");
+      await atlas?.close(); await j.sheet.close();
+      return out;
+    });
+    if (!r.links || !r.terms || !r.opened) throw new Error(`ссылок ${r.links}, подсказок ${r.terms}, карточка открылась: ${r.opened}`);
+  });
+
+  // «Справочники» (Ctrl+K): ищет и по карточкам, и по страницам книг правил; страница книги открывается с подсветкой
+  await check("Справочники: общий поиск по справочникам и книгам правил, подсветка найденного", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms));
+      const { openLoreSearch } = await import(`/systems/${sid}/module/apps/lore-search.mjs`);
+      const app = await openLoreSearch(); await app.find("серебр");
+      const el = app.element;
+      const out = { refs: el.querySelectorAll('[data-part="refs"] .r-ls-hit').length, pages: el.querySelectorAll('[data-part="books"] .r-ls-hit').length };
+      el.querySelector('[data-action="page"]')?.click(); await wait(4500);
+      out.mark = document.querySelector("mark.r-ls-found")?.textContent?.toLowerCase() ?? "";
+      for (const a of [...foundry.applications.instances.values()]) if (a.document?.documentName === "JournalEntry") await a.close();
+      await app.close();
+      return out;
+    });
+    if (!r.refs || !r.pages || r.mark !== "серебр") throw new Error(`в справочниках ${r.refs}, в книгах ${r.pages}, подсветка «${r.mark}»`);
+  });
+
+  // Справочник кланов: плашка ветви ведёт на карточку, «назад» возвращает; у Домов — паспорт и колонки
+  await check("Справочники: кланы — ветви клана и «назад», паспорт; Дома — паспорт с Мукой и Обликами", async () => {
+    const r = await page.evaluate(async () => {
+      const sid = game.system.id, wait = ms => new Promise(res => setTimeout(res, ms)), out = {};
+      const c = await (await import(`/systems/${sid}/module/apps/clans.mjs`)).openClans("brujah"); await wait(800);
+      const h2 = () => c.element.querySelector(".r-cl-card h2")?.textContent.trim();
+      out.passport = c.element.querySelector(".r-cl-passport")?.textContent ?? "";
+      c.element.querySelector(".r-cl-aside a.r-cl-disc.is-link")?.click(); await wait(700);
+      out.went = h2();
+      c.element.querySelector(".r-cl-tool")?.click(); await wait(700);
+      out.back = h2(); await c.close();
+      const h = await (await import(`/systems/${sid}/module/apps/houses.mjs`)).openHouses("devils"); await wait(800);
+      out.house = h.element.querySelector(".r-cl-passport")?.textContent ?? "";
+      out.aside = !!h.element.querySelector(".r-cl-aside .r-cl-trait");
+      await h.close();
+      return out;
+    });
+    const bad = [];
+    if (!/Секта/.test(r.passport)) bad.push(`паспорт клана «${r.passport}»`);
+    if (r.went !== "Бруха-антитрибу") bad.push(`ветвь «${r.went}»`);
+    if (r.back !== "Бруха") bad.push(`«назад» → «${r.back}»`);
+    if (!/Мука/i.test(r.house) || !/Облики/.test(r.house)) bad.push(`паспорт Дома «${r.house}»`);
+    if (!r.aside) bad.push("нет Знаний в правой колонке");
+    if (bad.length) throw new Error(bad.join("; "));
+  });
+
   // Модуль Берлина 1939 (vtm20e-kamen-berlin, отдельный от системы): если стоит в песочнице — включить, проверить и вернуть как было
   const BERLIN = "vtm20e-kamen-berlin";
   const bSaved = await page.evaluate(async id => {
