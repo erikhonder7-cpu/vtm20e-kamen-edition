@@ -2056,24 +2056,24 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .r-atlas-chat dl { margin: 6px 0 0; }
 
 /* Справочник линеек: паспорт под названием и две колонки на широком окне (templates/apps/atlas.hbs) */
-.vtm20.r-atlas .r-cl-passport { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; font-size: 13px; color: var(--r-ink-2); }
-.vtm20.r-atlas .r-cl-passport b { font-family: var(--r-caps); font-weight: 400; font-size: 10.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); margin-right: 3px; }
-.vtm20.r-atlas .r-cl-card { container-type: inline-size; }
+.vtm20.r-clans .r-cl-passport { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; font-size: 13px; color: var(--r-ink-2); }
+.vtm20.r-clans .r-cl-passport b { font-family: var(--r-caps); font-weight: 400; font-size: 10.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); margin-right: 3px; }
+.vtm20.r-clans .r-cl-card { container-type: inline-size; }
 /* узко: обёртки не мешают — прежний порядок: текст, плашки и факты, строки */
-.vtm20.r-atlas .r-cl-body, .vtm20.r-atlas .r-cl-main, .vtm20.r-atlas .r-cl-aside, .vtm20.r-atlas .r-cl-rows { display: contents; }
+.vtm20.r-clans .r-cl-body, .vtm20.r-clans .r-cl-main, .vtm20.r-clans .r-cl-aside, .vtm20.r-clans .r-cl-rows { display: contents; }
 @container (min-width: 720px) {
-  .vtm20.r-atlas .r-cl-body { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 16px 22px; align-items: start; }
-  .vtm20.r-atlas .r-cl-main { display: flex; flex-direction: column; gap: 16px; grid-column: 1; grid-row: 1; min-width: 0; }
-  .vtm20.r-atlas .r-cl-aside { display: flex; flex-direction: column; gap: 16px; grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 0; }
-  .vtm20.r-atlas .r-cl-rows { display: flex; flex-direction: column; gap: 16px; grid-column: 1; grid-row: 2; min-width: 0; }
-  .vtm20.r-atlas .r-cl-body:not(:has(.r-cl-aside)) { grid-template-columns: minmax(0, 1fr); }
-  .vtm20.r-atlas .r-cl-body:not(:has(.r-cl-aside)) .r-cl-main, .vtm20.r-atlas .r-cl-body:not(:has(.r-cl-aside)) .r-cl-rows { max-width: 72ch; }
-  .vtm20.r-atlas .r-cl-aside .r-at-facts { grid-template-columns: 1fr; }
-  .vtm20.r-atlas .r-cl-aside .r-at-facts dd { margin: 0 0 8px; }
-  .vtm20.r-atlas .r-cl-main .r-cl-sec, .vtm20.r-atlas .r-cl-rows .r-cl-sec { max-width: 72ch; }
+  .vtm20.r-clans .r-cl-body { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 16px 22px; align-items: start; }
+  .vtm20.r-clans .r-cl-main { display: flex; flex-direction: column; gap: 16px; grid-column: 1; grid-row: 1; min-width: 0; }
+  .vtm20.r-clans .r-cl-aside { display: flex; flex-direction: column; gap: 16px; grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 0; }
+  .vtm20.r-clans .r-cl-rows { display: flex; flex-direction: column; gap: 16px; grid-column: 1; grid-row: 2; min-width: 0; }
+  .vtm20.r-clans .r-cl-body:not(:has(.r-cl-aside)) { grid-template-columns: minmax(0, 1fr); }
+  .vtm20.r-clans .r-cl-body:not(:has(.r-cl-aside)) .r-cl-main, .vtm20.r-clans .r-cl-body:not(:has(.r-cl-aside)) .r-cl-rows { max-width: 72ch; }
+  .vtm20.r-clans .r-cl-aside .r-at-facts { grid-template-columns: 1fr; }
+  .vtm20.r-clans .r-cl-aside .r-at-facts dd { margin: 0 0 8px; }
+  .vtm20.r-clans .r-cl-main .r-cl-sec, .vtm20.r-clans .r-cl-rows .r-cl-sec { max-width: 72ch; }
 }
-.vtm20.r-atlas a.r-cl-plink { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--r-accent, #c4474c) 60%, transparent); text-underline-offset: 3px; cursor: pointer; }
-.vtm20.r-atlas a.r-cl-plink:hover { color: var(--r-ink); text-decoration-color: var(--r-accent, #c4474c); }
+.vtm20.r-clans a.r-cl-plink { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--r-accent, #c4474c) 60%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.vtm20.r-clans a.r-cl-plink:hover { color: var(--r-ink); text-decoration-color: var(--r-accent, #c4474c); }
 /* книги правил в «Справочниках»: заголовок книги со значком, страницы — значок листа */
 .vtm20 .r-ls-book.is-rules h3 i { margin-right: 4px; font-size: .85em; color: var(--r-accent); }
 .vtm20 .r-ls-count { display: flex; gap: 8px; }
@@ -2081,3 +2081,9 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-ls-jump b { font-family: var(--r-body, inherit); font-size: 12px; letter-spacing: 0; color: var(--r-accent); }
 .vtm20 a.r-ls-jump:hover, .vtm20 a.r-ls-jump:focus-visible { border-color: color-mix(in srgb, var(--r-accent) 60%, transparent); color: var(--r-ink); }
 .vtm20 .r-ls-jump.is-off { opacity: .45; cursor: default; }
+/* правая колонка длиннее экрана (Знания Домов) — не липнет, листается вместе с карточкой; английское имя Знания — второй строкой */
+@container (min-width: 720px) {
+  .vtm20.r-clans .r-cl-aside.is-static { position: static; }
+  .vtm20.r-clans .r-cl-aside .r-cl-trait summary em { display: block; margin-top: 1px; }
+  .vtm20.r-clans:not(.r-atlas) .r-cl-aside .r-cl-discs { flex-direction: column; align-items: stretch; }
+}

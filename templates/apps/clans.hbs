@@ -24,19 +24,26 @@
     <header class="r-cl-head">
       <span class="r-cl-bigmedal r-cr-medal">{{#if sym}}{{rSym sym}}{{else}}<i class="fa-solid fa-droplet"></i>{{/if}}</span>
       <div class="r-cl-titles">
-        <div class="r-cl-kicker">{{groupLabel}}{{#if sect}} · {{sect}}{{/if}}</div>
+        <div class="r-cl-kicker">{{groupLabel}}</div>
         <h2>{{name}}</h2>
         {{#if nickname}}<div class="r-cl-nick">«{{nickname}}»</div>{{/if}}
         {{#if en}}<div class="r-cl-en">{{en}}</div>{{/if}}
-        {{#if parent}}<a class="r-cl-parent" data-action="pick" data-key="{{parent.key}}"><i class="fa-solid fa-turn-up"></i> {{localize "VTM20.Clans.Parent"}}: {{parent.name}}</a>{{/if}}
+        {{!-- паспорт: секта и основной клан строкой под названием --}}
+        <div class="r-cl-passport">{{#if sect}}<span><b>{{localize "VTM20.Clans.Sect"}}</b> {{sect}}</span>{{/if}}{{#if parent}}<span><b>{{localize "VTM20.Clans.Parent"}}</b> <a class="r-cl-plink" data-action="pick" data-key="{{parent.key}}">{{parent.name}}</a></span>{{/if}}</div>
       </div>
     </header>
+
+    {{!-- две колонки на широком окне: слева предание, изъян, достоинства; справа Дисциплины и родня --}}
+    <div class="r-cl-body">
+      <div class="r-cl-main">
 
     {{#if lore}}<section class="r-cl-sec r-cl-lore">
       <h3>{{localize "VTM20.Clans.Lore"}}</h3>
       {{{lore}}}
     </section>{{/if}}
 
+      </div>
+      <aside class="r-cl-aside">
     <section class="r-cl-sec">
       <h3>{{localize "VTM20.Clans.Disciplines"}}</h3>
       <div class="r-cl-discs">
@@ -46,6 +53,14 @@
       </div>
     </section>
 
+    {{#if kin.length}}
+    <section class="r-cl-sec">
+      <h3>{{kinLabel}} <b>{{kin.length}}</b></h3>
+      <div class="r-cl-discs">{{#each kin}}<a class="r-cl-disc is-link" data-action="pick" data-key="{{key}}">{{#if sym}}{{rSym sym}}{{/if}}{{name}}</a>{{/each}}</div>
+    </section>
+    {{/if}}
+      </aside>
+      <div class="r-cl-rows">
     <section class="r-cl-sec r-cl-weak">
       <h3>{{localize "VTM20.Sheet.Weakness"}}</h3>
       <div class="r-weakness-text">{{{weakness}}}</div>
@@ -64,6 +79,8 @@
       {{#each flaws}}<details class="r-cl-trait is-flaw" name="r-clans-trait"><summary><span>{{name}}</span><b>{{cost}}</b></summary><div class="r-cl-trait-body">{{{html}}}</div></details>{{/each}}
     </details>
     {{/if}}
+      </div>
+    </div>
   </article>
   {{/with}}
 </div>

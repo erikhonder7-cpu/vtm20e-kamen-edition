@@ -11,6 +11,7 @@ import { cardTools } from "../ui/atlas-links.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
+const apos = s => String(s ?? "").replace(/(\p{L})'(\p{L})/gu, "$1’$2");
 
 /** Открыть справочник (на клане `key`, если он задан); уже открытое окно переключается на клан. */
 export async function openClans(key = "") {
@@ -50,7 +51,7 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
       v,
       groups: Codex.clanGroups().map(g => ({ key: g.key, label: g.label, n: g.clans.length, active: g.key === v.group })),
       list: Codex.clans.map(x => ({
-        key: x.key, name: x.name.replace(/(\p{L})'(\p{L})/gu, "$1’$2"), nickname: x.nickname, group: x.group, sym: Codex.clanSymbol(x.key), active: x.key === v.key,
+        key: x.key, name: apos(x.name), nickname: x.nickname, group: x.group, sym: Codex.clanSymbol(x.key), active: x.key === v.key,
         text: [x.name, x.nickname, x.en, x.sect, x.disciplinesText].join(" ").toLowerCase()
       })),
       card: c ? this.#card(c) : null
@@ -61,8 +62,12 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
   #card(c) {
     const parentKey = Codex.traitClan(c.key), parent = parentKey !== c.key ? Codex.clan(parentKey) : null;
     const traits = Codex.merits.filter(m => m.clan === parentKey && Codex.visible(m));
+    // родня: у клана — его ветви и антитрибу, у ветви — остальные ветви того же клана
+    const kin = Codex.clans.filter(x => x.key !== c.key && Codex.traitClan(x.key) === parentKey && x.key !== parentKey)
+      .map(x => ({ key: x.key, name: apos(x.name), sym: Codex.clanSymbol(x.key) }));
     return {
-      ...c, sym: Codex.clanSymbol(c.key), groupLabel: t(`ClanGroup.${c.group}`), parent,
+      ...c, name: apos(c.name), sym: Codex.clanSymbol(c.key), groupLabel: t(`ClanGroup.${c.group}`), parent: parent && { ...parent, name: apos(parent.name) },
+      kin, kinLabel: t(parent ? "Clans.KinOther" : "Clans.Kin"),
       // о клане: кто они и чем живут (data/clan-lore.json, пересказ по книгам)
       lore: Codex["clan-lore"]?.[c.key] ?? "",
       discs: (c.disciplines ?? []).map(k => ({ label: Codex.disciplineLabel(k), sym: Codex.disciplineSymbol(k) })),
@@ -99,7 +104,7 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
     super._onRender(context, options);
     this.#filter();
     applyGlossary(this.element, "vampire");
-    cardTools(this, "vampire");
+    cardTools(this, "vampire", { back: this.history?.length ? () => this.back() : null });
   }
 
   #filter() {
@@ -116,6 +121,18 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
     list.querySelector(".r-cl-empty").hidden = shown > 0;
   }
 
-  static #onPick(event, target) { this.v.key = target.dataset.key; this.render(); }
+  static #onPick(event, target) { this.go(target.dataset.key); }
+  /** Перейти на клан с запоминанием, откуда пришли (кнопка «назад»); группа слева — его. */
+  go(key) {
+    const c = Codex.clan(key);
+    if (!c || key === this.v.key) return;
+    (this.history ??= []).push({ ...this.v });
+    Object.assign(this.v, { key, group: c.group });
+    this.render();
+  }
+  back() {
+    const prev = this.history?.pop(); if (!prev) return;
+    Object.assign(this.v, prev); this.render();
+  }
   static #onGroup(event, target) { Object.assign(this.v, { group: target.dataset.group, q: "" }); this.render(); }
 }

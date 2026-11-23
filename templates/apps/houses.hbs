@@ -22,12 +22,18 @@
     <header class="r-cl-head">
       <span class="r-cl-bigmedal r-hs-medal"><img src="systems/vtm20e-kamen-edition/assets/ui/fallen-sigil.svg" alt=""></span>
       <div class="r-cl-titles">
-        <div class="r-cl-kicker">{{localize "VTM20.Demon.House"}} · {{localize "VTM20.Demon.StartTorment"}} {{torment}}</div>
+        <div class="r-cl-kicker">{{localize "VTM20.Demon.House"}}</div>
         <h2>{{name}}</h2>
         <div class="r-cl-nick">«{{akkadian}}»</div>
         <div class="r-cl-en">{{en}}</div>
+        {{!-- паспорт: начальная Мука и Облики строкой под названием --}}
+        <div class="r-cl-passport"><span><b>{{localize "VTM20.Demon.StartTorment"}}</b> {{torment}}</span><span><b>{{localize "VTM20.Demon.VisagesShort"}}</b> {{#each visages}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}</span></div>
       </div>
     </header>
+
+    {{!-- две колонки на широком окне: слева история, Облики, ритуалы и реликвии; справа Знания (свои и общие) --}}
+    <div class="r-cl-body">
+      <div class="r-cl-main">
 
     <section class="r-cl-sec"><p class="r-hs-text">{{text}}</p></section>
 
@@ -43,6 +49,8 @@
     </section>
     {{/if}}
 
+      </div>
+      <aside class="r-cl-aside is-static">
     <section class="r-cl-sec">
       <h3>{{localize "VTM20.Demon.HouseLores"}} <b>{{lores.length}}</b></h3>
       {{#each lores}}
@@ -61,6 +69,8 @@
       {{/each}}
     </section>
 
+      </aside>
+      <div class="r-cl-rows">
     <section class="r-cl-sec">
       <h3>{{localize "VTM20.Demon.Visages"}}</h3>
       <div class="r-hs-visages">
@@ -114,6 +124,8 @@
     </section>
     {{/if}}
     {{#if history.length}}<p class="r-hs-src">{{localize "VTM20.Demon.HofSource"}}</p>{{/if}}
+      </div>
+    </div>
   </article>
   {{/with}}{{/if}}
 
