@@ -1,7 +1,7 @@
-<p align="center"><img src="docs/banner.webp" alt="VtM20 Kamen &amp; Shamil Edition — ночной город под луной" width="100%"></p>
+<p align="center"><img src="docs/banner.webp" alt="World of Darkness 20E — Kamen &amp; Shamil Edition: ночной город под луной" width="100%"></p>
 <p align="center"><img src="docs/emblem.webp" alt="" width="96"></p>
 
-<h1 align="center">Vampire: The Masquerade 20th<br><sub>Kamen &amp; Shamil Edition</sub></h1>
+<h1 align="center">World of Darkness 20E<br><sub>«Kamen&amp;Shamil Edition»</sub></h1>
 
 <p align="center">
   <a href="https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest"><img src="https://img.shields.io/github/v/release/erikhonder7-cpu/vtm20e-kamen-edition?label=%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F&color=8c1c22&style=flat-square" alt="Версия"></a>
@@ -11,7 +11,12 @@
   <a href="https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases"><img src="https://img.shields.io/github/downloads/erikhonder7-cpu/vtm20e-kamen-edition/total?label=%D1%81%D0%BA%D0%B0%D1%87%D0%B8%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9&color=5a554d&style=flat-square" alt="Скачиваний"></a>
 </p>
 
-<p align="center"><i>Система «Вампиров: Маскарада» 20-летнего издания для Foundry VTT — на русском, с автоматизацией правил V20<br>и оформлением «Liberté»: пергамент, сургуч, ночная синева и кровь на бумаге.<br>Ещё шесть линий — «Mage: The Ascension 20th» (Традиции, Технократия, Ремёсла и Нефанди),<br>«Werewolf: The Apocalypse 20th» (Гару, Фера, Родня, духи и фоморы),<br>«Wraith: The Oblivion 20th» (призраки, Спектры, Восставшие, Тень и Подземный мир),<br>«Changeling: The Dreaming 20th» (китейны, галлейны, ликийцы и Тёмные века: Фэ),<br>«Demon: The Fallen» (падшие, Привязанные к Земле и их слуги) и «Hunter: The Reckoning» (охотники и Свидетели).</i></p>
+<p align="center"><i>Мир Тьмы юбилейного 20-го издания для Foundry VTT — на русском и с автоматизацией правил.<br>
+Семь линеек на одних правилах: «Вампир: Маскарад» (V20), «Оборотень: Апокалипсис» (W20), «Маг: Восхождение» (M20),<br>
+«Призрак: Забвение» (Wraith 20), «Подменыш: Грёза» (C20), «Демон: Падшие» и «Охотник: Расплата».<br>
+У каждой — свой лист и палитра, мастер создания, силы из книг с готовыми бросками,<br>
+справочник со знака листа и книги правил, пересказанные своими словами — с примерами и подсказками к терминам.<br>
+Оформление «Liberté»: пергамент, сургуч, ночная синева и кровь на бумаге.</i></p>
 
 ---
 
@@ -35,7 +40,26 @@ https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download
 
 <table>
   <tr>
-    <td colspan="2"><img src="docs/screens/sheet.webp" alt="Лист Сородича: характеристики и способности в три колонки, шкалы свёрнуты в строку"></td>
+    <td colspan="2"><img src="docs/screens/sheet-vampire.webp" alt="Лист Сородича: печать поколения, здоровье, воля и кровь, характеристики и способности в три колонки"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screens/sheet-werewolf.webp" alt="Лист Гару: порода, аугурия, племя, Ярость и Гнозис"></td>
+    <td width="50%"><img src="docs/screens/sheet-mage.webp" alt="Лист мага: фракция и Родовая Сфера, Арете, Квинтэссенция и Парадокс"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screens/sheet-wraith.webp" alt="Лист призрака: Гильдия и Легион, Корпус, Пафос, Тень"></td>
+    <td width="50%"><img src="docs/screens/sheet-changeling.webp" alt="Лист подменыша: кит, ступень, двор и Наследия, химерические раны"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screens/sheet-demon.webp" alt="Лист падшего: Дом и Облик, Вера, Мука и Добродетели"></td>
+    <td width="50%"><img src="docs/screens/sheet-hunter.webp" alt="Лист охотника: кредо, Добродетели, Убеждённость и Грани"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screens/atlas-werewolf.webp" alt="Справочник линейки со знака листа: племя с преданием, Дары с броском и ценой, две колонки на широком окне"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screens/atlas-clans.webp" alt="Справочник кланов: о клане, Дисциплины, изъян, клановые достоинства и недостатки"></td>
+    <td width="50%"><img src="docs/screens/journal.webp" alt="Книга правил на русском: страница «Ярость» с примером, ссылками и подсказками к терминам"></td>
   </tr>
   <tr>
     <td width="55%"><img src="docs/screens/xp.webp" alt="Окно опыта: разделы слева, черты с ценой следующей точки"></td>
@@ -45,7 +69,7 @@ https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download
     <td colspan="2"><img src="docs/screens/hud.webp" alt="HUD в свой ход: оружие значками, избранные силы, инициатива"></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="docs/screens/npcgen.webp" alt="Генератор НПС: подвиды слева, роль, специализация и сила в середине, досье будущего НПС справа"></td>
+    <td colspan="2"><img src="docs/screens/npcgen.webp" alt="Генератор НПС: подвиды всех линеек слева, роль, специализация и сила в середине, досье будущего НПС справа"></td>
   </tr>
 </table>
 
