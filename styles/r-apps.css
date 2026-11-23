@@ -2074,3 +2074,10 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 }
 .vtm20.r-atlas a.r-cl-plink { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--r-accent, #c4474c) 60%, transparent); text-underline-offset: 3px; cursor: pointer; }
 .vtm20.r-atlas a.r-cl-plink:hover { color: var(--r-ink); text-decoration-color: var(--r-accent, #c4474c); }
+/* книги правил в «Справочниках»: заголовок книги со значком, страницы — значок листа */
+.vtm20 .r-ls-book.is-rules h3 i { margin-right: 4px; font-size: .85em; color: var(--r-accent); }
+.vtm20 .r-ls-count { display: flex; gap: 8px; }
+.vtm20 .r-ls-jump { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--r-ink-2); cursor: pointer; }
+.vtm20 .r-ls-jump b { font-family: var(--r-body, inherit); font-size: 12px; letter-spacing: 0; color: var(--r-accent); }
+.vtm20 a.r-ls-jump:hover, .vtm20 a.r-ls-jump:focus-visible { border-color: color-mix(in srgb, var(--r-accent) 60%, transparent); color: var(--r-ink); }
+.vtm20 .r-ls-jump.is-off { opacity: .45; cursor: default; }

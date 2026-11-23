@@ -9977,11 +9977,13 @@
     },
     "LoreSearch": {
       "Title": "Handbooks",
-      "Placeholder": "Search all handbooks — clan, Gift, Legion, Qlipha…",
-      "Hint": "Start typing to search every handbook at once: names, lore, rules, Gifts and levels. Or open a handbook:",
+      "Placeholder": "Search handbooks and rule books — clan, Gift, Legion, Qlipha…",
+      "Hint": "Start typing to search every handbook (names, lore, Gifts and levels) and every rule book at once. Or open a handbook:",
       "Indexing": "Gathering handbooks…",
       "Nothing": "Nothing found. Try another word or the English name.",
       "Found": "Found: {n}",
+      "InRefs": "In handbooks",
+      "InBooks": "In rule books",
       "Key": "Open Handbooks"
     },
     "Atlas": {

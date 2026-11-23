@@ -544,3 +544,8 @@ body.r-skin #combat .r-ct-move.is-limited { color: #d9a0a0; }
 /* Термины с подсказкой на страницах книг правил (module/ui/glossary.mjs) */
 .r-journal .journal-page-content .r-term { text-decoration: underline dotted rgba(60, 45, 30, .55); text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: help; }
 .r-journal .journal-page-content .r-term:hover { text-decoration-color: var(--rj-accent, #8b2a1e); }
+
+/* Найденное место из «Справочников» (module/apps/lore-search.mjs): подсветка гаснет через несколько секунд */
+.r-journal .journal-page-content mark.r-ls-found { padding: 0 2px; background: rgba(170, 30, 30, .22); color: inherit; box-shadow: 0 0 0 1px rgba(150, 20, 20, .45); animation: r-ls-found 6s ease-out forwards; }
+@keyframes r-ls-found { 0%, 60% { background: rgba(170, 30, 30, .3); } 100% { background: rgba(170, 30, 30, .1); } }
+@media (prefers-reduced-motion: reduce) { .r-journal .journal-page-content mark.r-ls-found { animation: none; } }
