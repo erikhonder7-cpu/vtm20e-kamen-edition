@@ -8,6 +8,7 @@
   <img src="https://img.shields.io/badge/Foundry_VTT-v14-c4474c?style=flat-square" alt="Foundry VTT v14">
   <img src="https://img.shields.io/badge/%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0-V20-4a0d11?style=flat-square" alt="Правила V20">
   <img src="https://img.shields.io/badge/%D1%8F%D0%B7%D1%8B%D0%BA-%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-1d1d21?style=flat-square" alt="Русский язык">
+  <a href="https://t.me/dungeonmaster61"><img src="https://img.shields.io/badge/%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B-Telegram-2aa3df?style=flat-square&logo=telegram&logoColor=white" alt="Вопросы — Telegram"></a>
   <a href="https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases"><img src="https://img.shields.io/github/downloads/erikhonder7-cpu/vtm20e-kamen-edition/total?label=%D1%81%D0%BA%D0%B0%D1%87%D0%B8%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9&color=5a554d&style=flat-square" alt="Скачиваний"></a>
 </p>
 
@@ -31,6 +32,8 @@ https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download
 1. В Foundry откройте **Game Systems → Install System**.
 2. Вставьте ссылку в поле **Manifest URL** и нажмите **Install**.
 3. Обновления Foundry будет предлагать сам.
+
+**Вопросы, ошибки и пожелания — пишите в Telegram: [@dungeonmaster61](https://t.me/dungeonmaster61).**
 
 [Последний релиз](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest) · [архив вручную](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download/vtm20e-kamen-edition.zip) · [история изменений](https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases)
 
@@ -60,6 +63,9 @@ https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download
   <tr>
     <td width="50%"><img src="docs/screens/atlas-clans.webp" alt="Справочник кланов: о клане, Дисциплины, изъян, клановые достоинства и недостатки"></td>
     <td width="50%"><img src="docs/screens/journal.webp" alt="Книга правил на русском: страница «Ярость» с примером, ссылками и подсказками к терминам"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screens/chat-rolls.webp" alt="Броски в чате: проверка со специализацией, сила с текстом, урон с кнопками «Нанести с прочностью» и «без прочности», Дар оборотня"></td>
   </tr>
   <tr>
     <td width="55%"><img src="docs/screens/xp.webp" alt="Окно опыта: разделы слева, черты с ценой следующей точки"></td>
@@ -241,6 +247,8 @@ https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download
 ## Авторы
 
 **Kamen & Shamil** — система, правила и оформление.
+
+По вопросам — Telegram [@dungeonmaster61](https://t.me/dungeonmaster61).
 
 Шрифты Prata, Forum, Old Standard TT, IM Fell DW Pica, Marck Script — SIL Open Font License. Часть эмблем — [game-icons.net](https://game-icons.net/) (CC BY 3.0).
 
