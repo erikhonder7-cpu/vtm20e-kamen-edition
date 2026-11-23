@@ -25,6 +25,17 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const loc = k => game.i18n.localize(`VTM20.${k}`);
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI"];
 const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
+// прямой апостроф между буквами (Д'Хаби) в шрифте заголовков прилипает и теряется — выводим типографский
+const apos = s => typeof s === "string" ? s.replace(/(\p{L})'(\p{L})/gu, "$1’$2") : s;
+// английские вставки в скобках — «(Craft)», «(botch)», «Хитрость/Subterfuge» — в справочнике лишние: русское имя уже есть
+const noEn = h => typeof h === "string" ? h.replace(/\s*\((?:[A-Za-z][A-Za-z .,'’\/&-]*)\)/g, "").replace(/([А-Яа-яЁё])\/[A-Za-z][A-Za-z -]*/g, "$1") : h;
+// Системы Арканоса — без вводного абзаца о Гильдии (он в предании)
+const arcSystems = a => {
+  const h = a.html ?? "", i = h.search(/<p><strong>Систем/);
+  if (i >= 0) return feats(h.slice(i).replace(/^<p><strong>[^<]*<\/strong><\/p>/, ""));
+  const j = h.indexOf("<b>Система:</b>");
+  return j >= 0 ? `<p>${h.slice(j).replace(/<\/p>[\s\S]*$/, "")}</p>` : h;
+};
 // данные свои (пересказ книг): строка с разметкой внутри (<strong>, <em>) не экранируется
 const p = s => s ? (/^\s*</.test(s) ? s : /<\/?(strong|em|b|i|br|span|a)\b/.test(s) ? `<p>${s}</p>` : `<p>${esc(s)}</p>`) : "";
 const fact = (label, value) => value || value === 0 ? { label, value } : null;
@@ -148,19 +159,20 @@ function wraithGroups() {
   const attr = k => game.i18n.localize(`VTM20.Attr.${k}`);
   return [
     { key: "arcanoi", label: loc("Wraith.Arcanoi"), items: (D.arcanoi ?? []).map(a => ({ key: `arc:${a.key}`, name: a.name, sub: `${a.guild || loc(`Wraith.GuildGroup.${a.group}`)} · ${a.en}`, sym: arcSym(a.key),
-      card: () => ({ kicker: `${loc(`Wraith.GuildGroup.${a.group}`)}${a.forbidden ? ` · ${loc("Wraith.Forbidden")}` : ""}`, text: a.html,
-        facts: [a.guild && fact(loc("Wraith.Guild"), `${a.guild} (${a.guildEn})`), fact(loc("Atlas.Attributes"), a.attrs.map(attr).join(", ")),
+      card: () => ({ kicker: `${loc(`Wraith.GuildGroup.${a.group}`)}${a.forbidden ? ` · ${loc("Wraith.Forbidden")}` : ""}`,
+        lore: lore("wraith", "arcanos", a.key), text: lore("wraith", "arcanos", a.key) ? arcSystems(a) : a.html,
+        facts: [a.guild && fact(loc("Wraith.Guild"), a.guild), fact(loc("Atlas.Attributes"), a.attrs.map(attr).join(", ")),
           fact(loc("Atlas.Allies"), (a.allies ?? []).map(k => A(k)?.guild).filter(Boolean).join(", "))].filter(Boolean),
         sections: [{ title: loc("Wraith.Arcanoi"), n: a.levels.length, rows: a.levels.map(l => ({ lvl: ROMAN[l.level], name: l.name,
           em: `${loc(l.kind === "common" ? "Wraith.Common" : "Wraith.Initiate")}${l.en ? ` · ${l.en}` : ""}`, html: l.html })) }] }) })) },
     { key: "legions", label: loc("Wraith.Legions"), items: (D.legions ?? []).map(l => ({ key: `legion:${l.key}`, name: l.name, sub: l.en, sym: legionSym(l.key),
       card: () => ({ kicker: loc("Wraith.Legion"), lore: lore("wraith", "legion", l.key), facts: [fact(loc("Wraith.LegionDeath"), l.death), fact(loc("Atlas.Lord"), l.lord), fact(loc("Atlas.Seat"), l.seat)].filter(Boolean) }) })) },
     { key: "shadow", label: loc("Wraith.ShadowArchetype"), items: (D.shadowArchetypes ?? []).map((x, i) => ({ key: `shadow:${i}`, name: x.name, sub: x.en, icon: "fa-mask",
-      card: () => ({ kicker: loc("Wraith.Shadow"), text: p(x.text), facts: [fact(loc("Wraith.Catharsis"), x.catharsis !== "—" && x.catharsis)].filter(Boolean) }) })) },
+      card: () => ({ kicker: loc("Wraith.Shadow"), lore: lore("wraith", "shadow", x.en), text: lore("wraith", "shadow", x.en) ? "" : p(x.text), facts: [fact(loc("Wraith.Catharsis"), x.catharsis !== "—" && x.catharsis)].filter(Boolean) }) })) },
     { key: "thorns", label: loc("Wraith.Thorns"), items: (D.thorns ?? []).map(x => ({ key: `thorn:${x.key}`, name: x.name, sub: x.en, icon: "fa-spa",
       card: () => ({ kicker: loc("Wraith.Thorns"), text: x.html, facts: [fact(loc("Atlas.Cost"), x.costText)].filter(Boolean) }) })) },
     { key: "archetypes", label: loc("Atlas.Archetypes"), items: (D.archetypes ?? []).map((x, i) => ({ key: `arch:${i}`, name: x.name, sub: x.en, icon: "fa-user",
-      card: () => ({ kicker: loc("Atlas.Archetype"), facts: [fact(loc("Atlas.WillRegain"), x.will)].filter(Boolean) }) })) },
+      card: () => ({ kicker: loc("Atlas.Archetype"), lore: lore("wraith", "archetype", x.en), facts: [fact(loc("Atlas.WillRegain"), x.will)].filter(Boolean) }) })) },
     { key: "backgrounds", label: loc("Wraith.Backgrounds"), items: (D.backgrounds ?? []).map((x, i) => ({ key: `bg:${i}`, name: x.name, sub: x.en, icon: "fa-book",
       card: () => ({ kicker: loc("Atlas.Background"), text: x.html }) })) }
   ].filter(g => g.items.length);
@@ -173,7 +185,11 @@ function changelingGroups() {
   const TYPE = { chimerical: "Changeling.Type.chimerical", wyrd: "Changeling.Type.wyrd", choice: "Changeling.Type.choice" };
   return [
     { key: "kiths", label: loc("Changeling.Atlas.Kiths"), items: (D.kiths ?? []).map(k => ({ key: `kith:${k.key}`, name: k.name, sub: k.en, icon: "fa-wand-sparkles", sym: CLG.kithGlyph(k.key) ?? undefined,
-      card: () => ({ kicker: loc("Changeling.Kith"), text: k.html }) })) },
+      card: () => lore("changeling", "kith", k.key) ? ({ kicker: loc("Changeling.Kith"), lore: lore("changeling", "kith", k.key),
+        facts: [fact(loc("ClCr.Affinity"), String(k.affinityText ?? "").replace(/\.\s*$/, "")), fact(loc("Changeling.Atlas.Revelry"), k.revelry), fact(loc("Changeling.Atlas.Unleashing"), k.unleashing)].filter(Boolean),
+        sections: [{ title: loc("Changeling.Atlas.Birthrights"), n: (k.birthrights ?? []).length, plain: true, rows: (k.birthrights ?? []).map(b => ({ name: b.name, em: b.en, html: b.html })) },
+          ...(k.frailty ? [{ title: loc("ClCr.Frailty"), plain: true, rows: [{ name: k.frailty.name, em: k.frailty.en, html: k.frailty.html }] }] : [])] })
+        : ({ kicker: loc("Changeling.Kith"), text: k.html }) })) },
     { key: "other", label: loc("Changeling.Atlas.Other"), items: (D.otherKiths ?? []).map(k => ({ key: `ofae:${k.key}`, name: k.name, sub: `${k.en} · ${loc(`Changeling.OtherFae.${k.group}`)}`, icon: "fa-masks-theater", sym: CLG.kithGlyph(k.key) ?? undefined,
       card: () => ({ kicker: loc(`Changeling.OtherFae.${k.group}`), text: k.html, facts: [fact(loc("ClCr.Affinity"), k.affinity ? realm(k.affinity) : "")].filter(Boolean) }) })) },
     { key: "houses", label: loc("Changeling.Atlas.Houses"), items: (D.houses ?? []).map(h => ({ key: `house:${h.key}`, name: h.name, sub: `${h.en} · ${h.courtText ?? ""}`, icon: "fa-crown", sym: g("house", h.key),
@@ -342,8 +358,8 @@ class LineAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
     const item = g?.items.find(x => x.key === v.key) ?? g?.items[0];
     return {
       v, groups: this.groups.map(x => ({ key: x.key, label: x.label, n: x.items.length, active: x === g })),
-      list: (g?.items ?? []).map(x => ({ key: x.key, name: x.name, sub: x.sub, sym: x.sym, icon: x.icon, active: x === item, text: `${x.name} ${x.sub ?? ""}`.toLowerCase() })),
-      card: item ? { name: item.name, en: item.sub, sym: item.sym, icon: item.icon, ...item.card() } : null
+      list: (g?.items ?? []).map(x => ({ key: x.key, name: apos(x.name), sub: x.sub, sym: x.sym, icon: x.icon, active: x === item, text: LineAtlas.#searchText(x) })),
+      card: item ? LineAtlas.#typo({ name: item.name, en: item.sub, sym: item.sym, icon: item.icon, ...item.card() }) : null
     };
   }
 
@@ -359,6 +375,25 @@ class LineAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     input?.addEventListener("input", filter);
     if (this.v.q) filter();
+  }
+
+  /** Что ищет строка поиска: имя, подпись, текст карточки, факты и имена её строк (Дары, уровни) — считается один раз. */
+  static #searchText(x) {
+    if (x._q) return x._q;
+    let c = {};
+    try { c = x.card(); } catch { /* карточка без данных — ищем по имени */ }
+    const strip = h => String(h ?? "").replace(/<[^>]+>/g, " ");
+    const rows = (c.sections ?? []).flatMap(s => (s.rows ?? []).map(r => `${r.name ?? ""} ${r.em ?? ""}`));
+    return (x._q = [x.name, x.sub, c.tag, strip(c.lore), strip(c.text), ...(c.facts ?? []).map(f => strip(f.value)), ...(c.chips ?? []).map(ch => ch.label), ...rows]
+      .filter(Boolean).join(" ").replace(/\s+/g, " ").toLowerCase());
+  }
+
+  /** Имена карточки и её строк — с типографским апострофом. */
+  static #typo(c) {
+    const src = h => typeof h === "string" ? h.replace(/^\s*<p>(?:<strong>)?(Источник:)(?:<\/strong>)?([\s\S]*?)<\/p>/, '<p class="r-at-src">$1$2</p>') : h;
+    return { ...c, name: apos(c.name), lore: src(noEn(c.lore)), text: src(noEn(c.text)), tag: noEn(c.tag),
+      facts: (c.facts ?? []).map(f => ({ ...f, value: noEn(f.value) })),
+      sections: (c.sections ?? []).map(s => ({ ...s, rows: (s.rows ?? []).map(r => ({ ...r, name: apos(r.name), html: noEn(r.html) })) })) };
   }
 
   static #onPick(event, target) { this.v.key = target.dataset.key; this.render(); }

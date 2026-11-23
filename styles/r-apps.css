@@ -750,8 +750,8 @@ body.r-theme-light .vtm20 .r-ng-concept { color: #7a4f1d; }
 .vtm20.r-clans .window-content { overflow: hidden; }
 .vtm20 .r-cl { display: grid; grid-template-columns: 270px minmax(0, 1fr); height: 100%; min-height: 0; }
 .vtm20 .r-cl-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 12px 10px 10px 12px; border-right: 1px solid var(--r-line-2); background: rgba(0, 0, 0, .18); }
-.vtm20 .r-cl-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-.vtm20 .r-cl-groups a { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; min-width: 0; padding: 4px 7px; border: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); cursor: pointer; }
+.vtm20 .r-cl-groups { display: flex; flex-wrap: wrap; gap: 4px; }   /* ширина по названию: «Тайные общества» не режется многоточием */
+.vtm20 .r-cl-groups a { flex: 1 1 auto; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; min-width: 0; padding: 4px 7px; border: 1px solid var(--r-line); font-family: var(--r-caps); font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); cursor: pointer; }
 /* длинное название раздела не распирает колонку — обрезается, целиком во всплывающей подсказке */
 .vtm20 .r-cl-groups a > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vtm20 .r-cl-groups a b { flex: 0 0 auto; }
@@ -2004,7 +2004,7 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20.r-atlas .r-at-text tbody tr:nth-child(even) td { background: rgba(255, 255, 255, .025); }
 .vtm20.r-atlas .r-at-text td:first-child { color: var(--r-ink); font-family: var(--r-display); }
 .vtm20.r-atlas .r-at-text li + li { margin-top: 3px; }
-.vtm20.r-atlas .r-at-text .r-at-src { margin: 0 0 12px; padding: 0 0 10px; border-bottom: 1px solid var(--r-line); font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-atlas .r-at-src, .vtm20.r-atlas p.r-src { margin: 0 0 12px; padding: 0 0 10px; border-bottom: 1px solid var(--r-line); font-size: 12.5px; font-style: italic; color: var(--r-muted); }
 .vtm20.r-atlas .r-at-text .r-at-src strong { font-style: normal; color: var(--r-ink-2); }
 
 /* мастер создания: заголовок раздела после плиток или полей — с отступом, а не вплотную («Сущность», «Фокус», «Секта») */
@@ -2019,3 +2019,8 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
   .vtm20 .r-ng2 { grid-template-columns: 140px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
   .vtm20 .r-ng2 > .r-ng-dossier { grid-column: 1 / -1; min-height: 0; border-left: 0; border-top: 1px solid #222226; }
 }
+
+/* Справочники: подзаголовки внутри раскрытого достоинства («Описание», «Система», «В Тёмные века») — подписью, а не заголовком страницы */
+.vtm20 .r-cl-trait-body h4.r-sec { margin: 10px 0 4px; padding: 0; border: 0; font-family: var(--r-caps); font-size: 11px; font-weight: 400; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cl-trait-body h4.r-sec:first-child { margin-top: 2px; }
+.vtm20 .r-cl-trait-body h4.r-cl-era { margin-top: 14px; padding-top: 8px; border-top: 1px solid var(--r-line); color: var(--r-accent, #c4474c); }

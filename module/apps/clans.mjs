@@ -8,6 +8,7 @@ import { Codex } from "../data/codex.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
+const esc = s => foundry.utils.escapeHTML(String(s ?? ""));
 
 /** Открыть справочник (на клане `key`, если он задан); уже открытое окно переключается на клан. */
 export async function openClans(key = "") {
@@ -47,7 +48,7 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
       v,
       groups: Codex.clanGroups().map(g => ({ key: g.key, label: g.label, n: g.clans.length, active: g.key === v.group })),
       list: Codex.clans.map(x => ({
-        key: x.key, name: x.name, nickname: x.nickname, group: x.group, sym: Codex.clanSymbol(x.key), active: x.key === v.key,
+        key: x.key, name: x.name.replace(/(\p{L})'(\p{L})/gu, "$1’$2"), nickname: x.nickname, group: x.group, sym: Codex.clanSymbol(x.key), active: x.key === v.key,
         text: [x.name, x.nickname, x.en, x.sect, x.disciplinesText].join(" ").toLowerCase()
       })),
       card: c ? this.#card(c) : null
@@ -64,9 +65,22 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
       lore: Codex["clan-lore"]?.[c.key] ?? "",
       discs: (c.disciplines ?? []).map(k => ({ label: Codex.disciplineLabel(k), sym: Codex.disciplineSymbol(k) })),
       choice: (c.choice ?? []).map(k => ({ label: Codex.disciplineLabel(k), sym: Codex.disciplineSymbol(k) })),
-      merits: traits.filter(m => m.kind === "merit"),
-      flaws: traits.filter(m => m.kind === "flaw")
+      merits: ClanAtlas.#merge(traits.filter(m => m.kind === "merit")),
+      flaws: ClanAtlas.#merge(traits.filter(m => m.kind === "flaw"))
     };
+  }
+
+  /** Одно достоинство из разных книг (обычно V20 и Тёмные века) — одной строкой: основной текст, ниже вариант эпохи. */
+  static #merge(list) {
+    const by = new Map();
+    for (const m of list) (by.get(m.name) ?? by.set(m.name, []).get(m.name)).push(m);
+    return [...by.values()].map(([main, ...rest]) => {
+      if (!rest.length) return main;
+      const norm = c => String(c ?? "").replace(/\s*или\s*/g, " / ");
+      const costs = [...new Set([main, ...rest].map(x => norm(x.cost)))];
+      const tail = rest.map(x => `<h4 class="r-sec r-cl-era">${t(x.era === "darkAges" ? "Clans.DarkAges" : "Clans.OtherBook")}${x.source ? ` — ${esc(x.source)}` : ""}${norm(x.cost) !== norm(main.cost) ? ` · ${esc(x.cost)}` : ""}</h4>${x.html ?? ""}`).join("");
+      return { ...main, cost: costs.join(" / "), html: `${main.html ?? ""}${tail}` };
+    });
   }
 
   _onFirstRender(context, options) {

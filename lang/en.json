@@ -4798,6 +4798,8 @@
       "Veins": "Black veins in the aura until {date}"
     },
     "Clans": {
+      "DarkAges": "In the Dark Ages",
+      "OtherBook": "Other version",
       "Title": "Clans reference",
       "Search": "Clan, nickname, Discipline…",
       "Nothing": "Nothing found.",
@@ -10017,7 +10019,7 @@
       "Tribes": "Tribes",
       "Breeds": "Breeds",
       "Auspices": "Auspices",
-      "Search": "Search by name",
+      "Search": "Name or text…",
       "Essences": "Essences",
       "Paradigms": "Paradigms",
       "Practices": "Practices",
@@ -10368,6 +10370,7 @@
         }
       },
       "Atlas": {
+        "Birthrights": "Birthrights",
         "Other": "Other fae",
         "Kiths": "Kiths",
         "Houses": "Noble Houses",
