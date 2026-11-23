@@ -2024,3 +2024,17 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 .vtm20 .r-cl-trait-body h4.r-sec { margin: 10px 0 4px; padding: 0; border: 0; font-family: var(--r-caps); font-size: 11px; font-weight: 400; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); }
 .vtm20 .r-cl-trait-body h4.r-sec:first-child { margin-top: 2px; }
 .vtm20 .r-cl-trait-body h4.r-cl-era { margin-top: 14px; padding-top: 8px; border-top: 1px solid var(--r-line); color: var(--r-accent, #c4474c); }
+
+/* Клановые достоинства и недостатки — свёрнутым разделом: видно заголовок с числом, по щелчку — список */
+.vtm20 .r-cl-fold > summary { list-style: none; cursor: pointer; }
+.vtm20 .r-cl-fold > summary::-webkit-details-marker { display: none; }
+.vtm20 .r-cl-fold > summary h3 { margin: 0; }
+.vtm20 .r-cl-fold > summary h3::before { content: "▸"; margin-right: -2px; letter-spacing: 0; transition: transform .15s; }
+.vtm20 .r-cl-fold[open] > summary h3::before { transform: rotate(90deg); }
+.vtm20 .r-cl-fold[open] > summary { margin-bottom: 7px; }
+.vtm20 .r-cl-fold > summary:hover h3 { color: var(--r-ink); }
+.vtm20 .r-cl-fold > summary:focus-visible { outline: 1px solid var(--r-accent); outline-offset: 2px; }
+
+/* Термины с подсказкой в карточках справочников (module/ui/glossary.mjs) */
+.vtm20 .r-cl-card .r-term { text-decoration: underline dotted color-mix(in srgb, var(--r-muted) 70%, transparent); text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: help; }
+.vtm20 .r-cl-card .r-term:hover { color: var(--r-ink); text-decoration-color: var(--r-accent, #c4474c); }

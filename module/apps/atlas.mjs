@@ -11,6 +11,7 @@
 
 import { SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { applyGlossary } from "../ui/glossary.mjs";
 import { M, mageGlyphSrc, subLabel, factionGlyph } from "./mage.mjs";
 import { W, wwGlyphSrc } from "./werewolf.mjs";
 import { H } from "./hunter.mjs";
@@ -365,6 +366,7 @@ class LineAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    applyGlossary(this.element, this.line);
     // поиск по списку — без перерисовки окна
     const input = this.element.querySelector(".r-cl-search");
     const filter = () => {

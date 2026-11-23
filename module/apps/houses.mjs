@@ -7,6 +7,7 @@
 
 import { SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { applyGlossary } from "../ui/glossary.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -79,6 +80,11 @@ class HouseAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
       common: (Codex.demon?.common ?? []).map(lore).filter(Boolean),
       visages: Object.entries(h.visages).map(([k, name]) => ({ name, lore: Codex.lore(k)?.name ?? k, form: Codex.lore(k)?.form }))
     };
+  }
+
+  _onRender(context, options) {
+    super._onRender(context, options);
+    applyGlossary(this.element, "demon");
   }
 
   static #onPick(event, target) { this.v.key = target.dataset.key; this.render(); }

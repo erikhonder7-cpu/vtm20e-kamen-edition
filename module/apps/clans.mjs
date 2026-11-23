@@ -5,6 +5,7 @@
 
 import { SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
+import { applyGlossary } from "../ui/glossary.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -96,6 +97,7 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender(context, options);
     this.#filter();
+    applyGlossary(this.element, "vampire");
   }
 
   #filter() {

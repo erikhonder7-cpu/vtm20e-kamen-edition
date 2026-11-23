@@ -52,7 +52,7 @@
       </div>
       {{else}}
       {{#each rows}}
-      <details class="r-cl-trait" {{#if open}}open{{/if}}><summary><span>{{#if lvl}}<i class="r-at-lvl">{{lvl}}</i>{{/if}}{{name}}{{#if em}} <em>{{em}}</em>{{/if}}</span></summary>
+      <details class="r-cl-trait" {{#if open}}open{{else}}name="r-atlas-trait"{{/if}}><summary><span>{{#if lvl}}<i class="r-at-lvl">{{lvl}}</i>{{/if}}{{name}}{{#if em}} <em>{{em}}</em>{{/if}}</span></summary>
         <div class="r-cl-trait-body">{{{html}}}</div>
       </details>
       {{/each}}
