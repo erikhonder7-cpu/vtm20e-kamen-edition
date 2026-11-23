@@ -2038,3 +2038,39 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
 /* Термины с подсказкой в карточках справочников (module/ui/glossary.mjs) */
 .vtm20 .r-cl-card .r-term { text-decoration: underline dotted color-mix(in srgb, var(--r-muted) 70%, transparent); text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: help; }
 .vtm20 .r-cl-card .r-term:hover { color: var(--r-ink); text-decoration-color: var(--r-accent, #c4474c); }
+
+/* Справочники: кнопки в шапке карточки (назад, в книге правил, в чат) и плашки-ссылки */
+.vtm20 .r-cl-head { position: relative; }
+.vtm20 .r-cl-tools { position: absolute; top: 0; right: 0; display: flex; gap: 4px; }
+.vtm20 .r-cl-tool { width: 28px; height: 28px; padding: 0; display: grid; place-items: center; border: 1px solid var(--r-line); background: transparent; color: var(--r-muted); cursor: pointer; font-size: 12px; line-height: 1; }
+.vtm20 .r-cl-tool:hover { color: var(--r-ink); border-color: var(--r-line-2); }
+.vtm20 .r-cl-tool:focus-visible { outline: 1px solid var(--r-accent, #c4474c); outline-offset: 1px; }
+.vtm20 a.r-cl-disc.is-link { cursor: pointer; text-decoration: none; }
+.vtm20 a.r-cl-disc.is-link:hover { border-color: var(--r-accent, #c4474c); color: var(--r-ink); }
+/* Ссылки на карточки в книгах правил */
+.r-journal .journal-page-content a.r-atlas-link { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--rj-accent, #8b2a1e) 55%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.r-journal .journal-page-content a.r-atlas-link:hover { color: var(--rj-accent, #8b2a1e); }
+/* Карточка справочника в чате */
+.r-atlas-chat h3 { margin: 0 0 4px; font-size: 16px; }
+.r-atlas-chat-kicker { font-size: 11px; letter-spacing: .6px; text-transform: uppercase; opacity: .7; }
+.r-atlas-chat dl { margin: 6px 0 0; }
+
+/* Справочник линеек: паспорт под названием и две колонки на широком окне (templates/apps/atlas.hbs) */
+.vtm20.r-atlas .r-cl-passport { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px; font-size: 13px; color: var(--r-ink-2); }
+.vtm20.r-atlas .r-cl-passport b { font-family: var(--r-caps); font-weight: 400; font-size: 10.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--r-muted); margin-right: 3px; }
+.vtm20.r-atlas .r-cl-card { container-type: inline-size; }
+/* узко: обёртки не мешают — прежний порядок: текст, плашки и факты, строки */
+.vtm20.r-atlas .r-cl-body, .vtm20.r-atlas .r-cl-main, .vtm20.r-atlas .r-cl-aside, .vtm20.r-atlas .r-cl-rows { display: contents; }
+@container (min-width: 720px) {
+  .vtm20.r-atlas .r-cl-body { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 16px 22px; align-items: start; }
+  .vtm20.r-atlas .r-cl-main { display: flex; flex-direction: column; gap: 16px; grid-column: 1; grid-row: 1; min-width: 0; }
+  .vtm20.r-atlas .r-cl-aside { display: flex; flex-direction: column; gap: 16px; grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 0; }
+  .vtm20.r-atlas .r-cl-rows { display: flex; flex-direction: column; gap: 16px; grid-column: 1; grid-row: 2; min-width: 0; }
+  .vtm20.r-atlas .r-cl-body:not(:has(.r-cl-aside)) { grid-template-columns: minmax(0, 1fr); }
+  .vtm20.r-atlas .r-cl-body:not(:has(.r-cl-aside)) .r-cl-main, .vtm20.r-atlas .r-cl-body:not(:has(.r-cl-aside)) .r-cl-rows { max-width: 72ch; }
+  .vtm20.r-atlas .r-cl-aside .r-at-facts { grid-template-columns: 1fr; }
+  .vtm20.r-atlas .r-cl-aside .r-at-facts dd { margin: 0 0 8px; }
+  .vtm20.r-atlas .r-cl-main .r-cl-sec, .vtm20.r-atlas .r-cl-rows .r-cl-sec { max-width: 72ch; }
+}
+.vtm20.r-atlas a.r-cl-plink { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--r-accent, #c4474c) 60%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.vtm20.r-atlas a.r-cl-plink:hover { color: var(--r-ink); text-decoration-color: var(--r-accent, #c4474c); }

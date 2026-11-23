@@ -28,21 +28,29 @@
         <h2>{{name}}</h2>
         {{#if nick}}<div class="r-cl-nick">«{{nick}}»</div>{{/if}}{{#if tag}}<div class="r-cl-nick">{{tag}}</div>{{/if}}
         {{#if en}}<div class="r-cl-en">{{en}}</div>{{/if}}
+        {{!-- паспорт: короткие факты одной строкой под названием --}}
+        {{#if passport.length}}<div class="r-cl-passport">{{#each passport}}<span><b>{{label}}</b> {{{value}}}</span>{{/each}}</div>{{/if}}
       </div>
     </header>
 
-    {{!-- предание (data/line-lore.json) — как «О клане» у справочника кланов; ниже — правила записи --}}
-    {{#if lore}}<section class="r-cl-sec r-cl-lore r-at-lore"><h3>{{localize "VTM20.Atlas.Lore"}}</h3>{{{lore}}}</section>{{/if}}
-    {{#if text}}<section class="r-cl-sec r-at-text{{#if lore}} is-rules{{/if}}">{{#if lore}}<h3>{{localize "VTM20.Atlas.Features"}}</h3>{{/if}}{{{text}}}</section>{{/if}}
-
-    {{#if chips.length}}
-    <section class="r-cl-sec"><div class="r-cl-discs">{{#each chips}}<span class="r-cl-disc">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</span>{{/each}}</div></section>
-    {{/if}}
-
-    {{#if facts.length}}
-    <section class="r-cl-sec"><dl class="r-at-facts">{{#each facts}}<dt>{{label}}</dt><dd>{{{value}}}</dd>{{/each}}</dl></section>
-    {{/if}}
-
+    {{!-- две колонки на широком окне: слева текст и строки, справа плашки и длинные факты; на узком — прежний порядок --}}
+    <div class="r-cl-body">
+      <div class="r-cl-main">
+        {{!-- предание (data/line-lore.json) — как «О клане» у справочника кланов; ниже — правила записи --}}
+        {{#if lore}}<section class="r-cl-sec r-cl-lore r-at-lore"><h3>{{localize "VTM20.Atlas.Lore"}}</h3>{{{lore}}}</section>{{/if}}
+        {{#if text}}<section class="r-cl-sec r-at-text{{#if lore}} is-rules{{/if}}">{{#if lore}}<h3>{{localize "VTM20.Atlas.Features"}}</h3>{{/if}}{{{text}}}</section>{{/if}}
+      </div>
+      {{#if (or chips.length facts.length)}}
+      <aside class="r-cl-aside">
+        {{#if chips.length}}
+        <section class="r-cl-sec"><div class="r-cl-discs">{{#each chips}}{{#if link}}<a class="r-cl-disc is-link" data-action="jump" data-key="{{link}}">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</a>{{else}}<span class="r-cl-disc">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</span>{{/if}}{{/each}}</div></section>
+        {{/if}}
+        {{#if facts.length}}
+        <section class="r-cl-sec"><dl class="r-at-facts">{{#each facts}}<dt>{{label}}</dt><dd>{{{value}}}</dd>{{/each}}</dl></section>
+        {{/if}}
+      </aside>
+      {{/if}}
+      <div class="r-cl-rows">
     {{#each sections}}
     <section class="r-cl-sec">
       <h3>{{title}}{{#if sub}} <em class="r-at-sub">{{sub}}</em>{{/if}}{{#if n}} <b>{{n}}</b>{{/if}}</h3>
@@ -59,6 +67,8 @@
       {{/if}}
     </section>
     {{/each}}
+      </div>
+    </div>
   </article>
   {{/with}}
 </div>

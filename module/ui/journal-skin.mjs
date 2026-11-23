@@ -4,6 +4,18 @@
 // Свои журналы мира — без знака: только бумага и рамка.
 
 import { SYSTEM_ID, VTM20 } from "../config.mjs";
+import { applyGlossary } from "./glossary.mjs";
+
+import { linkifyPage } from "./atlas-links.mjs";
+
+/** Страницы журнала появляются и при перелистывании, и при прокрутке — каждой новой странице: ссылки на карточки, потом подсказки. */
+async function glossPages(el, line) {
+  for (const page of el.querySelectorAll(".journal-page-content")) {
+    if (page.dataset.rGloss) continue;
+    await linkifyPage(page, line);
+    applyGlossary(page, line, ".journal-page-content");
+  }
+}
 
 /** Линейка компендия по имени: werewolf-books → werewolf; правила V20 и Пути — вампиры. */
 function lineOf(pack) {
@@ -22,5 +34,11 @@ export function registerJournalSkin() {
     if (!line) return;
     el.dataset.rLine = line;
     el.style.setProperty("--r-jsigil", `url("${foundry.utils.getRoute(VTM20.typeSigil(line))}")`);
+    // термины с подсказкой — только в книгах системы; страницы, дорисованные позже, ловит наблюдатель
+    glossPages(el, line);
+    if (!el._rGlossObs) {
+      el._rGlossObs = new MutationObserver(() => glossPages(el, line));
+      el._rGlossObs.observe(el, { childList: true, subtree: true });
+    }
   });
 }

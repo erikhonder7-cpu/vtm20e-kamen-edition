@@ -8,6 +8,7 @@
 import { SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { applyGlossary } from "../ui/glossary.mjs";
+import { cardTools } from "../ui/atlas-links.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -85,6 +86,7 @@ class HouseAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender(context, options);
     applyGlossary(this.element, "demon");
+    cardTools(this, "demon");
   }
 
   static #onPick(event, target) { this.v.key = target.dataset.key; this.render(); }

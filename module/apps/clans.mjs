@@ -6,6 +6,7 @@
 import { SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { applyGlossary } from "../ui/glossary.mjs";
+import { cardTools } from "../ui/atlas-links.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -98,6 +99,7 @@ class ClanAtlas extends HandlebarsApplicationMixin(ApplicationV2) {
     super._onRender(context, options);
     this.#filter();
     applyGlossary(this.element, "vampire");
+    cardTools(this, "vampire");
   }
 
   #filter() {

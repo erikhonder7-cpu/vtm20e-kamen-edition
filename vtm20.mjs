@@ -63,6 +63,7 @@ import { registerChronicle, openChronicle } from "./module/apps/chronicle.mjs";
 import { registerNewSession, newSessionAll } from "./module/apps/new-session.mjs";
 import { registerHandouts, giveHandout } from "./module/apps/handouts.mjs";
 import { registerJournalSkin } from "./module/ui/journal-skin.mjs";
+import { registerAtlasLinks } from "./module/ui/atlas-links.mjs";
 import { registerExtras } from "./module/apps/extras.mjs";
 import { registerMasquerade } from "./module/ui/masquerade.mjs";
 import { registerStrategy } from "./module/ui/strategy.mjs";
@@ -191,6 +192,7 @@ Hooks.once("init", () => {
   registerChronicle();
   registerHandouts();
   registerJournalSkin();
+  registerAtlasLinks();
   registerSessionXp();
   registerNewSession();
   registerSessionPanel();

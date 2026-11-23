@@ -540,3 +540,7 @@ section[data-category="system"] .r-settings-head::after { content: ""; flex: 1; 
 /* передвижение за ход в строке бойца (combat/movement.mjs) */
 body.r-skin #combat .r-ct-move { white-space: nowrap; }
 body.r-skin #combat .r-ct-move.is-limited { color: #d9a0a0; }
+
+/* Термины с подсказкой на страницах книг правил (module/ui/glossary.mjs) */
+.r-journal .journal-page-content .r-term { text-decoration: underline dotted rgba(60, 45, 30, .55); text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: help; }
+.r-journal .journal-page-content .r-term:hover { text-decoration-color: var(--rj-accent, #8b2a1e); }

@@ -17,9 +17,9 @@ function compiled(line) {
 
 const SKIP = "h1, h2, h3, h4, summary, a, button, .r-term, .r-cl-head, .r-cl-disc, .r-at-src, .r-src, dt, .r-at-lvl";
 
-/** Расставить подсказки в карточке root (элемент .r-cl-card) для линейки line. */
-export function applyGlossary(root, line) {
-  const card = root?.querySelector?.(".r-cl-card");
+/** Расставить подсказки в карточке справочника (scope — .r-cl-card) или на странице журнала (scope — сам элемент страницы). */
+export function applyGlossary(root, line, scope = ".r-cl-card") {
+  const card = root?.matches?.(scope) ? root : root?.querySelector?.(scope);
   if (!card || card.dataset.rGloss) return;
   card.dataset.rGloss = "1";
   for (const term of compiled(line)) {
