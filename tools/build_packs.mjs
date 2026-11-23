@@ -417,7 +417,7 @@ function parseRoll(text) {
   for (const [k, v] of Object.entries(ru.VTM20.Abil ?? {})) names[String(v).toLowerCase()] = `abilities.${k}`;
   // названия Demon: The Fallen, которых нет в листе V20 (Уклонение — Атлетика, как уворот в V20)
   Object.assign(names, { "осведомлённость": "abilities.awareness", "осведомленность": "abilities.awareness", "уклонение": "abilities.athletics", "атлетизм": "abilities.athletics", "наука": "abilities.science" });
-  const raw = String(text ?? ""), diff = Number(/сл\.\s*(\d+)/.exec(raw)?.[1] ?? 0);
+  const raw = String(text ?? ""), diff = Number(/(?:сложность|сл\.)\s*(\d+)/.exec(raw)?.[1] ?? 0);
   const head = raw.split(/;| — | против |\(/)[0];
   const parts = head.split("+").map(x => x.trim().toLowerCase()).filter(Boolean);
   const keys = parts.map(x => names[x]).filter(Boolean);
