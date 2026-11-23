@@ -2,7 +2,8 @@
 // 1) синтаксис всех модулей .mjs (в том числе повторные объявления имён — из-за такой ошибки листы
 //    не открывались, а песочница её не показала); 2) тесты подсчёта броска (evaluate) и шансов (odds)
 //    по правилам V20; 3) все data/*.json и lang/ru.json читаются; 4) свои значки предметов на месте;
-// 5) компендии в индексе git целы и не пусты (tools/packs-check.mjs).
+// 5) компендии в индексе git целы и не пусты (tools/packs-check.mjs); 6) сложность и цена в строках Даров и Арканоев
+//    совпадают с их текстом и с книгой призраков (tools/check-numbers.mjs).
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -158,6 +159,12 @@ console.log("Данные: JSON читаются");
   ok(!bad.repeat.length, `«Система» повторяет «Описание» (${bad.repeat.length}): ${show(bad.repeat)}`);
   console.log(`Тексты: ${n} сил и черт — «Описание» и «Система»`);
 }
+
+// ── 3в. Цифры в строках справочников: сложность и цена Даров и Арканоев совпадают с текстом и книгой (tools/check-numbers.mjs) ──
+try {
+  const out = execFileSync(process.execPath, [path.join(ROOT, "tools/check-numbers.mjs")], { encoding: "utf8", stdio: "pipe" });
+  console.log(`Цифры: ${out.split("\n")[0].replace(/\.$/, "")} — расхождений нет`);
+} catch (e) { ok(false, `цифры в строках справочников:\n${String(e.stdout ?? e.message).trim()}`); }
 
 // ── 4. Свои значки предметов ──────────────────────────────────────────────
 {
