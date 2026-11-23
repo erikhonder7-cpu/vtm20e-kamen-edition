@@ -437,7 +437,7 @@ body.r-skin .journal-entry .journal-page-content ol > li::marker { font-family: 
 body.r-skin .journal-entry .journal-page-content hr { margin: 1.4em 0; border: 0; border-top: 1px solid var(--rj-rule); }
 /* врезка с примером — как серая плашка в книге */
 body.r-skin .journal-entry .journal-page-content blockquote { margin: 1em 0; padding: 10px 14px; border: 0; border-top: 3px solid var(--rj-ink); background: rgba(40, 30, 20, .1);
-  font-style: normal; font-size: 14.5px; color: var(--rj-ink); }
+  font-family: inherit; font-style: normal; font-size: 14.5px; color: var(--rj-ink); }   /* шрифт страницы: иначе ядро Foundry ставит врезке рубленый */
 body.r-skin .journal-entry .journal-page-content blockquote p:last-child { margin-bottom: 0; }
 body.r-skin .journal-entry .journal-page-content blockquote b:first-child { font-family: var(--rk-caps); font-weight: 400; letter-spacing: .6px; color: var(--rj-accent); }
 /* таблицы: чёрная шапка, тонкие линейки, строки через одну */
