@@ -44,6 +44,8 @@ export class VtMActor extends Actor {
       "prototypeToken.displayName": CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER
     };
     if (this.type === "vampire" || this.type === "ghoul") Object.assign(proto, { "prototypeToken.sight.enabled": true });
+    // новый Сородич без заданного поколения — базовое поколение эпохи (V20 — 13-е, V20 Dark Ages — 12-е)
+    if (this.type === "vampire" && data.system?.generation === undefined) proto["system.generation"] = VTM20.baseGeneration();
     // жетон связан с актёром (урон, кровь, эффекты — общие с листом); статисты-существа — копиями, как и прежде.
     // Явно заданное значение (импорт из компендия, призыв статистов) не трогаем.
     if (!["creature", "spirit"].includes(this.type) && data.prototypeToken?.actorLink === undefined) proto["prototypeToken.actorLink"] = true;
@@ -134,7 +136,9 @@ export class VtMActor extends Actor {
     const clan = Codex.clan(this.system.clan);
     if (!clan) return [];
     const pick = clan.choice?.includes(this.system.clanChoice) ? [this.system.clanChoice] : [];
-    return [...clan.disciplines, ...pick];
+    // «две Дисциплины исходного клана» (Дети Осириса, Киасиды в V20 Dark Ages)
+    const origin = clan.choice?.includes("original") ? (this.system.originDisciplines ?? []).slice(0, 2) : [];
+    return [...clan.disciplines, ...pick, ...origin];
   }
 
   /** Ревенант — гуль с типом «ревенант» (Ghouls & Revenants): своя витэ, семья и семейный изъян. */
@@ -512,6 +516,23 @@ export class VtMActor extends Actor {
     this.#notice(`<i class="fa-solid fa-droplet"></i> ${t("Notify.Boosted", { attr: game.i18n.localize(VTM20.attributes[key].label), v: s.attributes[key].total + 1 })}`);
   }
 
+  /**
+   * Видимость жизни: дыхание, тёплая кожа, румянец — до конца сцены (состояние r-lifelike, снимается apps/night.mjs → endScene).
+   * Цена — 8 − мораль пунктов крови, при морали 8+ бесплатно. V20 (гл. 5): только на Пути Человечности; V20 Dark Ages
+   * (гл. 7, «Запас крови»): на любой Дороге — рассказчик может запретить жестоким Дорогам. Повторно — снять.
+   */
+  async lifelike() {
+    if (this.type !== "vampire") return;
+    if (this.statuses?.has("r-lifelike")) return this.toggleStatusEffect("r-lifelike", { active: false });
+    const s = this.system, path = s.morality?.path ?? "humanity";
+    if (!VTM20.isDarkAges() && path !== "humanity") return ui.notifications.warn(t("Notify.LifelikeHumanityOnly"));
+    const cost = Math.max(0, 8 - (s.morality?.value ?? 0)), blood = s.blood?.value ?? 0;
+    if (blood < cost) return ui.notifications.warn(t("Notify.LifelikeNoBlood", { n: cost }));
+    if (cost) await this.update({ "system.blood.value": blood - cost });
+    await this.toggleStatusEffect("r-lifelike", { active: true });
+    this.#notice(t("Notify.Lifelike", { name: foundry.utils.escapeHTML(this.name), n: cost }));
+  }
+
   async clearBoosts() {
     if (!this.hasBlood) return;
     await this.update({ "system.boosts": { strength: 0, dexterity: 0, stamina: 0 } });
@@ -823,7 +844,8 @@ export class VtMActor extends Actor {
         if (this.system.clan === "caitiff" || this.system.clan === "pandery") return X.caitiffDiscipline(current);
         return inClan ? X.clanDiscipline(current) : X.otherDiscipline(current);
       }
-      case "path": return current === 0 ? (ghoul ? 20 : X.newPath) : (extra.primary ? null : (ghoul ? current * 15 : X.secondaryPath(current)));
+      // краины V20 DA за опыт не покупаются: их точки — точки Колдовства (Codex.krainaRule)
+      case "path": return extra.kraina ? null : current === 0 ? (ghoul ? 20 : X.newPath) : (extra.primary ? null : (ghoul ? current * 15 : X.secondaryPath(current)));
       case "virtue": return X.virtue(current);
       // Закостенелый образ (хоумрул «форма зуло», data/zulo.mjs): Путь Метаморфоз — на 2 опыта дороже
       case "morality": return X.morality(current) + (this.system.morality?.path === "metamorphosis" && zuloOn() && this.hasTrait(ZULO_MERITS.ossified) ? 2 : 0);
@@ -872,6 +894,23 @@ export class VtMActor extends Actor {
    * Купить следующую точку за опыт (01): лист (кнопки «+») и окно опыта. doc — персонаж или его предмет,
    * path — путь к значению в doc. Возвращает потраченный опыт или null.
    */
+  /** Путь — краина по правилу V20 DA (Codex.krainaRule): у колдуна основной путь — краина, и этот путь тоже краина. */
+  krainaPath(item) {
+    const k = item?.system?.discipline;
+    if (k !== "koldunism" || !Codex.isKraina(Codex.bloodPath(k, item.name))) return false;
+    const main = this.items.find(i => i.type === "thaumPath" && i.system.discipline === k && i.system.primary);
+    return Codex.krainaRule(k, Codex.bloodPath(k, main?.name));
+  }
+
+  /** Свободные точки Колдовства для краин V20 DA (точки Дисциплины минус точки краин) или null, если правило не действует. */
+  krainaFree() {
+    const main = this.items.find(i => i.type === "thaumPath" && i.system.discipline === "koldunism" && i.system.primary);
+    if (!main || !this.krainaPath(main)) return null;
+    const disc = Math.min(5, this.items.find(i => i.type === "discipline" && i.system.key === "koldunism")?.system.value ?? 0);
+    const used = this.items.filter(i => i.type === "thaumPath" && this.krainaPath(i)).reduce((s, i) => s + i.system.value, 0);
+    return Math.max(0, disc - used);
+  }
+
   /** Текущее значение черты и цена следующей точки — как при покупке. */
   xpCostOf({ doc = this, path, kind }) {
     const sorcKey = kind === "sorcNumen" ? path.split(".").pop() : null;   // нумины лежат списком — путь «…numina.<ключ>»
@@ -880,7 +919,7 @@ export class VtMActor extends Actor {
     const extra = sorcKey ? numenXpExtra(this, sorcKey) : kind === "hunterVirtue" || kind === "mageSphere" ? { key: path.split(".").pop() }
       : kind === "arcanos" ? { key: path.includes(".arcanoi.") ? path.split(".")[3] : path.split(".").pop() }
       : doc !== this && doc.type === "discipline" ? { key: doc.system.key, inClan: doc.system.inClan || this.clanDisciplines.includes(doc.system.key) }
-      : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary }
+      : doc !== this && doc.type === "thaumPath" ? { primary: doc.system.primary, kraina: this.krainaPath(doc) }
       : doc !== this && doc.type === "lore" ? { key: doc.system.key } : {};
     return { cur, cost: this.xpCost(kind, cur, extra), sorcKey };
   }

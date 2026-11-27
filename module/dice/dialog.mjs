@@ -14,6 +14,7 @@ import { dreadDice, frenzyDiff, mindDiff, centered, painless } from "../apps/tar
 import { revenantDiff } from "../data/revenants.mjs";
 import { noBotchFor, lykeianDiff } from "../apps/lykeian.mjs";
 import { talismanMods } from "../data/talisman.mjs";
+import { getClock, nightPhase } from "../apps/calendar.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 /** Черты, при которых одна «1» в броске не считается (рискованный трюк): отмечаются галочкой в окне броска. */
@@ -52,7 +53,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: cfg.contest ?? "simple", need: cfg.need ?? 5,
       specialty: !!cfg.specialty, willpower: !!cfg.willpower,
       wounds: !cfg.reflexive, physical: true,
-      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, fxOn: [], overdraw: 0, sway: "", horrid: true, pools: {},
+      payBlood: (cfg.bloodCost ?? 0) > 0, payWill: !!cfg.willpowerCost, light: false, dayCap: true, fxOn: [], overdraw: 0, sway: "", horrid: true, pools: {},
       messageMode: cfg.messageMode ?? game.settings.get("core", "messageMode")
     };
   }
@@ -196,6 +197,16 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const oneTarget = (ts => ts.length === 1 ? ts[0]?.actor ?? null : null)([...(game.user?.targets ?? [])]);
     const tal = talismanMods(a, this.cfg.extra?.magic, oneTarget);
     for (const d of tal.dice) { pool += d.value; bd.push({ label: t("Artifact.TalismanDice", { name: d.label }), value: d.value }); }
+    // V20 Dark Ages (гл. 7, «Запас крови»): Самоконтроль и Инстинкты — не больше кубиков, чем пунктов в запасе крови
+    // (при 3 крови и Самоконтроле 4 против бешенства — только 3 кубика). Пул Добродетели ≤ Дороги — traitValue (actor.mjs).
+    if (a.type === "vampire" && VTM20.isDarkAges() && [v.trait1, v.trait2].includes("virtues.selfControl")) {
+      const blood = a.system.blood?.value ?? 0;
+      if (pool > blood) { bd.push({ label: t("Roll.BloodLimitsVirtue", { n: blood }), value: blood - pool }); pool = blood; }
+    }
+    // День (V20, гл. 3 «Пробуждение днём»; V20 Dark Ages — с Дорогой): пул любой проверки вампира не больше Человечности / Пути /
+    // Дороги. Галочка — когда по часам хроники солнце над горизонтом; снять можно (вампир в укрытии от дневного оцепенения и т. п.)
+    const dayCap = this.dayCapAvailable ? a.system.morality?.value ?? 0 : null;
+    if (dayCap != null && v.dayCap && pool > dayCap) { bd.push({ label: t("Roll.DayCap", { n: dayCap }), value: dayCap - pool }); pool = dayCap; }
     // Множественные действия (03): наименьший пул делится между действиями
     if (v.actions > 1) {
       const part = Math.floor(Math.max(0, pool) / v.actions);
@@ -272,12 +283,18 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
    * У Человечности (Нормальность) — социальные броски, где персонаж выдаёт себя за человека или ищет симпатии смертных;
    * у Путей — любые броски, к которым относится их аура. Галочкой: применимость решает рассказчик.
    */
+  /** Вампир, а по часам хроники — день (от восхода до заката): предлагается дневной предел пула. */
+  get dayCapAvailable() {
+    if (this.actor?.type !== "vampire" || this.cfg.lockTraits === "fixed") return false;
+    try { const ms = getClock(), p = nightPhase(ms); return ms >= p.sunrise && ms < p.sunset; } catch { return false; }
+  }
+
   #bearing(social) {
     const a = this.actor, m = a.system.morality;
     if (!a.isVampire || !m || this.cfg.lockTraits) return [];
     const path = Codex.path(m.path ?? "humanity"), bm = VTM20.bearingMod(m.value);
     if (!bm || !path?.bearing || (path.key === "humanity" && !social)) return [];
-    return [{ label: `${t("Sheet.Bearing")}: ${path.bearing}`, value: bm, kind: "bearing" }];
+    return [{ label: `${game.i18n.localize(VTM20.bearingLabel())}: ${path.bearing}`, value: bm, kind: "bearing" }];
   }
 
   /** Перебор (гл. 9, с. 252): только в призыве падшего, у которого есть слуги или «Договоры»; не больше постоянной Веры. */
@@ -352,6 +369,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       pools: this.#pools(),
       overdraw: this.#overdrawMax() ? { max: this.#overdrawMax(), value: this.#overdraw(), thralls: this.actor.system.thralls?.length ?? 0 } : null,
       lightBane: VTM20.lightBane.includes(this.actor.system.clan),
+      dayCapAvail: this.dayCapAvailable, dayCapN: this.actor.system.morality?.value ?? 0,
       horridAvail: this.horridAvailable,
       physicalLabel: c.physicalPotentialAuto > 0 ? t("Roll.AutoSuccess") : c.physicalBonus ? Codex.disciplineLabel(c.attr === "strength" ? "potence" : "celerity") : "",
       physicalAuto: c.auto > 0,
@@ -383,7 +401,7 @@ export class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       contest: f.contest ?? this.values.contest, need: Math.clamp(Number(f.need) || 1, 1, 50),
       difficulty: Math.clamp(Number(f.difficulty) || 6, 2, 12),
       specialty: !!f.specialty, willpower: !!f.willpower, totemWill: !!f.totemWill, wounds: !!f.wounds, physical: !!f.physical,
-      payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light, horrid: this.horridAvailable ? !!f.horrid : this.values.horrid, overdraw: Math.max(0, Number(f.overdraw) || 0),
+      payBlood: !!f.payBlood, payWill: !!f.payWill, light: !!f.light, dayCap: this.dayCapAvailable ? !!f.dayCap : this.values.dayCap, horrid: this.horridAvailable ? !!f.horrid : this.values.horrid, overdraw: Math.max(0, Number(f.overdraw) || 0),
       messageMode: f.messageMode ?? this.values.messageMode
     });
     this.values.pools = Object.fromEntries(Object.entries(f).filter(([k]) => k.startsWith("pool_")).map(([k, n]) => [k.slice(5), Math.max(0, Number(n) || 0)]));

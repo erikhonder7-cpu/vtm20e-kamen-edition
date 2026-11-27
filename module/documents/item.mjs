@@ -18,6 +18,15 @@ export class VtMItem extends Item {
     } else if (!data.img || data.img === Item.DEFAULT_ICON) {
       this.updateSource({ img: `systems/${SYSTEM_ID}/assets/icons/${this.type === "flaw" ? "flaw" : this.type}.svg` });
     }
+    // новая краина V20 DA на листе — только за свободную точку Колдовства (мастер создаёт все краины разом — там основной ещё нет)
+    if (this.type === "thaumPath" && !this.system.primary) {
+      const kr = this.#kraina();
+      if (kr && kr.paths.some(i => i.system.primary)) {
+        const free = kr.disc - kr.paths.reduce((s, i) => s + i.system.value, 0);
+        if (free < 1) { ui.notifications.warn(game.i18n.localize("VTM20.Magic.KrainaNoFree")); return false; }
+        if (this.system.value > free) this.updateSource({ "system.value": free });
+      }
+    }
   }
 
   /** Недостатки «Четырнадцатое/Пятнадцатое поколение» сразу выставляют поколение персонажа (V20, Appendix). */
@@ -42,7 +51,18 @@ export class VtMItem extends Item {
       return;
     }
     const v = foundry.utils.getProperty(changes, "system.value");
-    if (v == null || primary) return;
+    if (v == null) return;
+    // краины V20 DA (Codex.krainaRule): все краины вместе — не больше точек Колдовства
+    const kr = this.#kraina();
+    if (kr) {
+      const cap = Math.max(0, kr.disc - kr.paths.filter(i => i.id !== this.id).reduce((s, i) => s + i.system.value, 0));
+      if (v > cap) {
+        foundry.utils.setProperty(changes, "system.value", cap);
+        ui.notifications.warn(game.i18n.format("VTM20.Magic.KrainaCap", { name: this.name, n: cap, d: kr.disc }));
+      }
+      return;
+    }
+    if (primary) return;
     const main = this.#primaryOf(this.system.discipline);
     if (!main) return;
     const cap = main.system.value >= 5 ? 5 : Math.max(0, main.system.value - 1);
@@ -59,7 +79,9 @@ export class VtMItem extends Item {
     // Дисциплина выросла — основной путь за ней (до 5)
     if (this.type === "discipline" && pathed.includes(this.system.key) && foundry.utils.hasProperty(changed, "system.value")) {
       const main = this.#primaryOf(this.system.key), want = Math.min(5, this.system.value);
-      if (main && main.system.value !== want) main.update({ "system.value": want });
+      const kr = main && this.#kraina(main);
+      if (kr) this.#fitKraina(kr, main);
+      else if (main && main.system.value !== want) main.update({ "system.value": want });
     }
     if (this.type !== "thaumPath") return;
     // основной путь у Дисциплины один
@@ -68,7 +90,7 @@ export class VtMItem extends Item {
         o.update({ "system.primary": false });
     }
     // основной путь подняли сами — Дисциплина за ним (пока путь не достиг 5)
-    if (this.system.primary && foundry.utils.hasProperty(changed, "system.value")) {
+    if (this.system.primary && foundry.utils.hasProperty(changed, "system.value") && !this.#kraina()) {
       const disc = this.actor.items.find(i => i.type === "discipline" && i.system.key === this.system.discipline);
       if (disc && this.system.value < 5 && disc.system.value !== this.system.value) disc.update({ "system.value": this.system.value });
     }
@@ -76,6 +98,36 @@ export class VtMItem extends Item {
 
   #primaryOf(key) {
     return this.actor?.items.find(i => i.type === "thaumPath" && i.id !== this.id && i.system.discipline === key && i.system.primary) ?? null;
+  }
+
+  /**
+   * Краины V20 DA (Codex.krainaRule): у колдуна с краиной основным путём — точки Колдовства и все его краины, иначе null.
+   * path — путь, по которому решается (по умолчанию этот предмет); основной ищется среди путей персонажа.
+   */
+  #kraina(path = this) {
+    const a = this.actor, key = path.system?.discipline ?? path.system?.key;
+    if (!a || key !== "koldunism" || !Codex.isKraina(Codex.bloodPath(key, path.name))) return null;
+    const all = a.items.filter(i => i.type === "thaumPath" && i.system.discipline === key);
+    const main = all.find(i => i.system.primary) ?? (path.system?.primary ? path : null);
+    if (!Codex.krainaRule(key, Codex.bloodPath(key, main?.name))) return null;
+    const disc = Math.min(5, a.items.find(i => i.type === "discipline" && i.system.key === key)?.system.value ?? 0);
+    return { disc, paths: all.filter(i => Codex.isKraina(Codex.bloodPath(key, i.name))) };
+  }
+
+  /**
+   * Колдовство изменилось: точек краин больше, чем Дисциплины, — срезать (сначала с неосновных, у основной остаётся 1);
+   * единственная краина растёт вместе с Дисциплиной, а при нескольких новая точка остаётся свободной — её силу выбирают на листе.
+   */
+  async #fitKraina(kr, main) {
+    let over = kr.paths.reduce((s, i) => s + i.system.value, 0) - kr.disc;
+    if (over < 0 && kr.paths.length === 1) return main.update({ "system.value": kr.disc });
+    if (over <= 0) return;
+    const order = [...kr.paths.filter(i => i !== main).sort((x, y) => x.system.value - y.system.value), main];
+    for (const i of order) {
+      if (over <= 0) break;
+      const keep = i === main ? Math.min(1, kr.disc) : 0, cut = Math.min(over, i.system.value - keep);
+      if (cut > 0) { over -= cut; await i.update({ "system.value": i.system.value - cut }); }
+    }
   }
 
   /** Подзаголовок карточки: уровень, цена, тип урона. */

@@ -183,7 +183,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
           dmg: (w.strength ? str : 0) + w.damage + cleave, auto: w.strength ? auto : 0, strengthDamage: !!w.strength,
           type: v ? "aggravated" : cleaveLethal ? "lethal" : w.damageType, venom: v, supernatural: !!w.supernatural,
           // Fortitude-only aggravated claws must not be treated as ordinary fang attacks for armour/stamina soak.
-          fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms", rangeM: w.rangeM,
+          fangs: !!w.fangs && !w.fortitudeOnly, note: v ? t("Combat.VenomNote", { n: fx.venom }) : "", pierce: w.pierce ?? 0, bullet: w.kind === "firearms" && !VTM20.isDarkAges(), rangeM: w.rangeM,   // V20: пуля по вампиру — лёгкий урон; в V20 DA такого правила нет — стрела летальная
           talisman: talismanAttack(a, id) };
       }
     }

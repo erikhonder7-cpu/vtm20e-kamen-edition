@@ -79,11 +79,21 @@ export const weaponIcon = (kind, name) => kind === "brawl" ? "fa-hand-fist" : ki
 
 export function prepareHeader(sheet, ctx) {
   const a = sheet.actor, s = a.system;
+  ctx.darkAgesEra = VTM20.isDarkAges();          // девиз в шапке: в Тёмных веках — «Sanguis est vita» вместо девиза Революции
   if (ctx.isVampire) {
     ctx.clanGroups = Codex.clanGroups().map(g => ({ ...g, clans: g.clans.map(c => ({ key: c.key, name: c.name, selected: c.key === s.clan })) }));
     const clan = Codex.clan(s.clan);
     ctx.clan = clan;
-    ctx.clanChoices = clan?.choice?.length ? clan.choice.map(k => ({ value: k, label: Codex.disciplineLabel(k), selected: k === s.clanChoice })) : null;
+    // «одна из» Дисциплин — список; «две Дисциплины исходного клана» (Дети Осириса, Киасиды — V20 DA) — исходный клан и две его
+    const original = clan?.choice?.includes("original");
+    ctx.clanChoices = clan?.choice?.length && !original ? clan.choice.map(k => ({ value: k, label: Codex.disciplineLabel(k), selected: k === s.clanChoice })) : null;
+    if (original) {
+      const oc = Codex.clan(s.clanOrigin), picked = s.originDisciplines ?? [];
+      ctx.clanOrigin = {
+        clans: Codex.clans.filter(x => x.group === "clan" && x.disciplines.length && x.key !== clan.key).map(x => ({ value: x.key, label: x.name, selected: x.key === s.clanOrigin })),
+        slots: oc ? [0, 1].map(i => ({ i, num: i + 1, options: oc.disciplines.map(k => ({ value: k, label: Codex.disciplineLabel(k), selected: picked[i] === k })) })) : []
+      };
+    }
     ctx.generations = Object.keys(VTM20.generations).map(Number).sort((x, y) => x - y)
       .map(g => ({ value: g, label: t("GenerationN", { n: g }), selected: g === s.generation }));
   }
@@ -155,8 +165,10 @@ export function prepareHeader(sheet, ctx) {
   const nature = Codex.archetypes.find(x => x.name === s.details.nature);
   ctx.natureRegain = String(nature?.regain ?? "").replace(/\*\*/g, "");   // **выделение** из справочника — в подсказке без звёздочек
   // Дороги Тёмных веков — только при включённой настройке; уже выбранный путь не прячем
-  ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === s.morality.path)
-    .map(p => ({ key: p.key, name: p.era ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === s.morality.path }));
+  // в мире Тёмных веков у вампира — только Дороги (V20 Dark Ages); пометка эпохи тогда не нужна
+  const da = VTM20.isDarkAges() && a.type === "vampire";
+  ctx.paths = Codex.paths.filter(p => (da ? p.era === "darkAges" && Codex.visible(p) && !p.roadOnly : Codex.visible(p)) || p.key === s.morality.path)
+    .map(p => ({ key: p.key, name: p.era && !da ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === s.morality.path }));
   // переход с Человечности на Путь в игре (apps/path-shift.mjs) — кнопкой у вампира на Человечности
   ctx.pathShift = a.isVampire && sheet.isEditable && (s.morality.path ?? "humanity") === "humanity";
   // Становление (apps/embrace.mjs): смертный или гуль становится Сородичем
@@ -207,7 +219,7 @@ export function prepareRegistry(sheet, ctx) {
   ctx.path = path;
   ctx.moralityDots = dots(s.morality.value, 10, { path: "system.morality.value" });
   const bm = VTM20.bearingMod(s.morality.value);
-  ctx.bearing = { name: path?.bearing ?? "", mod: bm > 0 ? `+${bm}` : bm < 0 ? `−${-bm}` : "±0" };
+  ctx.bearing = { name: path?.bearing ?? "", mod: bm > 0 ? `+${bm}` : bm < 0 ? `−${-bm}` : "±0", label: game.i18n.localize(VTM20.bearingLabel()) };
   ctx.virtues = ["conscience", "selfControl", "courage"].map(slot => {
     const key = a.virtueKey(slot);
     const v = s.virtues[slot].value;
@@ -377,7 +389,7 @@ export function prepareDisciplines(sheet, ctx) {
     // На уровне несколько сил (высокие уровни, альтернативы кланбуков) — показываем выбранную в system.choices,
     // а пока не выбрана — строку «выбрать». Эффекты (fx) описаны для сил основной книги, у альтернатив их нет.
     const choices = it.system.choices ?? {};
-    const vis = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.visible(p));
+    const vis = (data?.powers ?? []).map((p, i) => [p, i]).filter(([p]) => Codex.powerFor(p, a.system.ghoulType));   // силы Богатырей — только Богатырю
     const powers = [];
     for (let lv = 1; lv <= v; lv++) {
       const opts = vis.filter(([p]) => fitsLevel(p, lv, choices));       // и «любой из 6–9» (Guide to the Camarilla)
@@ -404,7 +416,8 @@ export function prepareDisciplines(sheet, ctx) {
       rules: (data?.rules ?? []).filter(r => r.title).map((r, i) => ({ ...r, id: `${it.id}-r${i}`, open: sheet._open.has(`${it.id}-r${i}`) })),
       isPathed,
       paths: myPaths.map(mapPath),
-      pathChoices: VTM20.pathDisciplines.includes(k) ? (data?.paths ?? []).filter(pp => Codex.visible(pp) && !myPaths.some(m => m.name === pp.name)).map(pp => pp.name) : [],
+      krainaFree: k === "koldunism" ? a.krainaFree() : null,      // краины V20 DA: точки Колдовства, ещё не отданные краинам
+      pathChoices: VTM20.pathDisciplines.includes(k) ? Codex.bloodPathsFor(k).filter(pp => !myPaths.some(m => m.name === pp.name)).map(pp => pp.name) : [],   // пути своей эпохи
       hasRituals: !!Codex.rituals[k]?.rituals?.some(r => Codex.visible(r)) || myRituals.length > 0,
       rituals: myRituals.sort((x, y) => x.system.level - y.system.level || x.name.localeCompare(y.name)).map(mapRitual),
       ritualChoices: (Codex.rituals[k]?.rituals ?? []).some(r => Codex.visible(r) && r.level <= v && !rituals.some(m => m.name === r.name)),
@@ -767,7 +780,7 @@ export function prepareEffects(sheet, ctx) {
   if (fort) mods.push({ icon: "fa-shield", label: Codex.disciplineLabel("fortitude"), value: `+${fort}`, text: t("FxTab.Fortitude", { n: fort }) });
   mods.push({ icon: "fa-shield-heart", label: t("FxTab.Soak"), value: `${a.soakPool("bashing")}/${a.soakPool("lethal")}/${a.soakPool("aggravated")}`, text: t("FxTab.SoakText") });
   if (ctx.hasBlood) mods.push({ icon: "fa-droplet", label: t("FxTab.PerTurn"), value: game.combat?.started ? `${sheet.document.bloodSpentThisTurn}/${s.blood.perTurn}` : `${s.blood.perTurn}`, text: t("FxTab.PerTurnText", { max: s.traitMax ?? 5 }) });
-  if (ctx.bearing?.name && ["vampire", "ghoul", "mortal", "creature"].includes(a.type)) mods.push({ icon: "fa-scale-balanced", label: t("Sheet.Bearing"), value: ctx.bearing.mod, text: ctx.bearing.name });
+  if (ctx.bearing?.name && ["vampire", "ghoul", "mortal", "creature"].includes(a.type)) mods.push({ icon: "fa-scale-balanced", label: ctx.bearing.label, value: ctx.bearing.mod, text: ctx.bearing.name });
   ctx.fxMods = mods;
 
   // Черты с механикой (data/merit-mods.mjs): что, к чему, сами или по обстоятельствам

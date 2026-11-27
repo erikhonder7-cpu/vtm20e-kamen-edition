@@ -146,6 +146,10 @@ export class VampireData extends BaseActorData {
       clan: str("brujah"),
       clanCustom: str(),
       clanChoice: str(),               // выбранная Дисциплина там, где клан даёт «одну из» (Колдуны, У-Дзао…)
+      // линия крови «своя Дисциплина + две Дисциплины исходного клана» (Дети Осириса, Киасиды — V20 Dark Ages, choice "original"):
+      // исходный клан и выбранные две его Дисциплины — тоже клановые
+      clanOrigin: str(),
+      originDisciplines: new ArrayField(str()),
       generation: int(13, 3, 15),
       // родословная, вписанная прямо в лист (bio.hbs, data/lineage.mjs): предки выше сира без листа — от деда-сира вверх;
       // потомки без листов; имя, клан словами, поколение (0 — считать по линии), когда и где обращён

@@ -36,6 +36,8 @@
       <input type="time" name="time" value="{{timeInput}}">
       <button type="submit" class="r-cal-ok" title="{{localize 'VTM20.Common.Apply'}}"><i class="fa-solid fa-check"></i></button>
     </div>
+    {{!-- от сотворения мира: поле — по григорианскому календарю, подпись даты — юлианская (apps/calendar.mjs → longDate) --}}
+    {{#if annoMundi}}<p class="r-note">{{localize "VTM20.Calendar.AnnoMundiInput" date=annoMundiNow}}</p>{{/if}}
   </div>
 
   <div class="r-cal-sec">

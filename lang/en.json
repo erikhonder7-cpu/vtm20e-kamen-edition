@@ -36,8 +36,20 @@
     }
   },
   "VTM20": {
-    "Derange": {"HoldHint": "Hold back: 1 Willpower — the derangement stays quiet until the end of the scene", "ShowHint": "Manifested: the derangement takes over — a reminder until the end of the scene", "Held": "held back", "Shown": "manifested", "NoWill": "No temporary Willpower to hold the derangement back.", "HeldMsg": "{name} holds back “{what}” (−1 Willpower) until the end of the scene.", "ShownMsg": "“{what}” takes hold of {name}."},
-    "DamageOne": { "bashing": "bashing", "lethal": "lethal", "aggravated": "aggravated" },
+    "Derange": {
+      "HoldHint": "Hold back: 1 Willpower — the derangement stays quiet until the end of the scene",
+      "ShowHint": "Manifested: the derangement takes over — a reminder until the end of the scene",
+      "Held": "held back",
+      "Shown": "manifested",
+      "NoWill": "No temporary Willpower to hold the derangement back.",
+      "HeldMsg": "{name} holds back “{what}” (−1 Willpower) until the end of the scene.",
+      "ShownMsg": "“{what}” takes hold of {name}."
+    },
+    "DamageOne": {
+      "bashing": "bashing",
+      "lethal": "lethal",
+      "aggravated": "aggravated"
+    },
     "ClCr": {
       "NeedKith": "Pick a kith.",
       "NeedSeeming": "Pick a seeming.",
@@ -2268,11 +2280,17 @@
       "cosmology": "Cosmology",
       "esoterica": "Esoterica",
       "kenning": "Kenning",
-      "gremayre": "Gremayre"
+      "gremayre": "Gremayre",
+      "legerdemain": "Legerdemain",
+      "archery": "Archery",
+      "commerce": "Commerce",
+      "hearthWisdom": "Hearth Wisdom",
+      "seneschal": "Seneschal"
     },
     "Era": {
       "modern": "Modern nights (V20 as written)",
-      "revolution": "Revolutionary France, 1789–1799"
+      "revolution": "Revolutionary France, 1789–1799",
+      "darkAges": "Dark Ages, 1242 (V20 Dark Ages)"
     },
     "Virtue": {
       "conscience": "Conscience",
@@ -2582,13 +2600,27 @@
       "Own": "Custom",
       "AddClanDisciplines": "Clan Disciplines",
       "OwnDiscs": {
-        "domitor": { "Add": "Domitor's Disciplines", "Tag": "from the domitor" },
-        "family": { "Add": "Family Disciplines", "Tag": "family" },
-        "ancestor": { "Add": "Ancestor's Disciplines", "Tag": "from the Ancestor" },
-        "eldest": { "Add": "Disciplines of the Eldest", "Tag": "from the Eldest" }
+        "domitor": {
+          "Add": "Domitor's Disciplines",
+          "Tag": "from the domitor"
+        },
+        "family": {
+          "Add": "Family Disciplines",
+          "Tag": "family"
+        },
+        "ancestor": {
+          "Add": "Ancestor's Disciplines",
+          "Tag": "from the Ancestor"
+        },
+        "eldest": {
+          "Add": "Disciplines of the Eldest",
+          "Tag": "from the Eldest"
+        }
       },
       "GhoulCap": "Discipline limit by the donor's blood: {n}",
       "InClan": "in-clan",
+      "Aura": "Aura",
+      "OriginDisc": "Clan of origin Discipline {n}",
       "DiceTo": "to pools:",
       "Edit": "Open",
       "Delete": "Delete",
@@ -2674,7 +2706,10 @@
       "EmptyAdd": "Empty for now — add with the button on the right.",
       "EmptyNone": "Empty for now.",
       "BiographyEmpty": "Who they were, how they came to this existence, what holds them now.",
-      "NotesEmpty": "For yourself: names, debts, leads, promises made."
+      "NotesEmpty": "For yourself: names, debts, leads, promises made.",
+      "Road": "Road",
+      "Lifelike": "Blush of Life",
+      "LifelikeHint": "Breath, warm skin, a flush — until the end of the scene. Cost: 8 − morality = {n} blood (free at morality 8+). In V20 only on Humanity; in the Dark Ages on any Road (the Storyteller may forbid it to cruel Roads). Click again to end it."
     },
     "Roll": {
       "SpareOne": "Daredevil stunt: one “1” is ignored.",
@@ -2740,6 +2775,9 @@
         "botch": "Botch: passion drives the character until sated; a derangement is possible."
       },
       "Bloodlust": "Bloodlust: no more dice than blood in the pool ({n}).",
+      "BloodLimitsVirtue": "Blood pool ({n}) limits the Virtue",
+      "DayCap": "Daytime: pool capped by morality ({n})",
+      "DayCapToggle": "By day: pool no higher than morality",
       "frenzy": {
         "title": "Frenzy",
         "resisted": "The Beast is tamed: frenzy suppressed.",
@@ -3457,7 +3495,10 @@
       "BloodPerTurn": "{name}: no more than {max} blood can be spent per turn ({spent} already spent).",
       "BloodPerTurnAnyway": "Spend anyway",
       "SpiritHit": "Essence −{n}: {left} of {max}",
-      "NoWillBlocked": "{name}: under the Frustrations of Nestrecha, Willpower cannot be spent."
+      "NoWillBlocked": "{name}: under the Frustrations of Nestrecha, Willpower cannot be spent.",
+      "LifelikeHumanityOnly": "In V20 the Blush of Life is only for Humanity.",
+      "LifelikeNoBlood": "It needs {n} blood — the pool has less.",
+      "Lifelike": "{name} looks alive until the end of the scene: breath, warm skin, a flush (−{n} blood)."
     },
     "Hunt": {
       "Masq": "Masquerade: +{n} to difficulty",
@@ -3518,7 +3559,23 @@
       "StopSub": "Willpower — stop at {n}",
       "CouldNotStop": "Hunger is stronger: couldn't tear away and drank {n}.",
       "Drained": "{n} points drunk from a person",
-      "FrenzyCheck": "Frenzy check"
+      "FrenzyCheck": "Frenzy check",
+      "GroundDA": {
+        "slums": "Slums, the circus",
+        "poor": "Lower-class neighborhood",
+        "business": "Market district",
+        "industrial": "Workshops and warehouses",
+        "suburb": "Merchant-class neighborhood",
+        "guarded": "Heavily patrolled area"
+      },
+      "MethodDA": {
+        "club": "Tavern, feast, fair",
+        "chase": "Chase through forest and field",
+        "alleys": "Ambush in dark lanes",
+        "seduce": "Seduction",
+        "herd": "Own herd",
+        "animals": "Animals"
+      }
     },
     "Income": {
       "Title": "Income",
@@ -3846,6 +3903,7 @@
       "XpCostsDemon": "Experience per ch. 6: new Lore 7 (other House 10), Lore × 5, Faith × 7. The next dot's price is in the “+” tooltip.",
       "XpMortal": "Experience beyond creation, if the Storyteller gives it — enter a number.",
       "XpDemon": "The Fallen have no age in the Blood: experience beyond creation, if the Storyteller gives it — enter a number.",
+      "GateHintDA": "The wizard follows V20 Dark Ages: concept, clan and generation (from 12th), Attributes 7/5/3, Abilities 13/9/5, 4 Discipline dots, Backgrounds, Virtues and Road, Merits and freebie points — with hints and point tallies.",
       "GateHintMortal": "The wizard walks you through V20 mortal rules: concept, Attributes 6/4/3, Abilities 11/7/4, Backgrounds, Virtues, Merits and freebie points — with hints and point tallies. A mortal can be created as a Fallen's thrall right away.",
       "GateHintGhoul": "The wizard walks you through V20 ghoul rules: concept and domitor, Attributes 6/4/3, Abilities 11/7/4, Disciplines (Potence — from the start), Backgrounds, Virtues, Merits and freebie points — with hints and point tallies.",
       "GateHintDemon": "The wizard walks you through Demon: The Fallen rules: concept, House and Visage, Attributes 7/5/3, Abilities 13/9/5, Lores, Backgrounds, Virtues, Merits and freebie points — with hints and tallies.",
@@ -3867,6 +3925,31 @@
       "ConceptHint": "Who the character was before the Embrace and who they became. Nature restores Willpower; age in the Blood grants experience beyond creation.",
       "ConceptHintGhoul": "Who the character was before the first taste of vitae and whom they serve. Nature restores Willpower; length of service grants experience beyond creation.",
       "ConceptPh": "a Jacobin, a seamstress, a former abbot…",
+      "PrimaryPath": "Primary path",
+      "RitualSlot": "Ritual up to level {n}",
+      "OriginClan": "Clan of origin",
+      "BloodMagic": "Blood magic",
+      "BloodPaths": "Blood magic paths",
+      "Rituals": "Rituals",
+      "BmPrice": "path — 4 per dot, ritual — its level; no higher than {n}",
+      "BmAddPath": "Buy a path",
+      "BmPriceXpV20": "new path — 7, then current × 4; no higher than {n}",
+      "BmPriceXp": "new path — 7, then current × 4; ritual — level × 2; no higher than {n}",
+      "BmAddRitual": "Buy a ritual",
+      "BmPathCap": "A path cannot exceed the Discipline rating (V20 Dark Ages).",
+      "KrainaPrimary": "Primary kraina",
+      "KrainaAdd": "Take a new kraina",
+      "Krainas": "Krainas",
+      "KrainaTotal": "dots in all: {n}",
+      "Or": "or",
+      "KrainaCap": "No free Koldunic Sorcery dots: the first dot always belongs to the primary kraina, the rest give one power in any kraina.",
+      "KrainaNote": "V20 Dark Ages: each dot of Koldunic Sorcery is the next power of a known kraina or the first power of a new one. Krainas aren't bought separately; the Genius Loci is never primary.",
+      "OriginTwo": "two Disciplines of the clan of origin",
+      "OriginTwoOf": "two of its Disciplines ({n} left)",
+      "NeedOrigin": "Choose the clan of origin and two of its Disciplines.",
+      "RitualLevel": "Level {n}",
+      "ConceptPhDA": "a crusader, a herbalist nun, a merchant of the Champagne fairs…",
+      "BloodRollDA": "Dark Ages: 1d10 + Domain + Herd, but no more than the generation's blood pool.",
       "VentrueTaste": "Whose blood they drink (Ventrue weakness)",
       "AnyDisc": "any (with the Storyteller's consent)",
       "OneOf": "one of choice",
@@ -4112,7 +4195,8 @@
         "elderHint": "A century on the Path, a name in the Tradition's chronicles: +300 experience."
       },
       "GateHintChangeling": "Kith or variant (Lykeian, Hsien, Inanimae, Dark Ages), seeming and court, Legacies, Arts and Realms or the variant's own magic, Glamour, Willpower and Banality — the creation wizard builds the changeling by C20 rules.",
-      "NoChoice": "none"
+      "NoChoice": "none",
+      "RoadRules": "Dark Ages (V20 Dark Ages): the Road rating is the sum of its two Virtues, usually 5–7 for a starting character. Willpower equals Courage. Virtues start at 1 each, plus 7 to distribute."
     },
     "Settings": {
       "MonthlyIncome": {
@@ -4139,9 +4223,19 @@
         "Name": "Dark Ages content",
         "Hint": "Show Dark Ages paths, rituals, Merits and Flaws in the creation wizard, library and on the sheet. Independent of the chronicle's era."
       },
+      "LivingGods": {
+        "Name": "Age of the Living Gods content (fan-made)",
+        "Hint": "The fan supplement Vampire: Age of the Living Gods: the Mortis Discipline, its Paths, Abilities and Status Backgrounds. Hidden by default; when enabled it shows in any era, both V20 and Dark Ages."
+      },
       "Era": {
         "Name": "Chronicle era",
-        "Hint": "Changes three Abilities: Drive → Ride, Computer → Theology, Technology → Warfare (system rule)."
+        "Hint": "1789: Drive → Ride, Computer → Theology, Technology → Warfare (system rule). Dark Ages (V20 Dark Ages): Abilities, clans, Roads, Backgrounds, the creation wizard and period equipment."
+      },
+      "Reckoning": {
+        "Name": "Reckoning of years",
+        "Hint": "How the chronicle's year is shown. Anno Mundi uses the Byzantine era (5508 BC), the year starting on 1 September, as in Rus'. Clock and dates inside stay the same.",
+        "ad": "Anno Domini",
+        "am": "Anno Mundi (from the Creation)"
       },
       "NightlyWillpower": {
         "Name": "Willpower on awakening",
@@ -4427,6 +4521,8 @@
       "Lat": "Latitude",
       "Lon": "Longitude",
       "LibertyYear": "Year {year} of Liberty",
+      "AnnoMundi": "{date} {year} AM",
+      "AnnoMundiInput": "The date is entered in the Gregorian calendar and shown in the Julian one: now {date}.",
       "Sansculottide": "sansculottide {n}, year {year}",
       "YearWord": "year",
       "Republic": "By the Republican calendar",
@@ -4970,7 +5066,8 @@
       "rotschreck": "Rötschreck",
       "torpor": "Torpor",
       "rapture": "Rapture",
-      "harano": "Harano"
+      "harano": "Harano",
+      "lifelike": "Blush of Life"
     },
     "Library": {
       "Title": "Library",
@@ -5159,7 +5256,8 @@
           "Bearing": "Bearing",
           "Followers": "Followers",
           "Road": "Road",
-          "Sins": "Hierarchy of Sins"
+          "Sins": "Hierarchy of Sins",
+          "RoadOnly": "The Faithful choose one of the Road of Heaven's Paths — the Road itself has no hierarchy of sins (V20 Dark Ages)."
         },
         "Arch": {
           "Title": "Archetypes",
@@ -5496,7 +5594,39 @@
         "driver": "Chauffeur",
         "hitchhiker": "Hitchhiker",
         "trucker": "Trucker",
-        "vagabond": "Wanderer"
+        "vagabond": "Wanderer",
+        "highwayman": "Highwayman",
+        "knight": "Knight",
+        "crossbowman": "Crossbowman",
+        "manatarms": "Man-at-arms",
+        "squire": "Squire",
+        "huntsman": "Huntsman",
+        "archer": "Poacher-archer",
+        "housecarl": "Housecarl",
+        "troubadour": "Troubadour",
+        "baron": "Baron",
+        "abbot": "Abbot",
+        "merchant": "Merchant",
+        "lombard": "Moneylender",
+        "scribe": "Scribe",
+        "astrologer": "Astrologer",
+        "barber": "Barber-surgeon",
+        "herbwife": "Herbwife",
+        "bailiff": "Bailiff",
+        "watchman": "Sergeant of the watch",
+        "smith": "Smith",
+        "mason": "Master mason",
+        "seneschal": "Seneschal",
+        "canonist": "Canonist",
+        "cutpurse": "Cutpurse",
+        "envoy": "Messenger",
+        "beggar": "Beggar",
+        "miller": "Miller",
+        "serf": "Serf",
+        "steward": "Steward",
+        "groom": "Groom",
+        "pilgrim": "Pilgrim",
+        "jongleur": "Jongleur"
       },
       "RoleTitle": "Role",
       "PowerTitle": "Power",
@@ -5528,7 +5658,13 @@
       },
       "AutoGear": "Picked by skills: Firearms and Melee at 2+. Remove anything extra with the cross",
       "Ghouled": "Vampire blood",
-      "GhouledNone": "none"
+      "GhouledNone": "none",
+      "RoleDA": {
+        "techie": "Craftsman",
+        "detective": "Lawman",
+        "socialite": "Courtier",
+        "streetrat": "Rabble"
+      }
     },
     "Money": {
       "Title": "Purse",
@@ -6097,6 +6233,9 @@
       "RitualTime": "time: {n} min.",
       "RitualTooHigh": "“{name}”: requires the “{d}” Discipline at level {l} or higher, the character has {n}.",
       "SecondaryCap": "“{name}”: a secondary path no higher than {n} — it's always below the primary (“{main}”), and reaches 5 only after the primary.",
+      "KrainaCap": "“{name}”: no higher than {n} — krainas together can't have more dots than Koldunic Sorcery ({d}). Raise the Discipline first.",
+      "KrainaNoFree": "No free Koldunic Sorcery dots — a new kraina comes only with the next Discipline dot (V20 Dark Ages).",
+      "KrainaFree": "Free Koldunic Sorcery dots: {n} — each gives the next power of a known kraina or the first power of a new one.",
       "CounterNotPrimary": "Thaumaturgical Countermagic can't be the primary path.",
       "LoseWill": "−1 Willpower",
       "LoseWillPermanent": "−1 permanent Willpower",
@@ -6940,12 +7079,7 @@
       "ActionsCap": "Up to {cap} per turn",
       "ActionsFreeSub": "No penalty up to {free}: the lower of Dexterity and Wits",
       "ActionsLead": "Extra actions come after normal ones, in initiative order; the pool isn't split.",
-      "ActionsN": {
-        "one": "extra action",
-        "few": "extra actions",
-        "many": "extra actions",
-        "other": "extra actions"
-      },
+      "ActionsN": {"one": "extra action", "few": "extra actions", "many": "extra actions", "other": "extra actions"},
       "ActionsCost": "Rage −{n}",
       "TalenKicker": "Talen",
       "FetishKicker": "Fetish · level {n}",
@@ -9517,7 +9651,23 @@
     },
     "Mage": {
       "MeritsHint": "Character traits that change the casting difficulty: pick the option that applies",
-      "MM": {"cycle": {"peak": "cycle peak", "peakNear": "near the peak", "peakFar": "approaching the peak", "low": "cycle low", "lowNear": "near the low", "lowFar": "approaching the low"}, "taint": {"evil": "evil magick", "good": "good magick"}, "neph": {"umbra": "Mind or Spirit in the High Umbra"}},
+      "MM": {
+        "cycle": {
+          "peak": "cycle peak",
+          "peakNear": "near the peak",
+          "peakFar": "approaching the peak",
+          "low": "cycle low",
+          "lowNear": "near the low",
+          "lowFar": "approaching the low"
+        },
+        "taint": {
+          "evil": "evil magick",
+          "good": "good magick"
+        },
+        "neph": {
+          "umbra": "Mind or Spirit in the High Umbra"
+        }
+      },
       "SphereTip": "Own Sphere: {n}. Click a dot to set the rank used, the tile to add it in full or drop it.",
       "KindCap": "How it looks",
       "KindRisk": {
@@ -9964,7 +10114,11 @@
       "Spend": "Spend",
       "SpendHint": "Spend 1 vitae (no more than 1 per turn)",
       "PerTurn": "per turn",
-      "Steps": { "1": "craving", "2": "attachment", "3": "bound" },
+      "Steps": {
+        "1": "craving",
+        "2": "attachment",
+        "3": "bound"
+      },
       "NoFamily": "Choose a family — it has its own Disciplines and flaw.",
       "LoseDisc": "Remove a dot",
       "LifeHint": "Without vitae a ghoul withers: withdrawal for (6 − Stamina) weeks — Intelligence + Self-Control each week; after a month the body starts to age, from the sixth month — one Discipline dot a month. Counted from the night the vitae ran out; a new drink (vitae above zero) clears it all.",
@@ -10839,6 +10993,9 @@
       "Passive": "“{name}” is a permanent power, no roll needed.",
       "PrimaryNote": "primary kraina −2",
       "NoSpecNote": "no Koldunism specialty +1"
+    },
+    "Path": {
+      "DaDetails": "V20 Dark Ages: more on the Road"
     }
   }
 }

@@ -1445,13 +1445,29 @@
   "road": "Дорога Зверя"
  },
  {
+  "key": "dorogaNebesV20",
+  "name": "Дорога Небес",
+  "en": "Via Caeli",
+  "followers": "Верные",
+  "virtues": [
+   "conscience",
+   "selfControl"
+  ],
+  "bearing": "Святость",
+  "hierarchy": [],
+  "era": "darkAges",
+  "source": "V20 Dark Ages",
+  "html": "<p><em>Источник: V20 Dark Ages.</em></p><p><strong>Прозвище:</strong> Верные (Faithful). <strong>Добродетели:</strong> Совесть и Самоконтроль. <strong>Аура:</strong> Святость (Holiness) — бонус там, где выгодно выглядеть святым.</p><p><strong>Особенность:</strong> у Дороги Небес <strong>нет базовой иерархии</strong> — каждый Верный обязан выбрать Путь (обычно по своей прижизненной вере): Христа, Дерех Хаим, Пророка, Восьмеричного колеса или Бдящих богов. Общая этика: высшая сила существует и властвует над всем; вампиризм — часть божественного замысла; Становление — призыв к служению; божья воля выше своей; Зверя сковывает лишь закон Божий и отказ от зла.</p>",
+  "roadOnly": true
+ },
+ {
   "key": "putHrista",
   "name": "Путь Христа",
   "en": "The Path of Christ",
   "followers": "",
   "virtues": [
-   "conviction",
-   "instinct"
+   "conscience",
+   "selfControl"
   ],
   "bearing": "Святость",
   "hierarchy": [
@@ -1507,8 +1523,8 @@
   "en": "Derech Chaim",
   "followers": "",
   "virtues": [
-   "conviction",
-   "instinct"
+   "conscience",
+   "selfControl"
   ],
   "bearing": "Святость",
   "hierarchy": [
@@ -1564,8 +1580,8 @@
   "en": "The Path of the Prophet",
   "followers": "",
   "virtues": [
-   "conviction",
-   "instinct"
+   "conscience",
+   "selfControl"
   ],
   "bearing": "Святость",
   "hierarchy": [
@@ -1621,8 +1637,8 @@
   "en": "Path of the Eightfold Wheel",
   "followers": "",
   "virtues": [
-   "conviction",
-   "instinct"
+   "conscience",
+   "selfControl"
   ],
   "bearing": "Святость",
   "hierarchy": [
@@ -1678,8 +1694,8 @@
   "en": "Path of Watchful Gods",
   "followers": "",
   "virtues": [
-   "conviction",
-   "instinct"
+   "conscience",
+   "selfControl"
   ],
   "bearing": "Святость",
   "hierarchy": [

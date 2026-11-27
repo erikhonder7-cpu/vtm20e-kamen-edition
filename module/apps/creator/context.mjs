@@ -3,6 +3,7 @@
 // Примесь к VtMCreator (module/apps/creator.mjs): методы и геттеры работают с this мастера.
 
 import { VTM20, SYSTEM_ID } from "../../config.mjs";
+import { pathXp } from "./calc.mjs";
 import { Codex } from "../../data/codex.mjs";
 import { CHANGELING_HINTS, WRAITH_HINTS, MAGE_HINTS, RENOWN, THRALL_BANNED, TIERS, SECTS, STEP_HINTS, GHOUL_HINTS, DEMON_HINTS, EB_HINTS, THRALL_HINTS, HUNTER_HINTS, GAROU_HINTS, HUNTER_SLOTS, LOST_SLOTS, preview } from "./rules.mjs";
 import { W as werewolfData } from "../werewolf.mjs";
@@ -16,6 +17,30 @@ const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`
 const loc = k => game.i18n.localize(k);
 
 export class ContextCreator {
+  /**
+   * Покупка путей и ритуалов магии крови: mode "free" (Тёмные века, st.bm: путь 4 за точку, ритуал — уровень) или "xp" (st.xbm:
+   * новый путь 7, далее текущее × 4; ритуал — уровень × 2, только Тёмные века). Путь и ритуал — не выше рейтинга Дисциплины.
+   */
+  bloodMagicView(mode) {
+    const st = this.st, xp = mode === "xp", bag = (xp ? st.xbm : st.bm) ?? {}, other = (xp ? st.bm : st.xbm) ?? {};
+    const ritualsHere = !xp || VTM20.isDarkAges();
+    return this.bloodMagicDiscs.map(k => {
+      const rating = Math.min(5, this.value("disc", k)), primary = this.chosenPath(k)?.name;
+      const own = bag.paths?.[k] ?? {}, ownRit = bag.rituals?.[k] ?? [];
+      const taken = new Set([primary, ...Object.keys(own), ...Object.keys((this.bloodMagicFree || xp ? other.paths?.[k] : null) ?? {})]);
+      const takenRit = new Set([...this.chosenRituals(k).filter(Boolean).map(r => r.name), ...ownRit, ...(other.rituals?.[k] ?? [])]);
+      const rits = this.ritualOptions(k).sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name, "ru"));
+      const ritAvail = ritualsHere ? rits.filter(r => r.level <= rating && !takenRit.has(r.name)) : [];
+      return { key: k, name: Codex.disciplineLabel(k), rating, mode, xp, ritualsHere,
+        paths: Object.entries(own).map(([name, n]) => ({ name, value: n, cost: xp ? pathXp(n) : n * 4 })),
+        // краины за пункты и опыт не покупаются — их точки из точек Колдовства (карточка Дисциплины); укладов при краинах нет
+        pathAdd: this.krainaOn(k) ? [] : this.pathOptions(k).filter(p => !taken.has(p.name) && !(k === "koldunism" && VTM20.isDarkAges() && Codex.isKraina(p)))
+          .map(p => ({ value: p.name, label: p.name })),
+        rituals: ownRit.map(n => { const level = rits.find(r => r.name === n)?.level ?? 0; return { name: n, level, cost: xp ? level * 2 : level }; }),
+        ritualAdd: [...new Set(ritAvail.map(r => r.level))].map(l => ({ level: l, options: ritAvail.filter(r => r.level === l).map(r => ({ value: r.name, label: r.name })) })) };
+    });
+  }
+
   /* ── Контекст ──────────────────────────────────────────────────────── */
 
   async _prepareContext() {
@@ -62,7 +87,7 @@ export class ContextCreator {
     if (this.isWerewolf) { const slots = this.giftSlots; add(loc("VTM20.GarouCr.Gifts"), slots.filter(s => !st.ww.gifts[s.key]).length, slots.length, "gifts"); }
     add(t("Creator.Freebies"), rem.free, this.freeTotal, "freebies");
     if (st.xpTotal) add(t("Sheet.Experience"), rem.xp, st.xpTotal, "freebies");
-    const gen = this.type === "vampire" ? 13 - Math.min(5, this.value("bg", "Поколение")) : null;
+    const gen = this.type === "vampire" ? VTM20.baseGeneration() - Math.min(5, this.value("bg", "Поколение")) : null;
     ctx.patent = {
       img: this.actor.img, name: st.name, concept: st.concept, sect: st.sect, sectSym: Codex.sectSymbol(st.sect),
       clan: this.clanData?.name ?? "",
@@ -106,9 +131,10 @@ export class ContextCreator {
         clanDiscs: this.domitorClanDiscs ? this.domitorClanDiscs.map(k => Codex.disciplineLabel(k)).join(", ") : "" } : null;
       ctx.dhOptions = this.isDhampir;
     }
-    ctx.archetypes = this.isEarthbound ? Codex.archetypes.filter(a => !EB_NO.includes(a.name)) : Codex.archetypes;
-    ctx.natureRegain = Codex.archetypes.find(a => a.name === st.nature)?.regain ?? "";
-    ctx.demeanorRegain = Codex.archetypes.find(a => a.name === st.demeanor)?.regain ?? "";
+    const archs = Codex.archetypesFor(this.isHunter ? "hunter" : this.type);
+    ctx.archetypes = this.isEarthbound ? archs.filter(a => !EB_NO.includes(a.name)) : archs;
+    ctx.natureRegain = archs.find(a => a.name === st.nature)?.regain ?? "";
+    ctx.demeanorRegain = archs.find(a => a.name === st.demeanor)?.regain ?? "";
     // ступени опыта своими словами у каждой линейки (гуль — срок службы, маг — путь, призрак — срок в Подземном мире…); опыт тот же
     // у гуля — по виду: вассал служит, независимый выживает сам, ревенант живёт поколениями семьи, дампир — без витэ и хозяина
     const LINE = this.type === "ghoul" ? { independent: "GhoulFree", revenant: "Revenant", dhampir: "Dhampir" }[st.ghoulType] ?? "Ghoul"
@@ -116,31 +142,49 @@ export class ContextCreator {
     const tierKey = `Tier${LINE}`;
     ctx.tiers = Object.entries(TIERS).map(([k, v]) => ({ key: k, xp: v.xp, label: t(`Creator.${tierKey}.${k}`), hint: t(`Creator.${tierKey}.${k}Hint`), active: st.tier === k }));
     ctx.tierTitle = t(`Creator.TierTitle${LINE}`);
+    ctx.darkAges = VTM20.isDarkAges();
+    ctx.conceptPh = t(ctx.darkAges ? "Creator.ConceptPhDA" : "Creator.ConceptPh");
+    // V20 Dark Ages: начальный запас крови — 1d10 + Домен + Стадо (creator/actions.mjs, rollBlood)
+    ctx.bloodPlus = ctx.darkAges && this.type === "vampire" ? this.value("bg", "Домен") + this.value("bg", "Стадо") : 0;
     ctx.sects = SECTS.map(s => ({ ...s, label: t(s.label), sym: Codex.sectSymbol(t(s.label)), active: st.sectKey === s.key }));
 
     // II. Клан
     if (this.type === "vampire") {
-      ctx.clanGroupTabs = ["clan", "bloodline", "variant", "antitribu"].map(g => ({ key: g, label: t(`ClanGroup.${g}`), active: this.ui.clanGroup === g }));
+      // вкладки — только группы, где есть кланы (в Тёмных веках нет антитрибу: Шабаша ещё нет)
+      const groupKeys = ["clan", "bloodline", "variant", "antitribu"].filter(g => Codex.clans.some(c => c.group === g));
+      if (!groupKeys.includes(this.ui.clanGroup)) this.ui.clanGroup = groupKeys[0] ?? "clan";
+      ctx.clanGroupTabs = groupKeys.map(g => ({ key: g, label: t(`ClanGroup.${g}`), active: this.ui.clanGroup === g }));
       ctx.clans = Codex.clans.filter(c => c.group === this.ui.clanGroup).map(c => ({
         key: c.key, name: c.name, nickname: c.nickname, sym: Codex.clanSymbol(c.key), active: c.key === st.clan,
-        disciplines: [...c.disciplines.map(k => Codex.disciplineLabel(k)), ...(c.choice?.length ? [`${c.choice.map(k => Codex.disciplineLabel(k)).join(" / ")}`] : [])].join(", ") || t("Creator.AnyDisc")
+        disciplines: [...c.disciplines.map(k => Codex.disciplineLabel(k)),
+          ...(c.choice?.includes("original") ? [t("Creator.OriginTwo")] : c.choice?.length ? [`${c.choice.map(k => Codex.disciplineLabel(k)).join(" / ")}`] : [])].join(", ") || t("Creator.AnyDisc")
       }));
       const c = this.clanData;
+      // «две Дисциплины исходного клана» (Дети Осириса, Киасиды в V20 DA): исходный клан — из кланов (не линий), затем две его Дисциплины
+      const origin = c?.choice?.includes("original") ? Codex.clan(st.clanOrigin) : null;
       ctx.clan = c ? {
         ...c, sym: Codex.clanSymbol(c.key),
-        choiceOptions: (c.choice ?? []).map(k => ({ value: k, label: Codex.disciplineLabel(k), active: k === st.clanChoice, sym: Codex.disciplineSymbol(k) })),
+        choiceOptions: c.choice?.includes("original") ? [] : (c.choice ?? []).map(k => ({ value: k, label: Codex.disciplineLabel(k), active: k === st.clanChoice, sym: Codex.disciplineSymbol(k) })),
+        originPick: c.choice?.includes("original") ? {
+          clans: Codex.clans.filter(x => x.group === "clan" && x.disciplines.length && x.key !== c.key)
+            .map(x => ({ value: x.key, label: x.name, selected: x.key === st.clanOrigin })),
+          discs: (origin?.disciplines ?? []).map(k => ({ value: k, label: Codex.disciplineLabel(k), sym: Codex.disciplineSymbol(k), active: (st.originDiscs ?? []).includes(k) })),
+          left: 2 - (st.originDiscs ?? []).length
+        } : null,
         discCards: (c.disciplines ?? []).map(k => ({ label: Codex.disciplineLabel(k), sym: Codex.disciplineSymbol(k) }))
       } : null;
       ctx.isVentrue = ["ventrue", "ventruAntitribu"].includes(st.clan);
       const genBg = this.value("bg", "Поколение");
-      ctx.generation = 13 - Math.min(5, genBg);
+      ctx.generation = VTM20.baseGeneration() - Math.min(5, genBg);
       // цена — точки факта биографии «Поколение»: «1 точка», «2 точки», «5 точек»
       const pts = n => game.i18n.format(`VTM20.Creator.BgPts${new Intl.PluralRules("ru").select(n) === "one" ? "One" : new Intl.PluralRules("ru").select(n) === "few" ? "Few" : "Many"}`, { n });
-      ctx.gens = [13, 12, 11, 10, 9, 8].map(g => ({ g, cost: 13 - g, costLabel: pts(13 - g), active: g === ctx.generation, pool: VTM20.generationOf(g).pool, perTurn: VTM20.generationOf(g).perTurn }));
-      ctx.paths = Codex.paths.filter(p => Codex.visible(p) || p.key === st.path)
+      const g0 = VTM20.baseGeneration();
+      ctx.gens = [0, 1, 2, 3, 4, 5].map(n => g0 - n).map(g => ({ g, cost: g0 - g, costLabel: pts(g0 - g), active: g === ctx.generation, pool: VTM20.generationOf(g).pool, perTurn: VTM20.generationOf(g).perTurn }));
+      ctx.paths = Codex.paths.filter(p => (VTM20.isDarkAges() && this.type === "vampire" ? p.era === "darkAges" && Codex.visible(p) && !p.roadOnly : Codex.visible(p)) || p.key === st.path)
         .map(p => ({ key: p.key, name: p.name, selected: p.key === st.path,
           group: p.key === "humanity" ? p.name : p.fan ? t("Library.Filter.Src.fan") : p.era ? t("Library.Filter.DarkAges") : t("Sheet.EnlightenmentPaths") }));
       ctx.pathName = ctx.paths.find(p => p.selected)?.name ?? "";
+      ctx.daRoad = this.isDaRoad || (VTM20.isDarkAges() && this.type === "vampire");
       ctx.pathInfo = this.pathData ? { bearing: this.pathData.bearing, virtues: this.pathData.virtues.map(v => loc(VTM20.virtues[v].label)).join(", ") } : null;
     }
 
@@ -183,13 +227,37 @@ export class ContextCreator {
     if (this.type === "ghoul") discKeys.add("potence");
     ctx.discCards = [...discKeys].filter(k => this.discData(k)).map(k => {
       const d = this.discData(k), v = this.value("disc", k);
+      // магия крови: основной путь выбирается здесь, силы в карточке — его
+      const pathOpts = VTM20.pathDisciplines.includes(k) ? this.pathOptions(k) : [], path = pathOpts.length ? this.chosenPath(k) : null;
+      // краины V20 DA: основной не бывает Гений места; точки делятся между краинами (creator/calc.mjs → krainaSplit)
+      const kr = this.krainaOn(k) ? this.krainaSplit(k) : null, krDa = k === "koldunism" && VTM20.isDarkAges();
+      const mainOpts = krDa ? pathOpts.filter(p => !p.noPrimary || p === path) : pathOpts;
+      const krTaken = new Set([path?.name, ...Object.keys(kr?.extra ?? {})]);
+      // строка крайны: точки (заполнено n из 5) и в подсказке — её силы до n-го уровня
+      const krRow = (p, n) => ({ name: p?.name ?? "", value: n, dots: Array.from({ length: 5 }, (_, i) => ({ on: i < n })),
+        tip: (p?.powers ?? []).filter(x => x.level <= n).map(x => `${["I", "II", "III", "IV", "V"][x.level - 1]} · ${x.name}`).join("<br>") });
+      // в мастере свободных точек нет: всё, что не отдано другим крайнам, — у основной; отдать можно, пока у неё больше 1
+      const kraina = kr ? { total: kr.primary + this.sum(kr.extra), canGive: kr.primary > 1,
+        main: krRow(path, kr.primary),
+        rows: Object.entries(kr.extra).map(([name, n]) => krRow(pathOpts.find(p => p.name === name), n)),
+        add: pathOpts.filter(p => Codex.isKraina(p) && !krTaken.has(p.name)).map(p => ({ value: p.name, label: p.name, tip: preview(p.html, 300) })) } : null;
       return {
         key: k, name: d.name, en: d.en, value: v, inClan: this.isChangeling ? this.clInClan(k) : this.isMage ? k === st.mg.affinity : this.isWraith ? k === st.wr.guild : this.inClan(k),
         sym: this.isSorcerer ? null : this.isMage ? { src: sphereGlyphSmall(k), cls: "r-mg" } : this.isWraith ? (VTM20.wraithDark.includes(k) ? { src: wraithGlyphSrc("arcanos-dark") } : VTM20.wraithArcanoi.includes(k) ? arcSym(k) : null) : this.isChangeling ? (clGlyph("art", k) ?? clGlyph("realm", k)) : this.isDemon ? null : Codex.disciplineSymbol(k),   // подменыш — витражи Искусств и Царств
         guild: d.guild ?? "",
         icon: this.isChangeling ? this.clIcon(k) : this.isSorcerer ? (d.psychic ? "fa-brain" : "fa-hand-sparkles") : this.isDemon ? (d.house ? "fa-fire-flame-curved" : "fa-book") : VTM20.disciplineIcons[k] ?? "fa-droplet", dots: dotRow("disc", k),
-        powers: d.powers.filter(p => p.level <= Math.max(1, v) && p.level <= 5).map(p => ({ level: p.level, name: p.name, en: p.en, owned: p.level <= v, tip: preview(p.html, 600) })),
-        pathed: VTM20.pathDisciplines.includes(k)
+        // силы по уровням: только видимые (сила богатырей, Тёмных веков и т. п. — по настройкам мира); несколько на уровне — «или»
+        powers: (() => {
+          const top = Math.min(5, Math.max(1, kr ? kr.primary : v)), own = kr ? kr.primary : v, byLv = new Map();
+          for (const p of path?.powers ?? d.powers) if (p.level <= top && (path || Codex.powerFor(p, this.type === "ghoul" ? st.ghoulType : ""))) (byLv.get(p.level) ?? byLv.set(p.level, []).get(p.level)).push(p);
+          return [...byLv.entries()].sort(([a], [b]) => a - b).map(([level, ps]) => ({ level, owned: level <= own,
+            name: ps.map(p => path ? p.name.replace(`${path.name} — `, "") : p.name).join(` ${t("Creator.Or")} `), en: ps.map(p => p.en).join(" / "),
+            tip: ps.map(p => preview(p.html, ps.length > 1 ? 300 : 600)).join("<hr>") }));
+        })(),
+        pathed: VTM20.pathDisciplines.includes(k) && !path,
+        pathChoices: mainOpts.map(p => ({ value: p.name, label: p.name, selected: p === path, tip: preview(p.html, 300) })),
+        kraina,
+        ritualSlots: this.ritualSlotView(k)
       };
     }).sort((a, b) => (b.inClan - a.inClan) || a.name.localeCompare(b.name, "ru"));
     ctx.anyDiscipline = allowed == null;
@@ -218,11 +286,16 @@ export class ContextCreator {
     const ebOk = b => !b.thrall && (this.isEarthbound ? !EB_BANNED.includes(b.en) : b.source !== "Earthbound");
     // слуга: факты биографии падших без запретных и без фактов Привязанных, плюс свои (Заботливый хозяин, Приобщение)
     const bgOk = b => this.isThrall ? b.line === "demon" && b.source !== "Earthbound" && !THRALL_BANNED.includes(b.en)
-      : VTM20.backgroundAllowed(b, this.type) && ebOk(b) && !(this.isLost && b.noBystander) && (!b.dhampir || this.isDhampir)
+      : VTM20.backgroundAllowed(b, this.type) && ebOk(b) && !(this.isLost && b.noBystander) && (!b.dhampir || this.isDhampir) && !(b.ghoul && this.isDhampir)
         && !(b.technocracy && this.isMage && !this.mageTech);        // Заявки и Секретное оружие — только Технократии
     // выбранный Факт держим в списке, даже если он из другой линейки или скрыт, — но одной карточкой: «Союзники» есть
     // у Сородичей, охотников и оборотней с одним именем, и выбор одного не должен показывать все три
-    const bgList = Codex.backgrounds.filter(b => Codex.visible(b) && bgOk(b)), bgNames = new Set(bgList.map(b => b.name)), bgKept = new Set();
+    // Тёмные века: Факты V20 DA (гл. 4) — у вампира, гуля и смертного (у Факты линий — охотников и др. — свои)
+    const DA = VTM20.isDarkAges() && ["vampire", "ghoul", "mortal"].includes(this.type), daBg = new Set((Codex["dark-ages"]?.backgrounds ?? []).map(b => b.en));
+    // Факты гулей из Ghouls & Revenants (b.ghoul) — гулю и в Тёмных веках (правило системы: в обеих эпохах)
+    // Статусы Age of the Living Gods (фанатское, не V20 DA) — только с настройкой «Век живых богов» (bgList — по Codex.visible)
+    const daOk = b => !DA || b.line || b.alg || b.ghoul || (daBg.has(b.en) && !(b.en === "Status" && this.st.clan === "caitiff"));
+    const bgList = Codex.backgrounds.filter(b => Codex.visible(b) && bgOk(b) && daOk(b)), bgNames = new Set(bgList.map(b => b.name)), bgKept = new Set();
     ctx.bgCards = Codex.backgrounds.filter(b => bgList.includes(b) || (b.name in st.bg && !bgNames.has(b.name) && !bgKept.has(b.name) && bgKept.add(b.name))).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
       const bonus = this.isHunter && !this.isLost && b.en === "Patron" ? this.creedData?.patron ?? 0 : 0;   // Отшельник — Покровители 3 даром
@@ -335,9 +408,13 @@ export class ContextCreator {
       ctx.cost = this.rules.cost;
       ctx.freeTotal = this.freeTotal; ctx.freeSpent = this.freeSpent + this.meritPoints; ctx.freeLeft = this.freeLeft;
       ctx.freeGroups = rows("free");
+      // Тёмные века: пути магии крови (4 за точку) и ритуалы (по уровню), не выше рейтинга Дисциплины (calc → bloodMagicFree)
+      if (this.bloodMagicFree) ctx.bloodMagic = this.bloodMagicView("free");
     }
     if (key === "xp") {
       ctx.xpTotal = st.xpTotal; ctx.xpSpent = this.xpSpent; ctx.xpLeft = this.xpLeft;
+      // пути магии крови за опыт (V20 и Тёмные века), ритуалы — только в Тёмных веках
+      if (this.bloodMagicXp) ctx.xpBloodMagic = this.bloodMagicView("xp");
       ctx.xpGroups = rows("xp");
     }
 
@@ -362,11 +439,29 @@ export class ContextCreator {
         discs: ctx.discCards.filter(d => d.value > 0).map(d => ({ name: d.name, en: d.en, value: d.value, sym: d.sym })),
         bgs: ctx.bgCards.filter(b => b.value > 0).map(b => ({ name: b.name, en: b.en, value: b.value })),
         virtues: ctx.virtues.map(v => ({ label: v.label, value: v.value })),
-        merits: st.merits, flaws: st.flaws
+        merits: st.merits, flaws: st.flaws,
+        // магия крови: основной путь, купленные пути (Тёмные века) и ритуалы — то, что ляжет на лист (creator/write.mjs)
+        magic: VTM20.pathDisciplines.filter(k => this.value("disc", k) > 0 && Codex.discipline(k)?.paths?.length).flatMap(k => {
+          const v = Math.min(5, this.value("disc", k)), main = this.chosenPath(k), bm = this.bloodMagicFree ? st.bm : null, rits = this.ritualOptions(k);
+          const kr = this.krainaOn(k) ? this.krainaSplit(k) : null;
+          return [
+            ...(main ? [{ label: main.name, value: kr ? kr.primary : v }] : []),
+            ...Object.entries(kr?.extra ?? {}).map(([name, n]) => ({ label: name, value: n })),
+            ...Object.entries(bm?.paths?.[k] ?? {}).map(([name, n]) => ({ label: name, value: Math.min(n, v) })),
+            ...Object.entries(st.xbm?.paths?.[k] ?? {}).map(([name, n]) => ({ label: name, value: Math.min(n, v) }))
+          ];
+        }),
+        // ритуалы — отдельным блоком: уровень римской цифрой не путается с точками пути
+        rituals: VTM20.pathDisciplines.filter(k => this.value("disc", k) > 0 && Codex.discipline(k)?.paths?.length).flatMap(k => {
+          const rits = this.ritualOptions(k), byName = n => rits.find(r => r.name === n);
+          return [...this.chosenRituals(k).filter(Boolean), ...(this.bloodMagicFree ? st.bm?.rituals?.[k] ?? [] : []).map(byName),
+            ...(VTM20.isDarkAges() ? st.xbm?.rituals?.[k] ?? [] : []).map(byName)].filter(Boolean)
+            .map(r => ({ label: r.name, value: ["I", "II", "III", "IV", "V", "VI"][r.level - 1] ?? r.level }));
+        })
       };
       ctx.morality = this.morality; ctx.willpower = this.willpower;
       if (this.type === "vampire") {
-        ctx.generation = 13 - Math.min(5, this.value("bg", "Поколение"));
+        ctx.generation = VTM20.baseGeneration() - Math.min(5, this.value("bg", "Поколение"));
         ctx.bloodMax = VTM20.generationOf(ctx.generation).pool;
       }
       ctx.problems = this.problems(rem);

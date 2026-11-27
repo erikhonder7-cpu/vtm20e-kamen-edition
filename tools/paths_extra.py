@@ -40,7 +40,9 @@ SOURCES = [
     ("Revised_Кланбуки/01_Последователи_Сета.md", "", "Clanbook: Followers of Set (Revised)", {"Путь Сутеха": {"en": "Path of Sutekh"}}, None),
     # Тёмные века
     ("V20_Dark_Ages/02_Дороги.md", DA, "V20 Dark Ages",
-     {"Дорога Человечности": {"bearing": "Человечность"}}, None),        # в книге у Ауры только описание
+     {"Дорога Человечности": {"bearing": "Человечность"},        # в книге у Ауры только описание
+      # у Дороги Небес V20 DA нет своей иерархии — Верный выбирает Путь (с. 119–121): запись-Дорога, выбирать её саму нельзя
+      "Дорога Небес": {"key": "dorogaNebesV20", "roadOnly": True}}, None),
     ("DA_Companion/01_Дороги_и_пути.md", DA, "V20 Dark Ages Companion",
      {"Путь Чистых": {"bearing": "Святость", "virtues": ["conscience", "selfControl"]},       # «как у Дороги Небес»
       "Дорога Ахура": {"en": "Road of Ahura Mazda", "followers": "Кающиеся", "virtues": ["conviction", "selfControl"],
@@ -138,7 +140,7 @@ def field(text, rx):
     m = re.search(rx, text, re.I)
     return re.sub(r"\*", "", m.group(1)).strip(" .,;:") if m else ""
 
-def make(title, body, book, era, ov, parent_hier):
+def make(title, body, book, era, ov, parent_hier, parent_virtues=None):
     ru, en, nick = title_parts(title)
     ru, en = ov.get("name", ru), ov.get("en", en)
     text = "\n".join(body)
@@ -161,7 +163,8 @@ def make(title, body, book, era, ov, parent_hier):
         inherited = True
     note = f"<p><em>Источник: {book}.{' Грехи, не указанные для пути, — как у его Дороги.' if inherited else ''}</em></p>"
     return {"key": "", "name": ru, "en": en, "followers": ov.get("followers", nick),
-            "virtues": ov.get("virtues") or vs or ["conviction", "instinct"], "bearing": ov.get("bearing", bearing), "hierarchy": hier, "era": era, "source": book,
+            # Путь без своей строки «Добродетели» — Добродетели его Дороги (V20 DA: у Путей Дороги Небес — Совесть и Самоконтроль)
+            "virtues": ov.get("virtues") or vs or parent_virtues or ["conviction", "instinct"], "bearing": ov.get("bearing", bearing), "hierarchy": hier, "era": era, "source": book,
             "html": note + md_to_html([l for l in body if not l.startswith("|")])}, len(own)
 
 def apply(paths):
@@ -190,7 +193,7 @@ def apply(paths):
             ov = next((v for k, v in over.items() if title_parts(title)[0].startswith(k)), {})
             pname = ov.get("parent", parent_name)
             parent = stack[-1] if stack and not ov.get("parent") else (roads.get(pname) if pname else None)
-            p, n_own = make(title, body, book, era, ov, parent["hierarchy"] if parent else None)
+            p, n_own = make(title, body, book, era, ov, parent["hierarchy"] if parent else None, parent["virtues"] if parent else None)
             if parent and not p["bearing"]: p["bearing"] = parent["bearing"]      # Столп пути — от его Дороги
             if parent: p["road"] = parent["name"]                                 # путь внутри Дороги — для папок компендия
             if book == FAN_ALG: p["fan"] = True                                   # фанатское — своей папкой компендия
@@ -203,11 +206,12 @@ def apply(paths):
                 else:
                     road = {"level": lvl, "hierarchy": p["hierarchy"] if n_own >= 8 else [], "bearing": p["bearing"], "name": name}
                 stack.append(road); roads[name] = road
-            if len(p["hierarchy"]) < 5: continue
+            if len(p["hierarchy"]) < 5 and not ov.get("roadOnly"): continue
+            if ov.get("roadOnly"): p["roadOnly"] = True
             # имя из замены сверяем целиком: «Путь Охотника (Век живых богов)» ≠ «Путь Охотника» (rkey срезал бы скобки)
             nk = re.sub(r"[^а-яё]", "", p["name"].lower().replace("ё", "е")) if ov.get("name") else rkey(p["name"])
-            if (p["en"] and akey(p["en"]) in have) or nk in have: continue
-            key = translit(p["name"]) or f"path{len(keys)}"
+            if ((p["en"] and akey(p["en"]) in have) or nk in have) and not ov.get("key"): continue
+            key = ov.get("key") or translit(p["name"]) or f"path{len(keys)}"
             while key in keys: key += "2"
             p["key"] = key; keys.add(key)
             paths.append(p); added += 1; n_file += 1

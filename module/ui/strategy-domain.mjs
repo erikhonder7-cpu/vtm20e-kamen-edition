@@ -47,8 +47,8 @@ export function domainSway(da, s = strat()) {
 
 /** Дата хроники для журнала домена. */
 export async function chronicleDate() {
-  const { getClock } = await import("../apps/calendar.mjs");
-  return new Date(getClock()).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long", year: "numeric" });
+  const { getClock, longDate } = await import("../apps/calendar.mjs");
+  return longDate(new Date(getClock()));             // с учётом летоисчисления хроники
 }
 
 /** Конец хода: Защищённость доменов по фишкам в их кварталах; запись в журнал домена; строки для отчёта. Экспорт — для автотестов. */

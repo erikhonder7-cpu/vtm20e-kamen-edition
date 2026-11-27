@@ -6,7 +6,7 @@
 //   · конец сцены — сброс усилений кровью; конец истории — воля восстанавливается полностью (03);
 //   · после боя усиления снимаются сами.
 
-import { SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
+import { VTM20, SYSTEM_ID, SYSTEM_PATH } from "../config.mjs";
 import { coterieBg } from "./coterie.mjs";
 import { domainRating, domainsOf } from "./domain.mjs";
 import { perkBonus } from "../ui/strategy.mjs";
@@ -27,6 +27,12 @@ const HUNTING_METHODS = {
   herd: ["attributes.charisma", "abilities.leadership"],
   animals: ["attributes.wits", "abilities.animalKen"]
 };
+
+/** Способы охоты эпохи: в Тёмных веках Уличного чутья нет — засада в улочках по Скрытности (правило системы). */
+const huntingMethods = () => VTM20.isDarkAges() ? { ...HUNTING_METHODS, alleys: ["attributes.wits", "abilities.stealth"] } : HUNTING_METHODS;
+/** Подписи угодий и способов: в Тёмных веках — свои (V20 Dark Ages, с. 334; сложности те же, ключи — общие с картой города). */
+export const huntGroundLabel = k => t(`${VTM20.isDarkAges() ? "Hunt.GroundDA" : "Hunt.Ground"}.${k}`);
+const huntMethodLabel = k => t(`${VTM20.isDarkAges() ? "Hunt.MethodDA" : "Hunt.Method"}.${k}`);
 
 const bgValue = (actor, name) => actor.items.find(i => i.type === "background" && i.name.toLowerCase() === name)?.system.value ?? 0;
 /** Свой факт или общий факт котерии (apps/coterie.mjs) — что больше. */
@@ -73,7 +79,7 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** Пул, сложность и разбор — общий расчёт для окна и броска. */
   calc() {
-    const a = this.actor, v = this.v, [t1, t2] = HUNTING_METHODS[v.method];
+    const a = this.actor, v = this.v, [t1, t2] = huntingMethods()[v.method];
     const bd = [{ label: a.traitLabel(t1), value: a.traitValue(t1) }, { label: a.traitLabel(t2), value: a.traitValue(t2) }];
     let pool = a.traitValue(t1) + a.traitValue(t2), diff = HUNTING_GROUNDS[v.ground];
     const wounds = a.system.health.penalty ?? 0;
@@ -100,9 +106,9 @@ class HuntDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       v, ...c, bg: this.bg, fameTotal: this.bg.fame + this.bg.domain,
       place: this.place ? { name: this.place.name, own: this.domainState === "own", foreign: this.domainState === "foreign", owner: this.place.owner?.name ?? "",
         n: this.bg.domain, masq: this.place.masq ?? 0 } : null,
-      grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, d, label: t(`Hunt.Ground.${k}`), icon: GROUND_ICONS[k], active: k === v.ground })),
-      methods: Object.entries(HUNTING_METHODS).map(([k, [x, y]]) => ({ key: k, selected: k === v.method,
-        label: `${t(`Hunt.Method.${k}`)} · ${a.traitValue(x) + a.traitValue(y)}`, title: `${a.traitLabel(x)} + ${a.traitLabel(y)}` })),
+      grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, d, label: huntGroundLabel(k), icon: GROUND_ICONS[k], active: k === v.ground })),
+      methods: Object.entries(huntingMethods()).map(([k, [x, y]]) => ({ key: k, selected: k === v.method,
+        label: `${huntMethodLabel(k)} · ${a.traitValue(x) + a.traitValue(y)}`, title: `${a.traitLabel(x)} + ${a.traitLabel(y)}` })),
       chances: chancesView(odds({ pool: c.pool, difficulty: c.diff })),
       messageModes: Object.entries(modes).map(([k, m]) => ({ value: k, label: game.i18n.localize(m.label ?? k), selected: k === v.messageMode }))
     };
@@ -366,7 +372,7 @@ export async function myNight() {
 }
 
 /** Состояния, которые проходят с концом сцены: ошеломление, падение, захват, ярость, Ротшрек. */
-const SCENE_STATUSES = ["r-stunned", "r-prone", "r-held", "r-frenzy", "r-rotschreck"];
+const SCENE_STATUSES = ["r-stunned", "r-prone", "r-held", "r-frenzy", "r-rotschreck", "r-lifelike"];
 
 export async function endScene() {
   const owned = game.user.isGM ? game.actors.contents : game.actors.filter(a => a.isOwner);

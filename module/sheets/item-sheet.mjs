@@ -105,7 +105,7 @@ export class VtMItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       ctx.dots = Array.from({ length: max }, (_, i) => ({ n: i + 1, filled: i < s.value, path: "system.value" }));
       const src = item.type === "discipline" ? Codex.discipline(s.key)?.powers : Codex.bloodPath(s.discipline, item.name)?.powers;
       // на уровне с выбором «изучена» только выбранная сила (system.choices), остальные — как не изученные
-      const shown = (src ?? []).filter(p => Codex.visible(p) && (p.level <= Math.max(5, s.value + 1)));
+      const shown = (src ?? []).filter(p => Codex.powerFor(p, item.parent?.system?.ghoulType) && (p.level <= Math.max(5, s.value + 1)));   // силы Богатырей — только Богатырю
       const many = lv => shown.filter(p => p.level === lv).length > 1;
       const owned = p => p.anyLevel ? Object.values(s.choices ?? {}).includes(p.name)       // «любой из 6–9»: выбрана на каком-то уровне
         : p.level <= s.value && (item.type !== "discipline" || !many(p.level) || s.choices?.[p.level] === p.name);

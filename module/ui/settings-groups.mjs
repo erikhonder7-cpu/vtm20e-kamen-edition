@@ -6,7 +6,7 @@ import { SYSTEM_ID } from "../config.mjs";
 
 /** Разделы и ключи настроек по порядку (подписи — VTM20.Settings.Group.<раздел>). */
 const GROUPS = [
-  ["chronicle", ["era", "darkAgesContent", "currency", "assignatRate", "nightlyWillpower", "monthlyIncome", "incomeTable", "herdNightly", "mageWeekly"]],
+  ["chronicle", ["era", "reckoning", "darkAgesContent", "livingGodsContent", "currency", "assignatRate", "nightlyWillpower", "monthlyIncome", "incomeTable", "herdNightly", "mageWeekly"]],
   ["city", ["latitude", "longitude", "utcOffset", "dawnWarnings", "cityMapEnabled", "nexusNav", "huntersAlert"]],
   ["combat", ["combatInitEachTurn", "combatInitFixed", "combatDeclare"]],
   ["rules", ["horridForm", "bogatyri", "tormentRule", "exorcismRule", "hunterGrowth", "hunterSacrifice", "hunterFreeform", "hunterEdgeCost", "hunterFifth", "koldunRoll", "koldunOutside"]],

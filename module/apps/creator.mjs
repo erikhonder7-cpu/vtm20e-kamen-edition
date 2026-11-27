@@ -11,7 +11,7 @@
 // Значение черты = база + распределение + свободные пункты + опыт. Всё пишется в персонажа
 // разом в конце; до того лист показывает плашку «создайте по правилам».
 
-import { SYSTEM_PATH } from "../config.mjs";
+import { SYSTEM_PATH, VTM20 } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { attachCombos } from "../ui/combo.mjs";
 import { RULES, mix } from "./creator/rules.mjs";
@@ -57,7 +57,8 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       name: actor.name, concept: s.details.concept, nature: s.details.nature, demeanor: s.details.demeanor,
       sire: s.details.sire, sect: s.details.sect || "", sectKey: Codex.sectKey(s.details.sect),
       clan: s.clan ?? "brujah", clanChoice: s.clanChoice ?? "", weaknessNote: s.weaknessNote ?? "",
-      domitor: s.domitor ?? "", path: "humanity",
+      clanOrigin: s.clanOrigin ?? "", originDiscs: [...(s.originDisciplines ?? [])],
+      domitor: s.domitor ?? "", path: VTM20.isDarkAges() && Codex.path?.("dorogaChelovechnosti") ? "dorogaChelovechnosti" : "humanity",
       // вид гуля (V20, гл. 7): вассал, независимый, ревенант (семья), дампир (Accursed Heirs) — выбирается в мастере
       ghoulType: s.ghoulType || "vassal", family: s.family || "",
       // донор гуля (V20, гл. 7): клан домитора задаёт «клановые» Дисциплины вассала, поколение — предел уровня Дисциплины
@@ -160,7 +161,7 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
     attachCombos(this.element);                         // Натура и Маска — список с поиском, можно вписать свой архетип
     // короткие списки выбора (до 12 вариантов) — рядом плиток: всё видно сразу, выбор одним щелчком; длинные — списком
     for (const sel of this.element.querySelectorAll(".r-cr-body select[data-field]")) {
-      if (sel.options.length < 2 || sel.options.length > 12) continue;
+      if (sel.options.length < 2 || sel.options.length > 12 || "list" in sel.dataset) continue;   // data-list — всегда списком
       const row = document.createElement("div");
       row.className = "r-cr-seltiles";
       for (const o of sel.options) {
@@ -185,8 +186,27 @@ export class VtMCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       if (f === "xpTotal") { this.st.xpTotal = Math.max(0, v); this.st.tier = "custom"; return this.render(); }
       if (f === "hunterExtra") { this.st.hunterExtra = Math.clamp(Number(v) || 0, 0, 6); return this.render(); }
       if (f === "extraDisc") { setExtraDisc.call(this, v); return this.render(); }
+      // Тёмные века: купить путь магии крови (1 точка) или ритуал за свободные пункты (creator/calc.mjs → bloodMagicFreeCost)
+      // то же за опыт — st.xbm (поля xbmPath / xbmRit)
+      // краины V20 DA: новая краина — первая сила за свободную точку Колдовства (creator/calc.mjs → krainaSplit)
+      const krM = /^krAdd\.(.+)$/.exec(f);
+      if (krM) {
+        if (!v) return;
+        ((this.st.kr ??= {})[krM[1]] ??= {})[v] = 1;
+        return this.render();
+      }
+      const bmM = /^(x?)bm(Path|Rit)\.(.+)$/.exec(f);
+      if (bmM) {
+        if (!v) return;
+        const bag = bmM[1] ? (this.st.xbm ??= { paths: {}, rituals: {} }) : (this.st.bm ??= { paths: {}, rituals: {} }), k = bmM[3];
+        bag.paths ??= {}; bag.rituals ??= {};
+        if (bmM[2] === "Path") (bag.paths[k] ??= {})[v] = 1;
+        else (bag.rituals[k] ??= []).push(v);
+        return this.render();
+      }
       foundry.utils.setProperty(this.st, f, v);
       if (f === "path") this.st.virt = { conscience: 0, selfControl: 0, courage: 0 };
+      if (f === "clanOrigin") this.st.originDiscs = [];          // другой исходный клан — Дисциплины выбрать заново
       this.render();
     }));
     const search = this.element.querySelector("[data-mf-search]");

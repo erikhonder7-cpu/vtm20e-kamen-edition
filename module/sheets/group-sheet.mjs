@@ -7,7 +7,7 @@
 import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { Codex } from "../data/codex.mjs";
 import { coterieFromActor, poolValue, openCoterie, totemPools, totemBanned, spendTotemPool, refillTotemPools, acceptTotem, setTotemBan } from "../apps/coterie.mjs";
-import { HUNTING_GROUNDS } from "../apps/night.mjs";
+import { HUNTING_GROUNDS, huntGroundLabel } from "../apps/night.mjs";
 import { citySpots, showSpotOnMap } from "../ui/citymap.mjs";
 import { domainOwner } from "../apps/domain.mjs";
 import { domainSway, domainEventTrend } from "../ui/strategy.mjs";
@@ -273,7 +273,7 @@ export class DomainSheet extends GroupSheet {
       owners: game.actors.filter(x => [...PEOPLE, "coterie"].includes(x.type)).sort((x, y) => (y.type === "coterie") - (x.type === "coterie") || x.name.localeCompare(y.name, "ru"))
         .map(x => ({ id: x.id, name: `${x.name} — ${loc(`TYPES.Actor.${x.type}`)}`, selected: x.id === s.owner })),
       owner: owner ? card(owner) : null,
-      grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, label: `${t(`Hunt.Ground.${k}`)} — ${d}`, selected: k === s.ground })),
+      grounds: Object.entries(HUNTING_GROUNDS).map(([k, d]) => ({ key: k, label: `${huntGroundLabel(k)} — ${d}`, selected: k === s.ground })),
 
       zones: zones.map(z => ({ id: z.id, name: z.name, kind: z.kind, selected: z.id === s.zone })),
       zoneName: zones.find(z => z.id === s.zone)?.name ?? "",
@@ -317,8 +317,8 @@ export class DomainSheet extends GroupSheet {
   static async #onAddEvent() {
     const key = this.element.querySelector("[data-ev=kind]")?.value, note = this.element.querySelector("[data-ev=note]")?.value?.trim() ?? "";
     if (!key) return;
-    const { getClock } = game.vtm20 ?? {};
-    const date = typeof getClock === "function" ? new Date(getClock()).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long", year: "numeric" }) : "";
+    const { getClock, longDate } = game.vtm20 ?? {};
+    const date = typeof getClock === "function" ? (typeof longDate === "function" ? longDate(new Date(getClock())) : new Date(getClock()).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long", year: "numeric" })) : "";
     await this.actor.update({ "system.events": [...(this.actor.system.events ?? []), { key, note, date }] });
     // событие — трендом на доске стратегии в квартале домена (план 2; ставит ведущий)
     const tr = await domainEventTrend(this.actor, key, note);

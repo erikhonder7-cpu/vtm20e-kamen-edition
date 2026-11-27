@@ -3,6 +3,7 @@
 
 import { VTM20, SYSTEM_ID } from "../../config.mjs";
 import { Codex } from "../../data/codex.mjs";
+import { LibraryItems } from "../library.mjs";
 import { traitIcon, backgroundIcon } from "../../data/icons.mjs";
 import { RENOWN, LOST_SLOTS, EXTRA_DISC_MERIT } from "../creator/rules.mjs";
 import { sacrificeOn as hunterSacrificeOn } from "../hunter.mjs";
@@ -27,9 +28,10 @@ export class WriteCreator {
       details: { ...a.system.details, concept: st.concept, nature: st.nature, demeanor: st.demeanor, sire: st.sire, sect: st.sect }
     };
     if (this.type === "vampire") {
-      const gen = 13 - Math.min(5, this.value("bg", "Поколение"));
+      const gen = VTM20.baseGeneration() - Math.min(5, this.value("bg", "Поколение"));
       const max = VTM20.generationOf(gen).pool;
       Object.assign(sys, { clan: st.clan, clanChoice: st.clanChoice, weaknessNote: st.weaknessNote, generation: gen,
+        clanOrigin: st.clanOrigin ?? "", originDisciplines: [...(st.originDiscs ?? [])],
         blood: { value: Math.min(max, st.blood ?? Math.ceil(max / 2)) } });
     }
     // вид гуля и семья ревенанта — из мастера; ревенант сам вырабатывает витэ (донора нет)
@@ -143,9 +145,31 @@ export class WriteCreator {
       if (!d || (v <= 0 && !this.inClan(k))) continue;
       // Дисциплина по «Дополнительной Дисциплине» — с ручной отметкой «клановая» (цена опыта ×5 и на листе)
       items.push({ name: d.name, type: "discipline", img: Codex.disciplineIcon(k), system: { key: k, value: v, inClan: k === this.extraDisc } });
-      const firstPath = { thaumaturgy: "Путь Крови", necromancy: "Путь Склепа" }[k];
-      if (firstPath && v > 0) items.push({ name: firstPath, type: "thaumPath", img: Codex.disciplineIcon(k),
-        system: { discipline: k, value: Math.min(5, v), primary: true, description: Codex.bloodPath(k, firstPath)?.html ?? "" } });
+      // основной путь магии крови — выбранный в мастере (по умолчанию — creator/calc.mjs → defaultPath)
+      const path = VTM20.pathDisciplines.includes(k) && v > 0 ? this.chosenPath(k) : null;
+      // краины V20 DA: основной — остаток точек, остальные краины — свои точки (creator/calc.mjs → krainaSplit)
+      const kr = path && this.krainaOn(k) ? this.krainaSplit(k) : null;
+      if (path) items.push({ name: path.name, type: "thaumPath", img: Codex.disciplineIcon(k),
+        system: { discipline: k, value: kr ? kr.primary : Math.min(5, v), primary: true, description: path.html ?? "" } });
+      for (const [name, n] of Object.entries(kr?.extra ?? {})) {
+        const p = this.pathOptions(k).find(x => x.name === name);
+        if (p) items.push({ name, type: "thaumPath", img: Codex.disciplineIcon(k), system: { discipline: k, value: n, primary: false, description: p.html ?? "" } });
+      }
+      // ритуалы, выбранные в мастере (V20 — один 1-го уровня, Тёмные века — по точке); уже известные персонажу не дублируются
+      for (const r of this.chosenRituals(k)) if (r && !a.items.some(i => i.type === "ritual" && i.name === r.name)) items.push(LibraryItems.ritual(k, r));
+      // купленные пути (вторичные) и ритуалы: за свободные пункты (Тёмные века) и за опыт (пути — всегда, ритуалы — Тёмные века)
+      const bags = [this.bloodMagicFree ? st.bm : null, this.bloodMagicXp ? { paths: st.xbm?.paths, rituals: VTM20.isDarkAges() ? st.xbm?.rituals : null } : null].filter(Boolean);
+      for (const bag of v > 0 ? bags : []) {
+        for (const [name, n] of Object.entries(bag?.paths?.[k] ?? {})) {
+          const p = this.pathOptions(k).find(x => x.name === name);
+          if (p && n > 0) items.push({ name, type: "thaumPath", img: Codex.disciplineIcon(k), system: { discipline: k, value: Math.min(n, v, 5), primary: false, description: p.html ?? "" } });
+        }
+        const opts = this.ritualOptions(k);
+        for (const name of bag?.rituals?.[k] ?? []) {
+          const r = opts.find(x => x.name === name);
+          if (r && !a.items.some(i => i.type === "ritual" && i.name === name) && !items.some(i => i.type === "ritual" && i.name === name)) items.push(LibraryItems.ritual(k, r));
+        }
+      }
     }
     const bgLine = this.isThrall ? "demon" : VTM20.traitLine(this.type);       // слуга — факты биографии из книги падших
     const bgDone = new Set();                           // одноимённые (охотничий и анархов «Арсенал») — один раз, своя линия первой

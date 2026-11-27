@@ -162,7 +162,33 @@ export function startNightClock(onTick) {
 
 export function ymd(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
 export function hhmm(d) { return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+/**
+ * Летоисчисление хроники (настройка мира «reckoning»): "ad" — от Рождества Христова; "am" — от сотворения мира по византийской
+ * эре (5508 г. до н. э.), новый год с 1 сентября, как считали на Руси. Внутри часы всегда идут по обычной дате — меняется подпись.
+ */
+export function reckoning() { try { return game.settings.get(SYSTEM_ID, "reckoning"); } catch { return "ad"; } }
+/**
+ * Юлианская дата для даты часов (часы идут по григорианскому календарю): через номер юлианского дня.
+ * В XIII веке юлианская дата отстаёт на 7 дней, в XX–XXI — на 13. Возвращает { year, month (0–11), day }.
+ */
+export function julianDate(d) {
+  const a = Math.floor((14 - (d.getMonth() + 1)) / 12), y = d.getFullYear() + 4800 - a, m = d.getMonth() + 1 + 12 * a - 3;
+  const jdn = d.getDate() + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+  const c = jdn + 32082, dd = Math.floor((4 * c + 3) / 1461), e = c - Math.floor(1461 * dd / 4), mm = Math.floor((5 * e + 2) / 153);
+  return { year: dd - 4800 + Math.floor(mm / 10), month: mm + 2 - 12 * Math.floor(mm / 10), day: e - Math.floor((153 * mm + 2) / 5) + 1 };
+}
+/** Год хроники в выбранном летоисчислении: от сотворения мира — по юлианской дате, новый год с 1 сентября. */
+export function chronicleYear(d) {
+  if (reckoning() !== "am") return d.getFullYear();
+  const j = julianDate(d);
+  return j.year + 5508 + (j.month >= 8 ? 1 : 0);
+}
 export function longDate(d) {
+  if (reckoning() === "am") {
+    // византийская эра — по юлианскому календарю: число и месяц юлианские (подпись месяца — через любой год)
+    const j = julianDate(d), dm = new Date(2000, j.month, j.day).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long" });
+    return game.i18n.format("VTM20.Calendar.AnnoMundi", { date: dm, year: chronicleYear(d) });
+  }
   return d.toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long", year: "numeric" });
 }
 export function shortDate(d) {
@@ -521,6 +547,7 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
     const c = clockBarData();
     return {
       dateInput: ymd(d), timeInput: hhmm(d),
+      annoMundi: reckoning() === "am", annoMundiNow: longDate(d),
       ...c,
       sunrise: hhmm(new Date(c.phase.sunrise)), sunset: hhmm(new Date(c.phase.sunset)),
       advances: advances(),
@@ -575,7 +602,11 @@ export class NightCalendar extends HandlebarsApplicationMixin(ApplicationV2) {
     if (o.date) {
       const [Y, M, D] = String(o.date).split("-").map(Number);
       const [h, m] = String(o.time || "21:00").split(":").map(Number);
-      await setClock(new Date(Y, M - 1, D, h, m).getTime());
+      const t = new Date(Y, M - 1, D, h, m).getTime();
+      await setClock(t);
+      // дата раньше начала хроники (например, хроника Тёмных веков в мире, где началом стоит 1789 год) — хроника начинается
+      // с этой ночи, иначе номер ночи уходит в минус
+      if (t < (chronicleStart() || DEFAULT_CLOCK)) await game.settings.set(SYSTEM_ID, "chronicleStart", t);
     }
     if (o.latitude !== undefined) await game.settings.set(SYSTEM_ID, "latitude", Number(o.latitude) || 55.75);
     if (o.longitude !== undefined && o.longitude !== null && o.longitude !== "") await game.settings.set(SYSTEM_ID, "longitude", Number(o.longitude));

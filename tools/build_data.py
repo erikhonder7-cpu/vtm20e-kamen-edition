@@ -424,9 +424,11 @@ def parse_clans(path, disc):
     return list(uniq.values())
 
 def parse_archetypes(path):
-    res = []
+    # только раздел «Натуры и маски»: жирные строки других таблиц файла (опыт: «Каитиф: любая Дисциплина») — не архетипы
+    res, inside = [], False
     for l in read(path):
-        m = re.match(r"^\| \*\*(.+?)\*\* \| (.+) \|$", l)
+        if l.startswith("## "): inside = l.startswith("## Натуры и маски")
+        m = inside and re.match(r"^\| \*\*(.+?)\*\* \| (.+) \|$", l)
         if m: res.append({"name": m.group(1), "regain": m.group(2)})
     return res
 

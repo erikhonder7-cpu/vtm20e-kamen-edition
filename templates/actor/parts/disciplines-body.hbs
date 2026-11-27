@@ -63,6 +63,7 @@
         {{#unless powers.length}}{{#unless ownPowers.length}}{{#if html}}<div class="r-path-text">{{{html}}}</div>{{/if}}{{/unless}}{{/unless}}
       </div>
       {{/each}}
+      {{#if krainaFree}}<p class="r-note r-explain">{{localize "VTM20.Magic.KrainaFree" n=krainaFree}}</p>{{/if}}
       {{#if @root.editable}}{{#if pathChoices.length}}
       <div class="r-toolbar is-inner">
         <a class="r-btn" data-action="library" data-kind="path" data-discipline="{{key}}"><i class="fa-solid fa-book-skull"></i> {{localize "VTM20.Sheet.AddPath"}}</a>

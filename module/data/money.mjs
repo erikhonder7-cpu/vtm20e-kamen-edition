@@ -15,7 +15,7 @@ const L = (k, d) => d ? game.i18n.format(`VTM20.Money.${k}`, d) : game.i18n.loca
 export function worldCurrency() {
   const c = game.settings.get(SYSTEM_ID, "currency");
   if (VTM20.currencies[c]) return c;
-  return game.settings.get(SYSTEM_ID, "era") === "revolution" ? "livre" : "dollar";
+  return ["revolution", "darkAges"].includes(game.settings.get(SYSTEM_ID, "era")) ? "livre" : "dollar";
 }
 
 /** Валюта персонажа (своя или хроники). */
@@ -140,7 +140,8 @@ export async function openMoney(actor) {
     : `<label class="r-money-in is-gold is-wide"><i></i><input type="number" name="amount" min="0" step="any" placeholder="0"><span>${L("Amount")}</span></label>`;
   const ops = [["1", "fa-plus", L("Add")], ["-1", "fa-minus", L("Sub")], ["0", "fa-equals", L("Set")]]
     .map(([v, icon, label], k) => `<label class="r-tile is-flat r-money-op${k ? "" : " is-active"}"><input type="radio" name="op" value="${v}"${k ? "" : " checked"}><i class="fa-solid ${icon}"></i><span>${label}</span></label>`).join("");
-  const paperFields = lsd ? `
+  // ассигнаты — Революция (с 1789); в Тёмных веках только ливры, су и денье
+  const paperFields = lsd && !VTM20.isDarkAges() ? `
       <details class="r-money-more"${m.paper > 0 ? " open" : ""}>
         <summary><i class="fa-solid fa-scroll"></i> ${L("Assignats")} <em>${L("RateNow", { rate: Math.round(rate * 100) })}</em>${m.paper > 0 ? `<b>${fmtMoney(m.paper, cur)}</b>` : ""}</summary>
         ${m.paper > 0 ? `<p class="r-money-note">≈ ${fmtMoney(roundMoney(m.paper * rate, cur), cur)} ${L("InCoin")}</p>` : ""}

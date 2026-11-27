@@ -76,7 +76,7 @@ class XpWindow extends HandlebarsApplicationMixin(ApplicationV2) {
       const discs = a.items.filter(i => i.type === "discipline").sort((x, y) => x.name.localeCompare(y.name, "ru"));
       if (discs.length) groups.push({ key: "disc", icon: "fa-droplet", label: loc("VTM20.Sheet.Disciplines"), rows: discs.map(i =>
         row(`i:${i.id}:system.value:discipline`, i.name, i.system.value, cap, "discipline", { key: i.system.key, inClan: i.system.inClan || a.clanDisciplines.includes(i.system.key) })) });
-      const paths = a.items.filter(i => i.type === "thaumPath" && !i.system.primary);
+      const paths = a.items.filter(i => i.type === "thaumPath" && !i.system.primary && !a.krainaPath(i));   // краины V20 DA — точками Колдовства, не за опыт
       if (paths.length) groups.push({ key: "paths", icon: "fa-hand-sparkles", label: t("Xp.Paths"), rows: paths.map(i => row(`i:${i.id}:system.value:path`, i.name, i.system.value, 5, "path")) });
     }
     // Демон: Знания (свой Дом и общие дешевле чужих) и Вера

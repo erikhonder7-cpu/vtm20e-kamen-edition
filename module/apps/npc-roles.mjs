@@ -12,8 +12,46 @@ const W = s => Object.fromEntries(String(s ?? "").split(/\s+/).filter(Boolean).m
  */
 const MODERN_SUBS = new Set(["hacker", "biker", "forensic", "commando"]);
 const MODERN_ABIL = ["drive", "computer", "technology"];
-export const subsForEra = (role, era) => (role?.subs ?? []).filter(s => era !== "revolution"
+export const subsForEra = (role, era) => era === "darkAges" ? darkAgesSubs(role) : (role?.subs ?? []).filter(s => era !== "revolution"
   || !(MODERN_SUBS.has(s.key) || Object.keys(s.abil).every(k => MODERN_ABIL.includes(k))));
+
+/**
+ * Тёмные века (1242): без занятий, которых в XIII веке нет (огнестрел, машины, полиция, наука Нового времени), и с подвидами
+ * эпохи на Способностях V20 Dark Ages — Верховая езда, Лук, Торговля, Сенешальство, Житейская мудрость, Ловкость рук, Богословие.
+ * Правило системы, как и подвиды 1789 года.
+ */
+const DA_DROP = new Set(["biker", "thug", "commando", "chauffeur", "bohemian", "boss", "officer", "banker", "naturalist", "professor",
+  "medic", "coroner", "psychiatrist", "cop", "private", "journalist", "forensic", "hacker", "mechanic", "engineer", "attorney",
+  "burglar", "cartheif", "hitman", "agent", "corporate", "homeless", "dealer", "punk", "vet", "docker", "cabbie", "secretary",
+  "driver", "hitchhiker", "trucker", "elysium", "handler", "kabbalist"]);
+const DA_SUBS = {
+  brute: [["highwayman", "Разбойник с большой дороги", "melee:2 intimidation:2"]],
+  soldier: [["knight", "Рыцарь", "ride:2 melee:2"], ["crossbowman", "Арбалетчик", "archery:3 melee:1"], ["manatarms", "Латник", "melee:2 brawl:1"]],
+  duelist: [["squire", "Оруженосец", "melee:2 ride:2"]],
+  tracker: [["huntsman", "Ловчий", "animalKen:2 ride:2"], ["archer", "Лучник-браконьер", "archery:2 stealth:2"]],
+  bodyguard: [["housecarl", "Дружинник", "melee:2 alertness:2"]],
+  socialite: [["troubadour", "Трубадур", "performance:2 expression:2"]],
+  leader: [["baron", "Барон", "politics:2 leadership:2 seneschal:1"], ["abbot", "Аббат", "theology:2 leadership:2"]],
+  broker: [["merchant", "Купец", "commerce:3 etiquette:1"], ["lombard", "Ростовщик", "commerce:2 law:2"]],
+  scholar: [["scribe", "Переписчик", "academics:2 theology:1"], ["astrologer", "Звездочёт", "occult:2 academics:2"]],
+  doctor: [["barber", "Цирюльник", "medicine:2 crafts:1"], ["herbwife", "Травница", "hearthWisdom:3 medicine:1"]],
+  detective: [["bailiff", "Бейлиф", "investigation:2 intimidation:2"], ["watchman", "Сержант стражи", "alertness:2 melee:2"]],
+  techie: [["smith", "Кузнец", "crafts:3 athletics:1"], ["mason", "Зодчий", "crafts:2 academics:2"]],
+  lawyer: [["seneschal", "Сенешаль", "seneschal:3 law:1"], ["canonist", "Канонист", "law:2 theology:2"]],
+  thief: [["cutpurse", "Срезатель кошельков", "legerdemain:3 stealth:1"]],
+  spy: [["envoy", "Гонец", "ride:2 etiquette:2"]],
+  streetrat: [["beggar", "Нищий", "subterfuge:2 empathy:1"]],
+  worker: [["miller", "Мельник", "crafts:2 commerce:1"], ["serf", "Крепостной", "survival:2 animalKen:1"]],
+  servant: [["steward", "Ключник", "seneschal:2 etiquette:1"], ["groom", "Конюх", "animalKen:2 ride:2"]],
+  drifter: [["pilgrim", "Паломник", "theology:2 survival:2"], ["jongleur", "Скоморох", "performance:2 legerdemain:2"]]
+};
+function darkAgesSubs(role) {
+  const own = (role?.subs ?? []).filter(s => !DA_DROP.has(s.key));
+  const add = (DA_SUBS[role?.key] ?? []).map(([k, l, abil, concept]) => ({ key: k, label: l, abil: W(abil), concept: concept ?? l }));
+  return [...own, ...add];
+}
+/** Роль в Тёмных веках с современным названием — своё название эпохи (ключи NpcGen.RoleDA.*). */
+export const ROLE_DA = new Set(["techie", "detective", "socialite", "streetrat"]);
 
 export const ROLE_GROUPS = [
   { key: "combat", label: "Бой", icon: "fa-hand-fist" },

@@ -163,17 +163,49 @@ function onFaction(event, target) { this.st.faction = this.st.faction === target
 function onHouseAtlas() { return openHouses(this.st.house); }
 function onClanGroup(event, target) { this.ui.clanGroup = target.dataset.group; this.render(); }
 function onClan(event, target) {
-  this.st.clan = target.dataset.clan; this.st.clanChoice = "";
+  this.st.clan = target.dataset.clan; this.st.clanChoice = ""; this.st.clanOrigin = ""; this.st.originDiscs = [];
   this.st.disc = {}; this.st.free.disc = {}; this.st.xp.disc = {};
   this.render();
 }
 function onChoice(event, target) { this.st.clanChoice = target.dataset.key; this.render(); }
+/** Тёмные века: точка купленного пути магии крови — не выше рейтинга Дисциплины; 0 — путь снят. */
+function onBmPath(event, target) {
+  const { disc, name } = target.dataset, d = target.dataset.d === "-1" ? -1 : 1, paths = (target.dataset.mode === "xp" ? this.st.xbm : this.st.bm)?.paths?.[disc];
+  if (!paths || !(name in paths)) return;
+  const n = paths[name] + d;
+  if (n > Math.min(5, this.value("disc", disc))) return ui.notifications.warn(t("Creator.BmPathCap"));
+  if (n <= 0) delete paths[name]; else paths[name] = n;
+  this.render();
+}
+/** Краины V20 DA: точку отдать другой краине (у основной остаётся не меньше 1) или вернуть основной; 0 — краина снята. */
+function onKrPath(event, target) {
+  const { disc, name } = target.dataset, d = target.dataset.d === "-1" ? -1 : 1, list = this.st.kr?.[disc];
+  if (!list || !(name in list)) return;
+  const { extra } = this.krainaSplit(disc), v = Math.min(5, this.value("disc", disc));
+  if (d > 0 && this.sum(extra) >= v - 1) return ui.notifications.warn(t("Creator.KrainaCap"));
+  const n = (extra[name] ?? 0) + d;
+  if (n <= 0) delete list[name]; else list[name] = n;
+  this.render();
+}
+/** Тёмные века: снять купленный ритуал. */
+function onBmRitDrop(event, target) {
+  const { disc, name } = target.dataset, bag = target.dataset.mode === "xp" ? this.st.xbm : this.st.bm, list = bag?.rituals?.[disc];
+  if (list) bag.rituals[disc] = list.filter(n => n !== name);
+  this.render();
+}
+/** Дисциплина исходного клана (Дети Осириса, Киасиды): щелчок — взять или снять, не больше двух. */
+function onOriginDisc(event, target) {
+  const k = target.dataset.key, list = [...(this.st.originDiscs ?? [])];
+  if (list.includes(k)) list.splice(list.indexOf(k), 1);
+  else if (list.length < 2) list.push(k);
+  this.st.originDiscs = list; this.render();
+}
 function onClanAtlas(event, target) { return openClans(target.dataset.clan); }
 /** Натура и Маска — из библиотеки архетипов (как восстанавливают Волю). */
 async function onArchLib(event) {
   event.preventDefault(); event.stopPropagation();
   const { openLibrary } = await import("../library.mjs");
-  return openLibrary({ actor: null, kind: "archetype", current: { nature: this.st.nature ?? "", demeanor: this.st.demeanor ?? "" },
+  return openLibrary({ actor: null, kind: "archetype", type: this.isHunter ? "hunter" : this.type, current: { nature: this.st.nature ?? "", demeanor: this.st.demeanor ?? "" },
     onPick: (name, field) => { this.st[field] = name; this.render(); } });
 }
 /** Путь морали — из библиотеки Путей: этика, Столп и грехи перед глазами; смена Пути сбрасывает Добродетели. */
@@ -186,7 +218,7 @@ async function onPickPath() {
 }
 /** Поколение покупается фактом биографии «Поколение» (01). */
 function onGen(event, target) {
-  const n = 13 - Number(target.dataset.gen);
+  const n = VTM20.baseGeneration() - Number(target.dataset.gen);
   // у Шабаша фактов биографии на старте нет — «Поколение» идёт за свободные пункты
   if (n > 0 && !this.rules.bg) { this.st.bg["Поколение"] = 0; this.st.free.bg["Поколение"] = n; }
   else if (n > 0) this.st.bg["Поколение"] = n; else { delete this.st.bg["Поколение"]; delete this.st.free.bg["Поколение"]; }
@@ -325,7 +357,7 @@ function bump(mode, event, target) {
     if (d > 0 && (kind === "will" ? this.willpower >= 10 : this.morality >= cap)) return;
     bag[kind] = Math.max(0, bag[kind] + d);
   } else {
-    const max = kind === "disc" && this.isMage ? Math.min(5, this.morality) : kind === "disc" && this.type === "vampire" ? VTM20.generationOf(13 - Math.min(5, this.value("bg", "Поколение"))).trait : kind === "virt" && this.isHunter && !this.isLost ? 10 : 5;
+    const max = kind === "disc" && this.isMage ? Math.min(5, this.morality) : kind === "disc" && this.type === "vampire" ? VTM20.generationOf(VTM20.baseGeneration() - Math.min(5, this.value("bg", "Поколение"))).trait : kind === "virt" && this.isHunter && !this.isLost ? 10 : 5;
     if (d > 0 && kind === "disc" && this.bannedDisc(key)) return ui.notifications.warn(t("Creator.SectBanned", { name: Codex.disciplineLabel(key) }));
     if (d > 0 && this.value(kind, key) >= max) return;
     bag[kind][key] = Math.max(0, (bag[kind][key] ?? 0) + d);
@@ -335,7 +367,9 @@ function bump(mode, event, target) {
 
 async function onRollBlood() {
   const r = await new Roll("1d10").evaluate();
-  this.st.blood = r.total;
+  // V20 Dark Ages (гл. 1, шаг 5): 1d10 + Домен + Стадо, не выше запаса поколения
+  const plus = this.type === "vampire" && VTM20.isDarkAges() ? this.value("bg", "Домен") + this.value("bg", "Стадо") : 0;
+  this.st.blood = Math.min(VTM20.generationOf(VTM20.baseGeneration() - Math.min(5, this.value("bg", "Поколение"))).pool, r.total + plus);
   r.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), flavor: t("Creator.BloodRoll") }, { messageMode: "self" });
   this.render();
 }
@@ -362,7 +396,7 @@ export const ACTIONS = {
       creed: onCreed, edgeToggle: onEdgeToggle, brSet: onBrSet, dhSwap: onDhSwap, dhOption: onDhOption,
       ghoulType: onGhoulType, magePick: onMagePick, garouPick: onGarouPick, garouGift: onGarouGift, garouExtra: onGarouExtra,
       house: onHouse, earthbound: onEarthbound, thrall: onThrall, mark: onMark, markPower: onMarkPower, pactShare: onPactShare, pactGift: onPactGift, reliquary: onReliquary, visage: onVisage, faction: onFaction, houseAtlas: onHouseAtlas,
-      gen: onGen, choice: onChoice, clanAtlas: onClanAtlas, pickPath: onPickPath, archLib: onArchLib,
+      gen: onGen, choice: onChoice, originDisc: onOriginDisc, bmPath: onBmPath, krPath: onKrPath, bmRitDrop: onBmRitDrop, clanAtlas: onClanAtlas, pickPath: onPickPath, archLib: onArchLib,
       dot: onDot, prio: onPrio,
       bgToggle: onBgToggle, mfToggle: onMfToggle, mfTab: onMfTab, mfCat: onMfCat,
       addDisc: onAddDisc, dropDisc: onDropDisc, read: onRead,

@@ -8,7 +8,7 @@ import { mergeTexts } from "./text-split.mjs";
 import { zuloOn } from "./zulo.mjs";
 import { bogatyrOn } from "./bogatyr.mjs";
 
-const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage", "wraith", "changeling", "thaum-artifacts", "sabbat-ritae", "clan-lore", "line-lore"];
+const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "backgrounds-ghouls", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage", "wraith", "changeling", "thaum-artifacts", "sabbat-ritae", "clan-lore", "line-lore", "dark-ages"];
 
 /** Чей герб показывать линии крови, ветви или антитрибу, если своего нет. */
 const CLAN_SYMBOL_PARENT = {
@@ -37,6 +37,12 @@ const TRAIT_CLAN_PARENT = {
 /** Линии с клановыми чертами, но без карточки в data/clans.json. */
 const TRAIT_CLAN_NAMES = { synySamuila: "Сыны Самуила" };
 /** Своего знака у Дисциплины нет — берём родственный. */
+// «Vampire: Age of the Living Gods», «Paths of Dur-An-Ki»: пути V20, которые книга даёт ассамитам своей эпохи (часть — под своими
+// именами: Covenant of Enki = Neptune's Might, Echo of Nirvana = Focused Mind, Demon's Gift = Conjuring, Ailing Jackal = Father's
+// Vengeance; Hand of the Magi и Life's Water — Creatio Ignis и Potestas Vitae, они и так есть). Только при настройке «Век живых богов».
+const ALG_DUR_AN_KI = ["Covenant of Nergal", "The Path of the Evil Eye", "Movement of the Mind", "Weather Control", "Elemental Mastery",
+  "Alchemy", "Neptune's Might", "Path of the Focused Mind", "Hands of Destruction", "Path of Conjuring", "Path of the Father's Vengeance",
+  "Path of the Blood's Curse"];
 const DISCIPLINE_SYMBOL_PARENT = { assamiteSorcery: "thaumaturgy", koldunism: "thaumaturgy", setiteSorcery: "serpentis", darkThaumaturgy: "daimoinon" };
 const LUMINANCE = /\/markers\/|\/disciplines\/|clans\/(assamite|setite|ravnos|istinnyeBruha)\./;
 const SECT_KEYS = [
@@ -78,6 +84,7 @@ export const Codex = {
         (await fetch(`${SYSTEM_PATH}/data/${f}-text.json`)).json()));
       mergeTexts("disciplines", this.disciplines, d);
       mergeTexts("rituals", this.rituals, r);
+      this._daThaum();                    // тексты вернули прежние карточки путей Тауматургии V20 DA — снова заменить
       this.textsReady = true;
       return this;
     })();
@@ -99,6 +106,8 @@ export const Codex = {
     this.backgrounds = [...this.backgrounds, ...(this.hunter?.backgrounds ?? []).map(b => ({ ...b, line: "hunter" }))];
     // дампиры (data/dhampir.json, Accursed Heirs) — свои Дополнения и черты с пометкой dhampir: только дампиру, в конце
     this.backgrounds = [...this.backgrounds, ...(this.dhampir?.backgrounds ?? []).map(b => ({ ...b, dhampir: true }))];
+    // Факты гулей и ревенантов (V20 Ghouls & Revenants, стр. 121–125: Домитор, Двойная жизнь, Старший в семье, Мажордом) — только гулю
+    this.backgrounds = [...this.backgrounds, ...(this["backgrounds-ghouls"] ?? []).map(b => ({ ...b, ghoul: true }))];
     this.merits = [...this.merits, ...(this.dhampir?.merits ?? []).map(m => ({ ...m, dhampir: true }))];
     // оборотни (data/werewolf.json, W20): свои Достоинства, недостатки и Факты — линией «werewolf», в конце
     this.merits = [...this.merits, ...(this.werewolf?.merits ?? []).map(m => ({ ...m, line: "werewolf" }))];
@@ -122,7 +131,53 @@ export const Codex = {
     // архетипы Wraith 20 (Натура и Маска; will — когда возвращается Воля) — новые для всех
     const arch3 = new Set(this.archetypes.map(a => a.name));
     this.archetypes = [...this.archetypes, ...(this.wraith?.archetypes ?? []).filter(a => !arch3.has(a.name)).map(a => ({ name: a.name, en: a.en, regain: a.will }))];
-    this.clanByKey = Object.fromEntries(this.clans.map(c => [c.key, c]));
+    // Тёмные века (data/dark-ages.json, tools/dark_ages_data.py): свои кланы и линии крови V20 Dark Ages — в этой эпохе список
+    // кланов берётся отсюда (Дисциплины и слабости по V20 DA); ключи общие с data/clans.json, чтобы прежние персонажи не терялись
+    // повторная загрузка: свойство уже с геттером — исходный список V20 лежит в clansV20 (присваивание идёт в сеттер)
+    if (!Object.getOwnPropertyDescriptor(this, "clans")?.get) this.clansV20 = this.clans;
+    const v20 = Object.fromEntries(this.clansV20.map(c => [c.key, c]));
+    this.clansDA = (this["dark-ages"]?.clans ?? []).map(c => ({ ...(v20[c.key] ?? {}), ...c }));
+    this.clanByKeyDA = Object.fromEntries(this.clansDA.map(c => [c.key, c]));
+    Object.defineProperty(this, "clans", { configurable: true, enumerable: true,
+      get() { return VTM20.isDarkAges() && this.clansDA.length ? this.clansDA : this.clansV20; }, set(v) { this.clansV20 = v; } });
+    this.clanByKey = v20;
+    // Дисциплины, которых нет в V20 (Абомбве Бонсам — V20 Dark Ages): из того же слоя; видны по пометке эпохи (Codex.visible)
+    for (const d of this["dark-ages"]?.disciplines ?? []) this.disciplines[d.key] ??= d;
+    // пути Некромантии в версии V20 DA (гл. 9): у Кости, «Трупа в чудовище», Пепла, Стеклянного и Склепа силы не те, что в V20;
+    // в Тёмных веках берутся эти записи (bloodPathsFor предпочитает книгу эпохи), те, что уже есть записью V20 DA, не дублируются
+    const necro = this.disciplines.necromancy?.paths, pn = s => String(s ?? "").toLowerCase().replace(/[’]/g, "'").replace(/\b(path|of|the)\b/g, "").replace(/[^a-z']+/g, " ").trim();
+    if (necro) for (const p of this["dark-ages"]?.necromancyPaths ?? [])
+      if (!necro.some(x => this.isDarkAgesBook(x) && pn(x.en) === pn(p.en))) necro.push(p);
+    this._daThaum();
+    // Факты V20 Dark Ages (там же, справочник 04): имена системные, а описание в этой эпохе — из V20 DA (Домен, Слава и Статус
+    // в Тёмных веках свои, Поколение от 12-го); у Фактов линий (демоны, оборотни…) описание прежнее
+    const daBg = Object.fromEntries((this["dark-ages"]?.backgrounds ?? []).map(b => [b.en, b.html]));
+    for (const b of this.backgrounds) {
+      if (b.line || b.dhampir || !daBg[b.en]) continue;
+      if (!Object.getOwnPropertyDescriptor(b, "html")?.get) {
+        b.htmlV20 = b.html;
+        Object.defineProperty(b, "html", { configurable: true, enumerable: true,
+          get() { return VTM20.isDarkAges() && this.htmlDA ? this.htmlDA : this.htmlV20; }, set(v) { this.htmlV20 = v; } });
+      }
+      b.htmlDA = daBg[b.en];
+    }
+    // «Vampire: Age of the Living Gods» (фанатское, tools/alg_extra.py и paths_extra.py) — пометка alg по источнику:
+    // видимость решает своя настройка, а не эпоха (Codex.visible)
+    const isAlg = x => /Age of the Living Gods/.test(x?.source ?? "");
+    for (const x of [...this.backgrounds, ...this.paths, ...this.merits, ...(this.abilities ?? []), ...this.derangements]) if (isAlg(x)) x.alg = true;
+    for (const d of Object.values(this.disciplines)) {
+      if (isAlg(d)) d.alg = true;
+      for (const p of d.powers ?? []) if (isAlg(p) || d.alg) p.alg = true;
+    }
+    // Дороги и Пути V20 Dark Ages: подробности (смысл, этика, посвящение, аура — справочник V20_Dark_Ages/13, пересказ гл. 3)
+    // дописываются к описанию; только записям V20 DA — у Дорог других редакций своя философия, их не смешиваем
+    const roadInfo = this["dark-ages"]?.roads ?? {}, rn = s => String(s ?? "").toLowerCase().replace(/\bthe\b/g, "").replace(/[^a-z]+/g, " ").trim();
+    const infoByEn = Object.fromEntries(Object.entries(roadInfo).map(([en, html]) => [rn(en), html]));
+    const infoHead = game.i18n?.localize?.("VTM20.Path.DaDetails") ?? "V20 Dark Ages";
+    for (const p of this.paths) {
+      const info = p.source === "V20 Dark Ages" && !p.daDetails ? infoByEn[rn(p.en)] : null;
+      if (info) { p.daDetails = true; p.html = `${p.html ?? ""}<h4>${infoHead}</h4>${info}`; }
+    }
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
     // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров
     const dm = this.demon ?? {};
@@ -146,7 +201,12 @@ export const Codex = {
   get houses() { return this.demon?.houses ?? []; },
   get factions() { return this.demon?.factions ?? []; },
 
-  clan(key) { return this.clanByKey?.[key] ?? null; },
+  /** Архетипы для Натуры и Маски: в Тёмных веках у вампира, гуля и смертного — список V20 Dark Ages (data/dark-ages.json). */
+  archetypesFor(type) {
+    const da = this["dark-ages"]?.archetypes;
+    return VTM20.isDarkAges() && da?.length && ["vampire", "ghoul", "mortal"].includes(type) ? da : this.archetypes;
+  },
+  clan(key) { return (VTM20.isDarkAges() && this.clanByKeyDA?.[key]) || this.clanByKey?.[key] || this.clanByKeyDA?.[key] || null; },
 
   /** Название клана или линии по ключу (в т. ч. линий, у которых есть черты, но нет карточки клана). */
   clanName(key) { const c = this.clan(key); return c ? VTM20.label(c) : TRAIT_CLAN_NAMES[key] ?? key; },
@@ -155,14 +215,109 @@ export const Codex = {
   traitClan(key) { return TRAIT_CLAN_PARENT[key] ?? key; },
 
   /** Включён ли контент Тёмных веков (настройка мира «Контент из Dark Ages»). */
+  /**
+   * Книга Тёмных веков: V20 Dark Ages, его Companion и Tome of Secrets, Dark Ages 1996/2002 и их дополнения (High/Low Clans,
+   * House of Tremere, Right of Princes, Storytellers Companion…), Libellus Sanguinis — по пометке эпохи или по источнику записи.
+   */
+  /**
+   * Сила Дисциплины для персонажа: видна по настройкам мира и не чужая — силы Богатырей (Fingers of the Eldest, пометка bogatyr)
+   * только у самого Богатыря (гуль типа bogatyr), а не альтернативой у любого вампира.
+   */
+  powerFor(p, ghoulType = "") { return this.visible(p) && (!p?.bogatyr || ghoulType === "bogatyr"); },
+  /** Краина Колдовства (V20 Dark Ages, Tome of Secrets, The Black Hand) — не уклад и не Путь стихий. */
+  isKraina(p) { return p?.proc === "da-kraina" || p?.proc === "kraina"; },
+  /**
+   * Правило краин V20 Dark Ages (гл. 9, Koldunic Sorcery): первая точка Колдовства — первая сила основной краины, каждая
+   * следующая — следующая сила известной краины или первая сила новой. Сумма точек краин = точкам Дисциплины, отдельно за опыт
+   * краины не покупаются, Гений места основной не бывает. Действует в Тёмных веках у колдуна с краиной основным путём.
+   */
+  krainaRule(disc, primary) { return disc === "koldunism" && VTM20.isDarkAges() && this.isKraina(primary); },
+  isDarkAgesBook(x) { return x?.era === "darkAges" || /Dark Ages|Libellus Sanguinis/i.test(x?.source ?? ""); },
+  /**
+   * Пути магии крови по эпохе — Тёмные века и V20 разведены. В Тёмных веках — только из книг Тёмных веков и то, что V20 DA
+   * перепечатывает (data/dark-ages.json → bloodPaths: записи V20 с тем же английским именем); у одного пути две записи — берётся
+   * запись Тёмных веков. В V20 — без книг Тёмных веков (кроме настройки «Контент из Dark Ages»). Ритуалы и Дур-Ан-Ки не разводятся.
+   */
+  bloodPathsFor(disc) {
+    const all = this.disciplines[disc]?.paths ?? [], lent = this._lent?.[disc];
+    // пути, одолженные у другой Дисциплины (_daThaum), — только в Тёмных веках
+    if (!VTM20.isDarkAges()) return all.filter(x => !lent?.has(x) && this.visible(x) && (!this.isDarkAgesBook(x) || this.darkAgesOn()));
+    const norm = s => String(s ?? "").toLowerCase().replace(/[’]/g, "'").replace(/\b(path|of|the)\b/g, "").replace(/[^a-z']+/g, " ").trim();
+    const reprint = new Set([...(this["dark-ages"]?.bloodPaths?.[disc] ?? []),
+      ...(disc === "assamiteSorcery" && this.livingGodsOn() ? ALG_DUR_AN_KI : [])].map(norm));
+    const one = new Map();
+    for (const x of all) {
+      if (!this.visible(x)) continue;
+      const n = norm(x.en) || x.name, book = this.isDarkAgesBook(x);
+      // все официальные краины (V20 DA, Tome of Secrets, The Black Hand) — в Тёмных веках доступны
+      if (!book && !reprint.has(n) && !lent?.has(x) && !(disc === "koldunism" && this.isKraina(x))) continue;
+      if (!one.has(n) || book || lent?.has(x)) one.set(n, x);
+    }
+    return [...one.values()];
+  },
+
+  /**
+   * Семь путей Тауматургии V20 DA (гл. 10, справочник V20_Dark_Ages/10 → data/dark-ages.json): описание пути и карточки уровней
+   * заменяют прежние (были обрывки и ошибка «узы крови так не возникают» у Кражи витэ — книга: приближает к узам). Имя и данные
+   * броска у сил остаются. Вызывается после индекса и после загрузки текстов.
+   */
+  _daThaum() {
+    const paths = this.disciplines.thaumaturgy?.paths ?? [];
+    // Пути, общие для нескольких школ в Тёмных веках, — та же запись в списке другой Дисциплины (видна только в этой эпохе):
+    // • Дур-Ан-Ки: «колдун может выбрать любой путь Тауматургии из основной книги» (Player's Guide to Low Clans, ассамиты;
+    //   V20 DA: «Assamite Sorcery (Thaumaturgy)»); • Чародейство Сеттитов: первый путь обычно Potestas Tempestatum, вторые — из
+    //   Откровений или «изменённая магия тремеров» (Tome of Secrets, Akhu; V20 DA: «Setite Sorcery (Thaumaturgy)»);
+    // • Тауматургия: пути Садханы Данава — Нектар крови, Карма, Праапти (Dark Ages Companion, Ravnos Apocrypha: «активируются как
+    //   Тауматургия»); в данных они лежат у Чародейства Сеттитов
+    this._lent ??= {};
+    const lend = (disc, p) => {
+      const d = this.disciplines[disc];
+      if (!d || !p) return;
+      (this._lent[disc] ??= new Set()).add(p);
+      if (!d.paths.includes(p)) d.paths.push(p);
+    };
+    for (const d of this["dark-ages"]?.thaumaturgyPaths ?? []) {
+      const p = paths.find(x => x.en === d.en && this.isDarkAgesBook(x));
+      lend("assamiteSorcery", p); lend("setiteSorcery", p);
+    }
+    for (const en of ["Path of Blood Nectar", "Path of Karma", "The Path of Praapti"])
+      lend("thaumaturgy", this.disciplines.setiteSorcery?.paths.find(x => x.en === en));
+    for (const d of this["dark-ages"]?.thaumaturgyPaths ?? []) {
+      const p = paths.find(x => x.en === d.en && this.isDarkAgesBook(x));
+      if (!p) continue;
+      p.html = d.html;
+      p.powers = d.powers.map((q, i) => ({ ...(p.powers?.[i] ?? {}), ...q, en: q.en || p.powers?.[i]?.en || "" }));
+    }
+  },
+
+  /**
+   * Основной путь по умолчанию (по английскому названию — русские в версиях V20 и V20 DA разные). V20: Путь Крови, Путь Склепа;
+   * Тёмные века (гл. 9–10): у Тремера малый путь Creatio Ignis, у Некромантии — путь клана: Каппадокийцы — «Труп в чудовище»,
+   * Джованни — Склеп, Ламии — Сумеречный сад, Нагараджа — Стеклянный, Импундулу — Кенотаф. Иначе — первый путь эпохи.
+   */
+  defaultBloodPath(disc, clan = "") {
+    const opts = this.bloodPathsFor(disc), da = VTM20.isDarkAges();
+    const necroDA = { giovanni: "Sepulchre", lamii: "Twilight Garden", nagaradzha: "Vitreous", impundulu: "Cenotaph" }[clan] ?? "Corpse in the Monster";
+    // ассамитам в Тёмных веках — тоже Creatio Ignis (правило системы: книга основного пути не называет, а свои пути ассамитов
+    // охраняемые — Путь Хранителей только для Хранителей)
+    // сеттитам — Potestas Tempestatum (Tome of Secrets: «commonly learn … as their initial Path», в подражание Сету, богу бурь)
+    const want = { thaumaturgy: da ? "Creatio Ignis" : "Path of Blood", necromancy: da ? necroDA : "Sepulchre",
+      assamiteSorcery: da ? "Creatio Ignis" : "", setiteSorcery: da ? "Potestas Tempestatum" : "" }[disc];
+    return (want && opts.find(p => String(p.en ?? "").toLowerCase().includes(want.toLowerCase()))) ?? opts[0] ?? null;
+  },
+
   darkAgesOn() {
-    try { return !!game.settings.get(SYSTEM_ID, "darkAgesContent"); } catch { return false; }
+    try { return !!game.settings.get(SYSTEM_ID, "darkAgesContent") || game.settings.get(SYSTEM_ID, "era") === "darkAges"; } catch { return false; }
   },
 
   /** Показывать ли запись (путь, ритуал, черту): материалы Тёмных веков — только при включённой настройке. */
   // «elder-only» (Elysium: The Elder Wars) — не эпоха, а черты для старейшин: видны всегда, с пометкой в библиотеке
   // «zulo» — черты хоумрула «форма зуло» (data/zulo.mjs): только при настройке мира «Чудовищный облик» = форма зуло
-  visible(x) { return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()) || (x.era === "zulo" && zuloOn()) || (x.era === "bogatyr" && bogatyrOn()); },
+  /** Фанатский «Vampire: Age of the Living Gods» включён настройкой мира (по умолчанию — нет). */
+  livingGodsOn() {
+    try { return !!game.settings.get(SYSTEM_ID, "livingGodsContent"); } catch { return false; }
+  },
+  visible(x) { if (x?.alg) return this.livingGodsOn(); return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()) || (x.era === "zulo" && zuloOn()) || (x.era === "bogatyr" && bogatyrOn()); },
 
   /** Черта Тёмных веков — повтор: есть такая же черта V20 (вид и английское название) или та же черта Тёмных веков из другой
    *  книги (первая остаётся). Библиотека прячет повторы без фильтра «Тёмные века», мастер создания — всегда, кроме выбранных. */

@@ -20,7 +20,9 @@ import { REVENANT_FAMILIES } from "../data/revenants.mjs";
 import { W as WW } from "./werewolf.mjs";
 import { H as HH } from "./hunter.mjs";
 import { M as MM } from "./mage.mjs";
-import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab, subsForEra } from "./npc-roles.mjs";
+import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab, subsForEra, ROLE_DA } from "./npc-roles.mjs";
+/** Название роли: в Тёмных веках у некоторых — своё (NpcGen.RoleDA.*). */
+const roleLabel = r => VTM20.isDarkAges() && ROLE_DA.has(r.key) ? lab(`RoleDA.${r.key}`, r.label) : lab(`Role.${r.key}`, r.label);
 import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup, GHOULED_ACTORS } from "./npc-build.mjs";
 import * as FOES from "../data/changeling-foes.mjs";
 
@@ -256,16 +258,18 @@ function paramFields(kind, p) {
  */
 const KIT = {
   revolution: { gun: [["Кремнёвый пистолет", 2], ["Мушкет «Шарлевиль»", 4]], blade: [["Кинжал", 2], ["Шпага", 3]] },
-  modern: { gun: [["Лёгкий пистолет", 2], ["Тяжёлый пистолет", 4]], blade: [["Нож", 2], ["Бита", 3]] }
+  modern: { gun: [["Лёгкий пистолет", 2], ["Тяжёлый пистолет", 4]], blade: [["Нож", 2], ["Бита", 3]] },
+  // Тёмные века: лук и арбалет по Стрельбе из лука, клинок по Фехтованию (V20 Dark Ages, гл. 12; DA Companion, гл. 8)
+  darkAges: { gun: [["Лук", 2], ["Арбалет", 3]], blade: [["Кинжал / короткий меч", 2], ["Рыцарский меч", 3]], ranged: "archery", era: "darkAges" }
 };
 const ARMED = new Set(["vampire", "ghoul", "mortal", "hunter", "demon"]);
 function autoKit(d) {
   if (!d || d.spirit || d.plasmic || !ARMED.has(d.actor)) return [];
   const ab = k => Number(d.system?.abilities?.[k]?.value ?? 0);
   const kit = KIT[game.settings.get(SYSTEM_ID, "era")] ?? KIT.revolution;
-  const ref = name => { const i = WEAPON_PRESETS.findIndex(w => w.name === name && !w.era); return i < 0 ? null : `w:${i}`; };
+  const ref = name => { const i = WEAPON_PRESETS.findIndex(w => w.name === name && (w.era ?? "") === (kit.era ?? "")); return i < 0 ? null : `w:${i}`; };
   const best = (list, n) => list.filter(([, min]) => n >= min).at(-1)?.[0];
-  return [best(kit.gun, ab("firearms")), best(kit.blade, ab("melee"))].filter(Boolean).map(ref).filter(Boolean);
+  return [best(kit.gun, ab(kit.ranged ?? "firearms")), best(kit.blade, ab("melee"))].filter(Boolean).map(ref).filter(Boolean);
 }
 
 /* ── Окно ──────────────────────────────────────────────────────────────── */
@@ -351,7 +355,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     const kinds = KIND_GROUPS.map(g => ({ ...g, label: lab(`KindGroup.${g.key}`, g.label),
       items: KINDS.filter(k => k.group === g.key && (!k.homerule || k.homerule())).map(k => ({ ...k, label: lab(`Kind.${k.key}`, k.label), active: k.key === s.kind })) }));
     const roleGroups = ROLE_GROUPS.map(g => ({ ...g, label: lab(`RoleGroup.${g.key}`, g.label),
-      roles: ROLES.filter(r => r.group === g.key).map(r => ({ key: r.key, icon: r.icon, label: lab(`Role.${r.key}`, r.label), active: r.key === s.role })) }));
+      roles: ROLES.filter(r => r.group === g.key).map(r => ({ key: r.key, icon: r.icon, label: roleLabel(r), active: r.key === s.role })) }));
     const subs = role ? subsForEra(role, game.settings.get(SYSTEM_ID, "era")).map(x => ({ key: x.key, label: lab(`Sub.${x.key}`, x.label), active: x.key === s.sub })) : [];
     const powers = POWERS.map(p => ({ key: p.key, icon: p.icon, label: lab(`Power.${p.key}`, p.label), active: p.key === s.power }));
 
@@ -382,11 +386,13 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const d = this.draft?.group ? null : this.draft;
     const grp = this.draft?.group ? this.draft : null;
-    const presetOpts = (list, cat) => [...new Set(list.filter(p => Codex.visible(p)).map(p => p.group))].map(g => ({
-      label: g, options: list.map((p, i) => ({ value: `${cat}:${i}`, label: p.name, group: p.group, show: Codex.visible(p) })).filter(p => p.group === g && p.show)
+    // в Тёмных веках — только снаряжение эпохи
+    const fits = p => Codex.visible(p) && (!VTM20.isDarkAges() || p.era === "darkAges");
+    const presetOpts = (list, cat) => [...new Set(list.filter(fits).map(p => p.group))].map(g => ({
+      label: g, options: list.map((p, i) => ({ value: `${cat}:${i}`, label: p.name, group: p.group, show: fits(p) })).filter(p => p.group === g && p.show)
     }));
     return {
-      s, kinds, kind: { ...kind, label: lab(`Kind.${kind.key}`, kind.label) }, roleGroups, subs, role: role ? { key: role.key, label: lab(`Role.${role.key}`, role.label) } : null,
+      s, kinds, kind: { ...kind, label: lab(`Kind.${kind.key}`, kind.label) }, roleGroups, subs, role: role ? { key: role.key, label: roleLabel(role) } : null,
       powers, isBook: this.isBook, isSpirit: s.kind === "spirit" || s.kind === "plasmic",   // готовый образец: без ролей и снаряжения (дух, плазмик)
       isGroup: this.isGroup, book,
       group: grp ? { title: lab(`Group.${groupOf(s.params.group || GROUPS[0].key).key}`, groupOf(s.params.group || GROUPS[0].key).label),

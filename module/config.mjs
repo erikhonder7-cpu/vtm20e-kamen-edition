@@ -39,23 +39,28 @@ VTM20.abilityGroups = {
 VTM20.abilities = {
   alertness:    { group: "talents" }, athletics:   { group: "talents" }, awareness:  { group: "talents" },
   brawl:        { group: "talents" }, empathy:     { group: "talents" }, expression: { group: "talents", earlySpecialty: true },
-  intimidation: { group: "talents" }, leadership:  { group: "talents" }, streetwise: { group: "talents" },
+  intimidation: { group: "talents" }, leadership:  { group: "talents" }, streetwise: { group: "talents", era: ["modern", "revolution"] },
   subterfuge:   { group: "talents" },
+  // V20 Dark Ages (гл. 1, «Способности»): Ловкость рук — Талант; Лук, Торговля — Навыки; Житейская мудрость, Сенешальство — Познания
+  legerdemain:  { group: "talents", era: "darkAges" },
+  archery:      { group: "skills", era: "darkAges" }, commerce: { group: "skills", era: "darkAges", earlySpecialty: true },
+  hearthWisdom: { group: "knowledges", era: "darkAges" }, seneschal: { group: "knowledges", era: "darkAges" },
   intuition:    { group: "talents", only: "demon" },     // Demon: The Fallen — только у демонов
   primalUrge:   { group: "talents", only: "werewolf" },  // W20: Первобытный инстинкт, Загадки, Ритуалы — только у оборотней
   animalKen:    { group: "skills" }, crafts:   { group: "skills", earlySpecialty: true }, drive:       { group: "skills", era: "modern" },
-  ride:         { group: "skills", era: "revolution" },
-  etiquette:    { group: "skills" }, firearms: { group: "skills" }, larceny:     { group: "skills" },
+  ride:         { group: "skills", era: ["revolution", "darkAges"] },
+  etiquette:    { group: "skills" }, firearms: { group: "skills", era: ["modern", "revolution"] }, larceny: { group: "skills", era: ["modern", "revolution"] },
   melee:        { group: "skills" }, performance: { group: "skills", earlySpecialty: true }, stealth:  { group: "skills" },
   survival:     { group: "skills" },
   academics:    { group: "knowledges", earlySpecialty: true }, computer: { group: "knowledges", era: "modern" },
-  theology:     { group: "knowledges", era: "revolution" },
-  finance:      { group: "knowledges" }, investigation: { group: "knowledges" }, law: { group: "knowledges", earlySpecialty: true },
+  theology:     { group: "knowledges", era: ["revolution", "darkAges"] },
+  finance:      { group: "knowledges", era: ["modern", "revolution"] }, investigation: { group: "knowledges" }, law: { group: "knowledges", earlySpecialty: true },
   medicine:     { group: "knowledges" }, occult: { group: "knowledges" }, politics: { group: "knowledges" },
-  science:      { group: "knowledges", earlySpecialty: true }, technology: { group: "knowledges", era: "modern", earlySpecialty: true },
+  science:      { group: "knowledges", era: ["modern", "revolution"], earlySpecialty: true }, technology: { group: "knowledges", era: "modern", earlySpecialty: true },
   warfare:      { group: "knowledges", era: "revolution" },
   religion:     { group: "knowledges", only: "demon" },
-  enigmas:      { group: "knowledges", only: ["werewolf", "mage", "wraith", "changeling"] }, rituals: { group: "knowledges", only: "werewolf" },
+  // Загадки: у Гару, магов, призраков и подменышей; в Тёмных веках — у всех (V20 Dark Ages)
+  enigmas:      { group: "knowledges", only: ["werewolf", "mage", "wraith", "changeling"], allIn: "darkAges" }, rituals: { group: "knowledges", only: "werewolf" },
   // M20: Способности, без которых не работают практики магов (правило системы: остальной список — общий для эпохи)
   meditation:   { group: "skills", only: ["mage", "wraith"] }, research: { group: "skills", only: "mage" }, martialArts: { group: "skills", only: "mage" },
   cosmology:    { group: "knowledges", only: "mage" }, esoterica: { group: "knowledges", only: "mage" },
@@ -73,15 +78,22 @@ VTM20.canChooseSpecialty = (group, key, rating) => Number(rating) >= 4 ||
 
 VTM20.eras = {
   modern:     { label: L("Era.modern") },
-  revolution: { label: L("Era.revolution") }
+  revolution: { label: L("Era.revolution") },
+  darkAges:   { label: L("Era.darkAges") }
 };
+/** Хроника в Тёмных веках (настройка мира «Эпоха хроники» = darkAges, V20 Dark Ages). */
+VTM20.isDarkAges = () => { try { return game.settings.get("vtm20e-kamen-edition", "era") === "darkAges"; } catch { return false; } };
+/** Поколение без точек Факта «Поколение»: V20 — 13-е, V20 Dark Ages — 12-е (гл. 1, «Поколение»). */
+VTM20.baseGeneration = () => VTM20.isDarkAges() ? 12 : 13;
+/** V20 Dark Ages: создание вампира (data/dark-ages.json → creation) — 4 точки Дисциплин, кровь 1d10 + Домен + Стадо. */
+VTM20.darkAgesCreation = () => globalThis.game?.vtm20Codex?.["dark-ages"]?.creation ?? { disciplines: 4, generation: 12, bloodPlus: ["Domain", "Herd"], caitiffNoStatus: true };
 
 /** Способности текущей эпохи, по группам, в алфавитном порядке подписи. */
 VTM20.abilitiesForEra = (era, type = "") => {
   const out = { talents: [], skills: [], knowledges: [] };
   for (const [k, a] of Object.entries(VTM20.abilities)) {
-    if (a.era && a.era !== era) continue;
-    if (a.only && ![].concat(a.only).includes(type)) continue;   // Интуиция и Религия — только у демонов; Загадки — у Гару и магов
+    if (a.era && ![].concat(a.era).includes(era)) continue;
+    if (a.only && ![].concat(a.only).includes(type) && a.allIn !== era) continue;   // Интуиция и Религия — только у демонов; Загадки — у Гару и магов
     if (a.not && [].concat(a.not).includes(type)) continue;     // у подменыша нет Шестого чувства, Оккультизма и Финансов (C20)
     out[a.group].push(k);
   }
@@ -103,6 +115,8 @@ VTM20.virtues = {
 
 /** Столп (bearing): модификатор сложности по значению морали (06). */
 VTM20.bearingMod = v => v >= 10 ? -2 : v >= 8 ? -1 : v >= 4 ? 0 : v >= 2 ? 1 : 2;
+/** Подпись столпа: в Тёмных веках книга зовёт его «аурой» Дороги (V20 Dark Ages, с. 113–114; шкала та же). */
+VTM20.bearingLabel = () => VTM20.isDarkAges() ? "VTM20.Sheet.Aura" : "VTM20.Sheet.Bearing";
 
 /** Срок торпора от ран по Человечности/Пути (04). */
 VTM20.torporDuration = new Proxy({}, {
@@ -260,7 +274,8 @@ VTM20.typeSigil = type => type === "werewolf" ? "systems/vtm20e-kamen-edition/as
 VTM20.weaponKinds = {
   brawl:    { label: L("WeaponKind.brawl"),    attribute: "dexterity", ability: "brawl" },
   melee:    { label: L("WeaponKind.melee"),    attribute: "dexterity", ability: "melee" },
-  firearms: { label: L("WeaponKind.firearms"), attribute: "dexterity", ability: "firearms" },
+  // стрелковое: в Тёмных веках Огнестрела нет — лук, арбалет и праща по Стрельбе из лука (V20 Dark Ages, гл. 12)
+  firearms: { label: L("WeaponKind.firearms"), attribute: "dexterity", get ability() { return VTM20.isDarkAges() ? "archery" : "firearms"; } },
   thrown:   { label: L("WeaponKind.thrown"),   attribute: "dexterity", ability: "athletics" }
 };
 
@@ -315,10 +330,14 @@ VTM20.currencies = {
   rouble: { label: L("Money.Cur.rouble"), symbol: "₽" }
 };
 
-/** Факты биографии только для Сородичей (по англ. названию): гулям и смертным недоступны (V20, гл. 7). */
+/** Факты биографии только для Сородичей (по англ. названию): гулям и смертным недоступны. Ghouls & Revenants (стр. 121) прямо
+ *  запрещает гулю Поколение и Статус; Домен, Обряды, Чёрная рука и прочее — правило системы. */
 VTM20.kindredOnlyBackgrounds = ["Domain", "Rituals", "Generation", "Herd", "Status", "Black Hand Membership", "Anarch Status",
   "Memento de Morte", "Clan Prestige", "Age", "Elder Status", "Elder Generation", "Pack Recognition", "Rank", "Anunnaki Status"];
+/** Из Фактов Сородичей гулю всё же доступны: Стадо (книга пишет лишь, что «гулю оно не нужно», — не запрет). Смертному — нет. */
+VTM20.ghoulKindredBackgrounds = ["Herd"];
 /** Доступен ли факт биографии персонажу этого типа. */
 // охотник — и общие факты смертных (линия ""), и свои (линия «hunter»), но не сектантские
-VTM20.backgroundAllowed = (b, type) => ((b?.line ?? "") === VTM20.traitLine(type) || (type === "hunter" && !b?.line && !b?.sect && !b?.sabbat))
-  && (type === "vampire" || !!b?.line || !VTM20.kindredOnlyBackgrounds.includes(b?.en));
+// Факты гулей и ревенантов (Ghouls & Revenants: Домитор, Двойная жизнь, Старший в семье, Мажордом) — только гулю
+VTM20.backgroundAllowed = (b, type) => (!b?.ghoul || type === "ghoul") && ((b?.line ?? "") === VTM20.traitLine(type) || (type === "hunter" && !b?.line && !b?.sect && !b?.sabbat))
+  && (type === "vampire" || !!b?.line || !VTM20.kindredOnlyBackgrounds.includes(b?.en) || (type === "ghoul" && VTM20.ghoulKindredBackgrounds.includes(b?.en)));

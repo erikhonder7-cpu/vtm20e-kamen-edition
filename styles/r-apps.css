@@ -206,7 +206,8 @@
 .vtm20 .r-cr-legend .r-dot { display: inline-block; vertical-align: -2px; }
 
 /* Дисциплины */
-.vtm20 .r-cr-discs { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 8px; }
+/* align-items: start — карточка высотой по себе: путь и ритуалы магии крови не растягивают соседние */
+.vtm20 .r-cr-discs { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 8px; align-items: start; }
 .vtm20 .r-cr-disc { padding: 10px 12px; }
 .vtm20 .r-cr-disc.is-clan { box-shadow: inset 2px 0 0 #8c1c22; }
 .vtm20 .r-cr-disc-head { display: flex; align-items: center; gap: 10px; }
@@ -222,6 +223,21 @@
 .vtm20 .r-cr-disc-title { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
 .vtm20 .r-cr-disc-title b { font-family: var(--r-display); font-weight: 400; font-size: 16px; }
 .vtm20 .r-cr-disc-title em { font-size: 11.5px; color: var(--r-muted); }
+/* основной путь магии крови в карточке Дисциплины: подпись и список (короткий — плитками) */
+.vtm20 .r-cr-disc-path { margin-top: 8px; }
+/* крайны V20 DA в карточке Колдовства: заголовок с остатком точек, строки «имя · точки · − +», основная — с пометкой */
+.vtm20 .r-cr-kraina { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--r-line-2); display: flex; flex-direction: column; gap: 4px; }
+.vtm20 .r-cr-kraina-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+.vtm20 .r-cr-kraina-head > span { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-cr-kraina-head > em { font-size: 11.5px; color: var(--r-muted); cursor: help; }
+.vtm20 .r-cr-kraina-row { display: flex; align-items: center; gap: 6px; min-height: 22px; }
+.vtm20 .r-cr-kraina-name { flex: 1 1 auto; min-width: 0; font-size: 13px; line-height: 1.2; }
+.vtm20 .r-cr-kraina-row .r-dot { width: 10px; height: 10px; }
+.vtm20 .r-cr-kraina-row .r-dots { gap: 3px; }
+.vtm20 .r-cr-kraina-row .r-step { flex: 0 0 auto; width: 20px; height: 20px; display: grid; place-items: center; font-size: 13px; line-height: 1; color: var(--r-ink-2); border: 1px solid var(--r-line-2); background: transparent; }
+.vtm20 .r-cr-kraina-row .r-step:hover { color: var(--r-ink); border-color: var(--r-ink-2); }
+/* основная — без кнопок: точки встают в столбик с точками остальных (две кнопки по 20 и два зазора по 6) */
+.vtm20 .r-cr-kraina-row.is-main .r-dots { margin-right: 52px; }
 .vtm20 .r-cr-powers { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
 .vtm20 .r-cr-powers li { font-size: 13px; color: var(--r-muted); }
 .vtm20 .r-cr-powers li span { display: inline-block; min-width: 24px; font-family: var(--r-display); font-size: 11px; color: var(--r-muted); }

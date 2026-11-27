@@ -18,6 +18,9 @@ const loc = k => game.i18n.localize(k);
 const plainShort = html => { const s = plainBody(html);
   const m = /^(.{20,140}?[.!?])(\s|$)/.exec(s); return m ? m[1] : s.length > 140 ? `${s.slice(0, 137)}…` : s; };
 
+/** Новый путь магии крови за опыт: 7, затем каждая точка — текущее × 4 (V20, гл. 1, «Опыт»; V20 Dark Ages — так же). */
+export const pathXp = n => { let c = n > 0 ? 7 : 0; for (let k = 1; k < n; k++) c += k * 4; return c; };
+
 export class CalcCreator {
   /* ── Расчёты ───────────────────────────────────────────────────────── */
 
@@ -45,6 +48,7 @@ export class CalcCreator {
       return { ...this.baseRules, free: 18, attr: strong ? [7, 4, 3] : this.baseRules.attr, abil,
         disc: this.baseRules.disc + (this.st?.dhSwap ? 1 : 0) + (strong ? 1 : 0) };
     }
+    if (this.type === "vampire" && VTM20.isDarkAges()) return { ...this.baseRules, disc: VTM20.darkAgesCreation().disciplines };   // V20 Dark Ages, гл. 1
     return this.type === "vampire" ? { ...this.baseRules, ...(SECT_RULES[this.st?.sectKey] ?? {}) } : this.baseRules;
   }
   /** Особый смертный для шаблона: варианты, поля и силы. */
@@ -106,10 +110,10 @@ export class CalcCreator {
   get isWerewolf() { return this.type === "werewolf"; }
 
   /** Дисциплина закрыта сектой: Камарилья не учит внеклановым Дисциплинам независимых и Шабаша. */
-  bannedDisc(k) { return this.type === "vampire" && this.st.sectKey === "camarilla" && CAMARILLA_BANNED.includes(k) && !this.inClan(k); }
+  bannedDisc(k) { return this.type === "vampire" && !VTM20.isDarkAges() && this.st.sectKey === "camarilla" && CAMARILLA_BANNED.includes(k) && !this.inClan(k); }
   /** Подсказка о правилах выбранной секты (шаги концепции, Дисциплин, преимуществ и свободных пунктов). */
   get sectRule() {
-    const k = this.type === "vampire" ? this.st.sectKey : "";
+    const k = this.type === "vampire" && !VTM20.isDarkAges() ? this.st.sectKey : "";   // в Тёмных веках сект нет
     if (k === "camarilla") return t("Creator.SectRule.camarilla", { list: CAMARILLA_BANNED.map(d => Codex.disciplineLabel(d)).join(", ") });
     return k === "sabbat" || k === "anarchs" ? t(`Creator.SectRule.${k}`) : "";
   }
@@ -119,9 +123,63 @@ export class CalcCreator {
   get isDemon() { return this.type === "demon"; }
   get pathData() { return Codex.path(this.st.path); }
   get altVirtues() { return (this.pathData?.virtues ?? []).filter(v => v === "conviction" || v === "instinct"); }
+  /** Вампир Тёмных веков на Дороге (V20 Dark Ages): Добродетели — по 1 точке в каждой, Дорога — до 10, без правил Путей просветления. */
+  get isDaRoad() { return this.type === "vampire" && VTM20.isDarkAges() && this.pathData?.era === "darkAges"; }
+  /** Пути магии крови для выбора основного: в Тёмных веках — только из книг Тёмных веков, в V20 — без них (Codex.bloodPathsFor). */
+  pathOptions(k) { return Codex.bloodPathsFor(k); }      // Тёмные века и V20 разведены (data/codex.mjs → bloodPathsFor)
+  /** Основной путь по умолчанию: V20 — Путь Крови и Путь Склепа; Тёмные века — малый путь Тремера и путь клана (гл. 9–10). */
+  defaultPath(k) { return Codex.defaultBloodPath(k, this.st.clan); }
+  /** Выбранный основной путь (st.paths) или путь по умолчанию. */
+  chosenPath(k) { return this.pathOptions(k).find(p => p.name === this.st.paths?.[k]) ?? this.defaultPath(k); }
+  /** Краины V20 Dark Ages (Codex.krainaRule): точки Колдовства делятся между краинами, отдельной цены у краин нет. */
+  krainaOn(k) { return Codex.krainaRule(k, this.chosenPath(k)); }
+  /**
+   * Раздел точек краин: основной — всё, что не ушло другим краинам (st.kr = {disc: {имя: точки}}), но не меньше 1 — первая точка
+   * всегда её. Лишнее (Дисциплину убавили) срезается с конца списка.
+   */
+  krainaSplit(k) {
+    const v = Math.min(5, this.value("disc", k)), main = this.chosenPath(k)?.name;
+    if (!this.krainaOn(k) || v < 1) return { primary: v, extra: {} };
+    const ok = new Set(this.pathOptions(k).filter(p => Codex.isKraina(p)).map(p => p.name));
+    let budget = v - 1;
+    const extra = {};
+    for (const [name, n] of Object.entries(this.st.kr?.[k] ?? {})) {
+      if (name === main || !ok.has(name) || n < 1 || budget < 1) continue;
+      extra[name] = Math.min(n, budget); budget -= extra[name];
+    }
+    return { primary: v - this.sum(extra), extra };
+  }
+  /**
+   * Ритуалы при создании (вся магия крови с ритуалами). V20: первая точка даёт один ритуал 1-го уровня (Дисциплины, гл. 8, 15–16).
+   * V20 Dark Ages: каждая точка даёт ритуал её уровня или ниже (гл. 9) — ячейка n принимает ритуал до n-го уровня.
+   */
+  ritualSlots(k) {
+    // магия крови с ритуалами: Тауматургия, Некромантия, Колдовство, Чародейства Ассамитов и Сетитов, Тёмная Тауматургия
+    if (!VTM20.pathDisciplines.includes(k) || !Codex.rituals[k]?.rituals?.length) return [];
+    const v = Math.min(5, this.value("disc", k));
+    if (v < 1) return [];
+    return VTM20.isDarkAges() ? Array.from({ length: v }, (_, i) => i + 1) : [1];
+  }
+  /** Ритуалы на выбор — все видимые ритуалы Дисциплины: и V20, и Тёмных веков (ритуалы по эпохам не разводятся — решение пользователя). */
+  ritualOptions(k) { return (Codex.rituals[k]?.rituals ?? []).filter(r => Codex.visible(r)); }
+  /** Ячейки ритуалов для карточки Дисциплины: ритуалы по уровням до уровня ячейки, кроме выбранных в других ячейках. */
+  ritualSlotView(k) {
+    const opts = this.ritualOptions(k).sort((a, b) => (a.level - b.level) || a.name.localeCompare(b.name, "ru"));
+    const chosen = this.chosenRituals(k).map(r => r?.name ?? "");
+    return this.ritualSlots(k).map((max, i) => {
+      const own = opts.filter(r => r.level <= max && (r.name === chosen[i] || !chosen.includes(r.name)));
+      const levels = [...new Set(own.map(r => r.level))];
+      return { i, max, groups: levels.map(l => ({ level: l, options: own.filter(r => r.level === l).map(r => ({ value: r.name, label: r.name, selected: r.name === chosen[i] })) })) };
+    });
+  }
+  /** Выбранные ритуалы Дисциплины по ячейкам (st.rituals[k][n]) — записи справочника. */
+  chosenRituals(k) {
+    const opts = this.ritualOptions(k), pick = this.st.rituals?.[k] ?? {};
+    return this.ritualSlots(k).map((max, i) => opts.find(r => r.name === pick[i] && r.level <= max) ?? null);
+  }
   virtueBase(slot) {
     if (this.isHunter) return 0;                        // Добродетели охоты — с нуля
-    if (slot === "courage") return 1;
+    if (slot === "courage" || this.isDaRoad) return 1;  // V20 DA, гл. 1, шаг 4: «по 1 точке в каждой + 7»
     return this.altVirtues.includes(slot === "conscience" ? "conviction" : "instinct") ? 0 : 1;
   }
   get ugly() { return this.type === "vampire" && VTM20.uglyClans.includes(this.st.clan); }
@@ -134,7 +192,15 @@ export class CalcCreator {
   get baseClanDisciplines() {
     const c = this.clanData;
     if (!c || !c.disciplines.length) return null;
-    return [...c.disciplines, ...(c.choice?.includes(this.st.clanChoice) ? [this.st.clanChoice] : [])];
+    const origin = c.choice?.includes("original") ? (this.st.originDiscs ?? []).slice(0, 2) : [];
+    return [...c.disciplines, ...(c.choice?.includes(this.st.clanChoice) ? [this.st.clanChoice] : []), ...origin];
+  }
+  /** Выбор клана сделан: «одна из» Дисциплин — выбрана; «две Дисциплины исходного клана» — выбраны обе. */
+  get clanChoiceDone() {
+    const c = this.clanData;
+    if (!c?.choice?.length) return true;
+    if (c.choice.includes("original")) return !!this.st.clanOrigin && (this.st.originDiscs ?? []).length === 2;
+    return !!this.st.clanChoice;
   }
   /** Что можно выбрать по «Дополнительной Дисциплине»: любая видимая не из клана и не закрытая сектой. */
   get extraDiscOptions() {
@@ -194,8 +260,10 @@ export class CalcCreator {
     if (this.isThrall) return Math.min(5, 1 + this.st.free.morality);                                        // у слуги — Вера слуги
     if (this.isLost) return 10;                                                                              // у Свидетеля — 10, рассудок
     if (this.isHunter) return Math.min(8, (this.creedData?.conviction ?? 3) + this.st.free.morality);         // у охотника — Убеждённость
+    // Добродетели — с опытом мастера: стартовый опыт («Возраст в Крови») тратится при создании и считается его частью
+    // (правило системы); правило V20 «опыт на Добродетель не меняет Человечность и Волю» — для опыта, полученного в игре
     const v = this.value("virt", "conscience") + this.value("virt", "selfControl") + this.st.free.morality;
-    return this.st.path === "humanity" ? Math.min(10, v) : Math.min(5, v);
+    return this.st.path === "humanity" || this.isDaRoad ? Math.min(10, v) : Math.min(5, v);
   }
   get morality() { return Math.min(this.isThrall || this.isHsienCr ? 5 : 10, this.moralityBase + this.st.xp.morality); }
   get willpowerBase() {
@@ -207,7 +275,7 @@ export class CalcCreator {
     if (this.isSorcerer) return Math.min(10, 5 + this.st.free.will);                       // колдун: Воля 5 (M20 Sorcerer, гл. 3)
     if (this.isWerewolf) return Math.min(10, this.garouBase.will + this.st.free.will);   // Воля Гару — по племени (у Фера — по роду)
     const base = this.isDemon || this.isThrall ? ["conscience", "selfControl", "courage"].map(k => this.value("virt", k)).sort((x, y) => y - x).slice(0, 2).reduce((x, y) => x + y, 0)
-      : this.value("virt", "courage");
+      : this.value("virt", "courage");                          // со стартовым опытом — он часть создания (см. moralityBase)
     return Math.min(10, base + this.st.free.will);
   }
   get willpower() { return Math.min(10, this.willpowerBase + this.st.xp.will); }
@@ -227,8 +295,26 @@ export class CalcCreator {
       + this.sum(f.virt) * c.virt + f.morality * c.morality + f.will * c.will + this.bloodrightExtra * 5
       + (this.isWerewolf ? f.rage * c.rage + f.gnosis * c.gnosis + this.st.ww.extra.length * c.gift : 0)
       + (this.isMage ? (f.quint ?? 0) * c.quint + this.mageResCost : 0)
-      + (this.isWraith ? (f.pathos ?? 0) * c.pathos + this.sum(f.pas ?? {}) * c.pas + this.sum(f.fet ?? {}) * c.fet + this.risenDiscSpent : 0);
+      + (this.isWraith ? (f.pathos ?? 0) * c.pathos + this.sum(f.pas ?? {}) * c.pas + this.sum(f.fet ?? {}) * c.fet + this.risenDiscSpent : 0)
+      + this.bloodMagicFreeCost;
   }
+  /**
+   * V20 Dark Ages (гл. 1, «Цены свободных очков»): путь магии крови — 4 за точку, ритуал — по его уровню; путь и ритуал не выше
+   * рейтинга Дисциплины (гл. 9). Только в Тёмных веках — в V20 такой цены нет. st.bm = { paths: {disc: {имя: точки}}, rituals: {disc: [имена]} }.
+   */
+  get bloodMagicFree() { return VTM20.isDarkAges() && !this.isMage && !this.isWraith && !this.isChangeling && !this.isDemon; }
+  get bloodMagicFreeCost() {
+    if (!this.bloodMagicFree || !this.st.bm) return 0;
+    let cost = 0;
+    for (const [k, paths] of Object.entries(this.st.bm.paths ?? {})) cost += this.sum(paths) * 4;
+    for (const [k, names] of Object.entries(this.st.bm.rituals ?? {})) {
+      const opts = this.ritualOptions(k);
+      for (const n of names) cost += opts.find(r => r.name === n)?.level ?? 0;
+    }
+    return cost;
+  }
+  /** Дисциплины с путями и ритуалами, в которых у персонажа есть точки (для покупки путей и ритуалов). */
+  get bloodMagicDiscs() { return VTM20.pathDisciplines.filter(k => this.value("disc", k) > 0 && Codex.discipline(k)?.paths?.length); }
   // призрак: торг с Тенью — её очки взаймы прибавляются к своим (или свои уходят на урезание её пула)
   get freeTotal() { return this.rules.free + this.flawPoints + (this.isWraith ? this.wraithTrade : 0); }
   get freeLeft() { return this.freeTotal - this.meritPoints - this.freeSpent; }
@@ -291,7 +377,20 @@ export class CalcCreator {
       s += this.xpCostOf("rage", "", this.garouBase.rage + this.st.free.rage, x.rage);
       s += this.xpCostOf("gnosis", "", this.garouBase.gnosis + this.st.free.gnosis, x.gnosis);
     }
-    return s;
+    return s + this.bloodMagicXpCost;
+  }
+  /** Магия крови за опыт (st.xbm): у кого вообще есть пути и ритуалы (не маг, призрак, подменыш, демон). */
+  get bloodMagicXp() { return !this.isMage && !this.isWraith && !this.isChangeling && !this.isDemon; }
+  /** Пути (V20 и Тёмные века) и ритуалы (только Тёмные века: уровень × 2; в V20 ритуалы опытом не покупаются) за опыт. */
+  get bloodMagicXpCost() {
+    if (!this.bloodMagicXp || !this.st.xbm) return 0;
+    let cost = 0;
+    for (const paths of Object.values(this.st.xbm.paths ?? {})) for (const n of Object.values(paths)) cost += pathXp(n);
+    if (VTM20.isDarkAges()) for (const [k, names] of Object.entries(this.st.xbm.rituals ?? {})) {
+      const opts = this.ritualOptions(k);
+      for (const n of names) cost += (opts.find(r => r.name === n)?.level ?? 0) * 2;
+    }
+    return cost;
   }
   get xpLeft() { return this.st.xpTotal - this.xpSpent; }
 
@@ -308,7 +407,7 @@ export class CalcCreator {
   stepOk(key, rem) {
     switch (key) {
       case "concept": return !!this.st.name && !(this.isRevenant && !this.revenantFamily);
-      case "clan": return !!this.clanData && !(this.clanData.choice?.length && !this.st.clanChoice);
+      case "clan": return !!this.clanData && this.clanChoiceDone;
       case "house": return !!this.houseData && !!this.st.visage;
       case "garou": return !this.garouIssues.length;
       case "mage": return !this.mageIssues.length;
@@ -342,10 +441,10 @@ export class CalcCreator {
     if (rem.virt) msg(t("Sheet.Virtues"), rem.virt);
     if (rem.free) msg(t("Creator.Freebies"), rem.free);
     if (rem.xp < 0) msg(t("Sheet.Experience"), rem.xp);
-    if (this.st.path !== "humanity" && this.willpower < 5) out.push(t("Creator.PathWill"));
+    if (this.st.path !== "humanity" && !this.isDaRoad && this.willpower < 5) out.push(t("Creator.PathWill"));
     for (const k of Object.keys({ ...this.st.disc, ...this.st.free.disc, ...this.st.xp.disc }))
       if (this.bannedDisc(k) && this.value("disc", k) > this.base("disc", k)) out.push(t("Creator.SectBanned", { name: Codex.disciplineLabel(k) }));
-    if (this.type === "vampire" && this.clanData?.choice?.length && !this.st.clanChoice) out.push(t("Creator.NeedChoice"));
+    if (this.type === "vampire" && !this.clanChoiceDone) out.push(t(this.clanData.choice.includes("original") ? "Creator.NeedOrigin" : "Creator.NeedChoice"));
     // «Дополнительная Дисциплина»: нужен выбор; каитифам и пандерам черта недоступна (V20, Appendix)
     if (this.extraDiscMerit && !this.baseClanDisciplines) out.push(t("Creator.ExtraDiscCaitiff"));
     else if (this.extraDiscMerit && !this.st.extraDisc) out.push(t("Creator.ExtraDiscNeed"));

@@ -109,7 +109,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       golcondaSeek: VtMActorSheet.#onGolconda, golcondaSuspire: VtMActorSheet.#onGolconda,
       rollWeapon: VtMActorSheet.#onRollWeapon,
       takeDamage: VtMActorSheet.#onTakeDamage,
-      bloodHeal: VtMActorSheet.#onBloodHeal,
+      bloodHeal: VtMActorSheet.#onBloodHeal, lifelike: VtMActorSheet.#onLifelike,
       boost: VtMActorSheet.#onBoost,
       clearBoosts: VtMActorSheet.#onClearBoosts,
       awaken: VtMActorSheet.#onAwaken,
@@ -323,9 +323,11 @@ openStrategy: () => openStrategy(),
       nameSize: actor.name.length > 26 ? "is-xlong" : actor.name.length > 18 ? "is-long" : "",
       // охотник — смертный с Гранями: где лист смертного и охотника совпадают, работает isMortal
       diablerie: actor.type === "vampire" ? diablerieMark(actor) : null,
-      isVampire: actor.type === "vampire", isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", isWraith: actor.type === "wraith", isChangeling: actor.type === "changeling", stratInfo: sheetStrategy(actor),
+      isVampire: actor.type === "vampire", darkAgesEra: VTM20.isDarkAges(), isGhoul: actor.type === "ghoul", isDhampir: actor.isDhampir, isMortal: ["mortal", "hunter", "mage"].includes(actor.type), isHunter: actor.type === "hunter", isMage: actor.type === "mage", isWerewolf: actor.type === "werewolf", isWraith: actor.type === "wraith", isChangeling: actor.type === "changeling", stratInfo: sheetStrategy(actor),
       isCreature: actor.type === "creature", isSpiritType: actor.type === "spirit", isDemon: actor.type === "demon",
       hasBlood: actor.hasBlood,
+      // Видимость жизни: включена ли и сколько стоит (8 − мораль; при 8+ бесплатно)
+      lifelike: actor.type === "vampire" ? { on: !!actor.statuses?.has("r-lifelike"), cost: Math.max(0, 8 - (actor.system.morality?.value ?? 0)) } : null,
       typeLabel: actor.type === "ghoul" && ["revenant", "dhampir", "bogatyr"].includes(actor.system.ghoulType) ? t(`GhoulType.${actor.system.ghoulType}`) : game.i18n.localize(`TYPES.Actor.${actor.type}`),
       needsCreation: this.needsCreation,
       tabs: this._prepareTabs("primary")
@@ -603,6 +605,10 @@ openStrategy: () => openStrategy(),
       const pick = els.includes(event?.target) ? event.target : els[0];
       foundry.utils.setProperty(data, name, /^,+$/.test(pick.value) ? "" : pick.value);
     }
+    // Дисциплины исходного клана (Дети Осириса, Киасиды — V20 DA): два списка → массив; сменили исходный клан — выбор заново
+    const od = data.system?.originDisciplines;
+    if (od && !Array.isArray(od)) data.system.originDisciplines = [od[0] ?? "", od[1] ?? ""].filter((k, i, a) => k && a.indexOf(k) === i);
+    if (data.system && "clanOrigin" in data.system && data.system.clanOrigin !== src.clanOrigin) data.system.originDisciplines = [];
     for (const key of ["secondary", "bonds", "vinculi", "boons", "timeline"]) {
       const v = data.system?.[key];
       if (v && !Array.isArray(v)) {
@@ -780,6 +786,8 @@ openStrategy: () => openStrategy(),
   /* ── Действия: кровь и воля ─────────────────────────────────────────── */
 
   static #onBloodHeal(event, target) { return this.actor.bloodHeal(target.dataset.type || null); }
+  /** Видимость жизни — кровью до конца сцены (actor.lifelike). */
+  static #onLifelike() { return this.actor.lifelike(); }
   static #onBoost(event, target) { return this.actor.boostAttribute(target.dataset.attr); }
   static #onClearBoosts() { return this.actor.clearBoosts(); }
   static #onAwaken() { return this.actor.awaken({ willpower: game.settings.get(SYSTEM_ID, "nightlyWillpower") }); }

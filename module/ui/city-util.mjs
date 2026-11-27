@@ -42,7 +42,8 @@ export const T = (k, d) => L(`Travel.${k}`, d);
 /** Цвет угодий на слое «Угодья»: от трущоб (кроваво-красный) к охраняемому кварталу (синий). */
 export const GROUND_COLORS = { slums: "#9e1f24", poor: "#7a3a6e", business: "#c9a46a", industrial: "#7d6a45", suburb: "#4f6e55", guarded: "#2f3b55" };
 
-export const groundLabel = k => game.i18n.localize(`VTM20.Hunt.Ground.${k}`);
+// в Тёмных веках — подписи эпохи (apps/night.mjs → huntGroundLabel; ключ настройки — без импорта, чтобы не тянуть охоту в карту)
+export const groundLabel = k => game.i18n.localize(`VTM20.Hunt.${game.settings.get("vtm20e-kamen-edition", "era") === "darkAges" ? "GroundDA" : "Ground"}.${k}`);
 
 /** Точка внутри многоугольника зоны (points — [широта, долгота]). */
 export function inZone(z, lat, lng) {

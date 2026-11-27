@@ -295,7 +295,8 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     const dots = this.dotsOf(disc);
     const xp = this.actor ? this.actor.xpCost("path", 0) : 0;
     // id — номер в полном списке пути (по нему берётся запись при добавлении), поэтому фильтруем после нумерации
-    return (d?.paths ?? []).map((p, pi) => [p, pi]).filter(([p]) => Codex.visible(p)).map(([p, pi]) => this.#entry({
+    const era = new Set(Codex.bloodPathsFor(disc).map(p => p.name));      // Тёмные века и V20 разведены
+    return (d?.paths ?? []).map((p, pi) => [p, pi]).filter(([p]) => era.has(p.name)).map(([p, pi]) => this.#entry({
       id: String(pi), name: p.name, en: p.en, has: mine.includes(p.name), xp, sym: Codex.disciplineSymbol(disc), src: srcKind(p),
       ...(BY_EDITION.has(disc) ? (e => ({ group: e.key, groupName: e.label, groupOrder: e.order, cat: e.key }))(editionOf(p)) : {}),
       reasons: dots < 1 ? [L("NeedDiscipline", { name: d.name })] : [],
@@ -379,7 +380,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     // id — номер в полном списке; Факты биографии Тёмных веков — только с настройкой «Контент из Dark Ages»
     // гулям и смертным — без фактов только для Сородичей (Поколение, Стадо, Статус…)
     const type = this.actor?.type ?? "vampire", lost = isLost(this.actor);   // Свидетелю — без Судьбы и Покровителей
-    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type) && !(lost && b.noBystander) && (!b.dhampir || !!this.actor?.isDhampir) && !(b.technocracy && type === "mage" && !isTechnocrat(this.actor))).map(([b, i]) => this.#entry({
+    return Codex.backgrounds.map((b, i) => [b, i]).filter(([b]) => Codex.visible(b) && VTM20.backgroundAllowed(b, type) && !(lost && b.noBystander) && (!b.dhampir || !!this.actor?.isDhampir) && !(b.ghoul && this.actor?.isDhampir) && !(b.technocracy && type === "mage" && !isTechnocrat(this.actor))).map(([b, i]) => this.#entry({
       id: String(i), name: b.name, en: b.en, has: mine.has(b.name), text: b.html ?? "", long: true, src: srcKind(b),
       tags: [b.sabbat && { label: t("Sect.sabbat"), red: true }, b.sect && { label: t(`Sect.${b.sect}`), red: true }, b.source && b.source !== "V20" && { label: b.source }].filter(Boolean),
       variants: [1, 2, 3, 4, 5].map(v => ({ value: v, label: "●".repeat(v) }))

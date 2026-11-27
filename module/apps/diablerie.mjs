@@ -10,7 +10,7 @@ import { VTM20, SYSTEM_PATH } from "../config.mjs";
 import { rollPool, odds, chancesView } from "../dice/roll.mjs";
 import { RollDialog } from "../dice/dialog.mjs";
 import { Codex } from "../data/codex.mjs";
-import { getClock } from "./calendar.mjs";
+import { getClock, longDate } from "./calendar.mjs";
 
 const YEAR = 365.25 * 86400000;
 
@@ -34,7 +34,7 @@ export function diablerieMark(actor) {
   const last = list.at(-1);
   if (!last) return null;
   const now = getClock(), veins = now < (last.veinsUntil ?? 0);
-  return { ...last, veins, count: list.length, until: new Date(last.veinsUntil ?? 0).toLocaleDateString(game.i18n.lang, { day: "numeric", month: "long", year: "numeric" }) };
+  return { ...last, veins, count: list.length, until: longDate(new Date(last.veinsUntil ?? 0)) };
 }
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;

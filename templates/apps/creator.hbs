@@ -82,7 +82,7 @@
       <div>
         <div class="r-fields is-two">
           <label class="r-f is-span2"><span>{{localize "VTM20.Sheet.Name"}}</span><input type="text" data-field="name" value="{{st.name}}"></label>
-          <label class="r-f is-span2"><span>{{localize "VTM20.Details.concept"}}</span><input type="text" data-field="concept" value="{{st.concept}}" placeholder="{{localize 'VTM20.Creator.ConceptPh'}}"></label>
+          <label class="r-f is-span2"><span>{{localize "VTM20.Details.concept"}}</span><input type="text" data-field="concept" value="{{st.concept}}" placeholder="{{conceptPh}}"></label>
           <label class="r-f"><span>{{localize "VTM20.Details.nature"}}<a class="r-df-lib" data-action="archLib" data-tooltip="{{localize 'VTM20.Library.Pick.Arch.Open'}}"><i class="fa-solid fa-book-open"></i></a></span>
             <input type="text" data-field="nature" value="{{st.nature}}" data-combo="r-cr-arch" placeholder="—"></label>
           <label class="r-f"><span>{{localize "VTM20.Details.demeanor"}}<a class="r-df-lib" data-action="archLib" data-tooltip="{{localize 'VTM20.Library.Pick.Arch.Open'}}"><i class="fa-solid fa-book-open"></i></a></span>
@@ -195,7 +195,8 @@
       {{/each}}
     </div>
     {{/if}}
-    {{#if isVampire}}
+    {{!-- в Тёмных веках сект ещё нет: Камарилья и Шабаш появятся после Анархического восстания (XV век) --}}
+    {{#if (and isVampire (not darkAges))}}
     <h3 class="r-h3">{{localize "VTM20.Details.sect"}}</h3>
     <div class="r-cr-sects">
       {{#each sects}}
@@ -232,6 +233,13 @@
             {{#each clan.choiceOptions}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="choice" data-key="{{value}}">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</a>{{/each}}{{/if}}
           {{#unless clan.disciplines.length}}<span class="r-cr-or">{{localize "VTM20.Creator.AnyDisc"}}</span>{{/unless}}
         </div>
+        {{!-- «своя Дисциплина + две Дисциплины исходного клана» (Дети Осириса, Киасиды — V20 Dark Ages) --}}
+        {{#if clan.originPick}}
+        <label class="r-f r-cr-origin"><span>{{localize "VTM20.Creator.OriginClan"}}</span>
+          <select data-field="clanOrigin" data-list><option value="">—</option>{{#each clan.originPick.clans}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+        {{#if clan.originPick.discs.length}}<div class="r-cr-discrow"><span class="r-cr-or">+ {{localize "VTM20.Creator.OriginTwoOf" n=clan.originPick.left}}:</span>
+          {{#each clan.originPick.discs}}<a class="r-cr-disc-chip is-choice {{#if active}}is-active{{/if}}" data-action="originDisc" data-key="{{value}}">{{#if sym}}{{rSym sym}}{{/if}}{{label}}</a>{{/each}}</div>{{/if}}
+        {{/if}}
         <div class="r-weakness-text"><b>{{localize "VTM20.Sheet.Weakness"}}:</b> {{{clan.weakness}}}</div>
         <a class="r-cr-clan-more" data-action="clanAtlas" data-clan="{{clan.key}}"><i class="fa-solid fa-book-open"></i> {{localize "VTM20.Clans.More"}}</a>
         {{#if isVentrue}}<label class="r-f"><span>{{localize "VTM20.Creator.VentrueTaste"}}</span><input type="text" data-field="weaknessNote" value="{{st.weaknessNote}}"></label>{{/if}}
@@ -247,9 +255,11 @@
         <p class="r-note r-explain">{{localize "VTM20.Creator.GenerationHint"}}</p>
       </div>
       <div>
-        <h3 class="r-h3">{{localize "VTM20.Sheet.Path"}}</h3>
+        <h3 class="r-h3">{{#if daRoad}}{{localize "VTM20.Sheet.Road"}}{{else}}{{localize "VTM20.Sheet.Path"}}{{/if}}</h3>
         <a class="r-cr-pathpick" data-action="pickPath" data-tooltip="{{localize 'VTM20.Library.Pick.MoralPath.Open'}}"><b>{{pathName}}</b><span><i class="fa-solid fa-book-open"></i> {{localize "VTM20.Library.Pick.MoralPath.Change"}}</span></a>
-        {{#if pathInfo}}<p class="r-note">{{localize "VTM20.Sheet.Virtues"}}: <b>{{pathInfo.virtues}}</b> · {{localize "VTM20.Sheet.Bearing"}}: <b>{{pathInfo.bearing}}</b>{{#unless (eq st.path "humanity")}}<br>{{localize "VTM20.Creator.PathRules"}}{{/unless}}</p>{{/if}}
+        {{#if pathInfo}}<p class="r-note">{{localize "VTM20.Sheet.Virtues"}}: <b>{{pathInfo.virtues}}</b> · {{#if daRoad}}{{localize "VTM20.Sheet.Aura"}}{{else}}{{localize "VTM20.Sheet.Bearing"}}{{/if}}: <b>{{pathInfo.bearing}}</b></p>{{/if}}
+        {{!-- правила Дороги / Пути — значком ⓘ у заголовка, как у Поколения (module/ui/hint-fold.mjs) --}}
+        {{#if daRoad}}<p class="r-note r-explain">{{localize "VTM20.Creator.RoadRules"}}</p>{{else}}{{#unless (eq st.path "humanity")}}<p class="r-note r-explain">{{localize "VTM20.Creator.PathRules"}}</p>{{/unless}}{{/if}}
       </div>
     </div>
     {{/if}}
@@ -644,6 +654,9 @@
     </div>{{/each}}</div>
     {{/if}}
     {{#if isDhampir}}<label class="r-check r-cr-dhswap" data-tooltip="{{localize 'VTM20.Creator.DhSwapHint'}}"><input type="checkbox" data-action="dhSwap" {{#if st.dhSwap}}checked{{/if}}> {{localize "VTM20.Creator.DhSwap"}}</label>{{/if}}
+    {{!-- выбор Дисциплины — над карточками --}}
+    {{> crExtraDisc}}
+    {{> crAddDisc}}
     <div class="r-cr-discs">
       {{#each discCards}}
       <div class="r-cr-disc {{#if inClan}}is-clan{{/if}}">
@@ -653,6 +666,31 @@
           <span class="r-dots">{{#each dots}}<a class="r-dot r-cr-dot is-{{state}}" data-action="dot" data-kind="{{kind}}" data-key="{{key}}" data-n="{{n}}"></a>{{/each}}</span>
           {{#if removable}}<a class="r-cr-disc-drop" data-action="dropDisc" data-key="{{key}}" data-tooltip="{{localize 'VTM20.Creator.DropDisc'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
         </div>
+        {{!-- магия крови: основной путь — списком (в узкой карточке плитки слишком высоки) --}}
+        {{#if pathChoices.length}}<label class="r-f r-cr-disc-path"><span>{{#if kraina}}{{localize "VTM20.Creator.KrainaPrimary"}}{{else}}{{localize "VTM20.Creator.PrimaryPath"}}{{/if}}</span>
+          <select data-field="paths.{{key}}" data-list>{{#each pathChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}} data-tooltip="{{tip}}">{{label}}</option>{{/each}}</select></label>{{/if}}
+        {{!-- краины V20 Dark Ages: точки Колдовства делятся между краинами; основной — остаток (creator/calc.mjs → krainaSplit) --}}
+        {{#if kraina}}<div class="r-cr-kraina">
+          <div class="r-cr-kraina-head"><span>{{localize "VTM20.Creator.Krainas"}}</span>
+            <em data-tooltip="{{localize 'VTM20.Creator.KrainaNote'}}">{{localize "VTM20.Creator.KrainaTotal" n=kraina.total}}</em></div>
+          <div class="r-cr-kraina-row is-main" data-tooltip="{{kraina.main.tip}}">
+            <span class="r-cr-kraina-name">{{kraina.main.name}}</span>
+            <span class="r-dots">{{#each kraina.main.dots}}<span class="r-dot{{#if on}} is-filled{{/if}}"></span>{{/each}}</span>
+          </div>
+          {{#each kraina.rows}}
+          <div class="r-cr-kraina-row" data-tooltip="{{tip}}">
+            <span class="r-cr-kraina-name">{{name}}</span>
+            <span class="r-dots">{{#each dots}}<span class="r-dot{{#if on}} is-filled{{/if}}"></span>{{/each}}</span>
+            <a class="r-step" data-action="krPath" data-disc="{{../key}}" data-name="{{name}}" data-d="-1">−</a>
+            <a class="r-step" data-action="krPath" data-disc="{{../key}}" data-name="{{name}}" data-d="1">+</a>
+          </div>
+          {{/each}}
+          {{#if kraina.canGive}}{{#if kraina.add.length}}<label class="r-f r-cr-disc-path"><span>{{localize "VTM20.Creator.KrainaAdd"}}</span>
+            <select data-field="krAdd.{{key}}" data-list><option value="">—</option>{{#each kraina.add}}<option value="{{value}}" data-tooltip="{{tip}}">{{label}}</option>{{/each}}</select></label>{{/if}}{{/if}}
+        </div>{{/if}}
+        {{!-- ритуалы при создании: V20 — один 1-го уровня, Тёмные века — по ритуалу за точку (creator/calc.mjs → ritualSlots) --}}
+        {{#if ritualSlots.length}}<div class="r-cr-disc-rituals">{{#each ritualSlots}}<label class="r-f r-cr-disc-path"><span>{{localize "VTM20.Creator.RitualSlot" n=(rRoman max)}}</span>
+          <select data-field="rituals.{{../key}}.{{i}}" data-list><option value="">—</option>{{#each groups}}<optgroup label="{{localize 'VTM20.Creator.RitualLevel' n=(rRoman level)}}">{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>{{/each}}</div>{{/if}}
         <ol class="r-cr-powers">
           {{#each powers}}<li class="{{#if owned}}is-owned{{/if}}"{{#if tip}} data-tooltip="{{tip}}"{{/if}}><span>{{rRoman level}}</span> {{rName this}}</li>{{/each}}
           {{#if pathed}}<li class="r-note r-explain">{{localize "VTM20.Creator.PathedNote"}}</li>{{/if}}
@@ -660,8 +698,6 @@
       </div>
       {{/each}}
     </div>
-    {{> crExtraDisc}}
-    {{> crAddDisc}}
     {{/if}}
 
     {{!-- V. Дары Гару (W20, гл. 3): три Дара 1-го уровня по ячейкам; сверх — свои Дары 1-го уровня за бонусные очки --}}
@@ -1017,6 +1053,30 @@
         {{/each}}
       </div>
       {{/each}}
+      {{!-- Тёмные века: пути магии крови (4 за точку) и ритуалы (по уровню) — не выше рейтинга Дисциплины --}}
+      {{#each bloodMagic}}
+      <div class="r-cr-free-group"><h3 class="r-h3">{{name}} <small class="r-cr-price">{{#if xp}}{{#if ritualsHere}}{{localize "VTM20.Creator.BmPriceXp" n=rating}}{{else}}{{localize "VTM20.Creator.BmPriceXpV20" n=rating}}{{/if}}{{else}}{{localize "VTM20.Creator.BmPrice" n=rating}}{{/if}}</small></h3>
+        {{#each paths}}
+        <div class="r-trait-main has-add{{#if ../xp}} is-xp{{/if}}">
+          <span class="r-trait-label">{{name}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
+          <a class="r-step" data-action="bmPath" data-mode="{{../mode}}" data-disc="{{../key}}" data-name="{{name}}" data-d="-1">−</a>
+          <a class="r-step" data-action="bmPath" data-mode="{{../mode}}" data-disc="{{../key}}" data-name="{{name}}" data-d="1">+</a>
+          <span class="r-cr-added{{#if ../xp}} is-xp{{/if}}">{{cost}}</span>
+        </div>
+        {{/each}}
+        {{#if pathAdd.length}}<label class="r-f r-cr-disc-path"><span>{{localize "VTM20.Creator.BmAddPath"}}</span>
+          <select data-field="{{#if xp}}xbmPath{{else}}bmPath{{/if}}.{{key}}" data-list><option value="">—</option>{{#each pathAdd}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>{{/if}}
+        {{#each rituals}}
+        <div class="r-trait-main has-add{{#if ../xp}} is-xp{{/if}}">
+          <span class="r-trait-label">{{rRoman level}} · {{name}}</span><span class="r-leader"></span>
+          <a class="r-step" data-action="bmRitDrop" data-mode="{{../mode}}" data-disc="{{../key}}" data-name="{{name}}">−</a>
+          <span class="r-cr-added{{#if ../xp}} is-xp{{/if}}">{{cost}}</span>
+        </div>
+        {{/each}}
+        {{#if ritualAdd.length}}<label class="r-f r-cr-disc-path"><span>{{localize "VTM20.Creator.BmAddRitual"}}</span>
+          <select data-field="{{#if xp}}xbmRit{{else}}bmRit{{/if}}.{{key}}" data-list><option value="">—</option>{{#each ritualAdd}}<optgroup label="{{localize 'VTM20.Creator.RitualLevel' n=(rRoman level)}}">{{#each options}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>{{/if}}
+      </div>
+      {{/each}}
     </div>
     {{/if}}
 
@@ -1039,6 +1099,30 @@
           <span class="r-cr-added is-xp">{{#if added}}+{{added}}{{/if}}</span>
         </div>
         {{/each}}
+      </div>
+      {{/each}}
+      {{!-- магия крови за опыт: новый путь 7, далее текущее × 4; ритуал — уровень × 2 (только Тёмные века) --}}
+      {{#each xpBloodMagic}}
+      <div class="r-cr-free-group"><h3 class="r-h3">{{name}} <small class="r-cr-price">{{#if xp}}{{#if ritualsHere}}{{localize "VTM20.Creator.BmPriceXp" n=rating}}{{else}}{{localize "VTM20.Creator.BmPriceXpV20" n=rating}}{{/if}}{{else}}{{localize "VTM20.Creator.BmPrice" n=rating}}{{/if}}</small></h3>
+        {{#each paths}}
+        <div class="r-trait-main has-add{{#if ../xp}} is-xp{{/if}}">
+          <span class="r-trait-label">{{name}}</span><span class="r-leader"></span><b class="r-cr-val">{{value}}</b>
+          <a class="r-step" data-action="bmPath" data-mode="{{../mode}}" data-disc="{{../key}}" data-name="{{name}}" data-d="-1">−</a>
+          <a class="r-step" data-action="bmPath" data-mode="{{../mode}}" data-disc="{{../key}}" data-name="{{name}}" data-d="1">+</a>
+          <span class="r-cr-added{{#if ../xp}} is-xp{{/if}}">{{cost}}</span>
+        </div>
+        {{/each}}
+        {{#if pathAdd.length}}<label class="r-f r-cr-disc-path"><span>{{localize "VTM20.Creator.BmAddPath"}}</span>
+          <select data-field="{{#if xp}}xbmPath{{else}}bmPath{{/if}}.{{key}}" data-list><option value="">—</option>{{#each pathAdd}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>{{/if}}
+        {{#each rituals}}
+        <div class="r-trait-main has-add{{#if ../xp}} is-xp{{/if}}">
+          <span class="r-trait-label">{{rRoman level}} · {{name}}</span><span class="r-leader"></span>
+          <a class="r-step" data-action="bmRitDrop" data-mode="{{../mode}}" data-disc="{{../key}}" data-name="{{name}}">−</a>
+          <span class="r-cr-added{{#if ../xp}} is-xp{{/if}}">{{cost}}</span>
+        </div>
+        {{/each}}
+        {{#if ritualAdd.length}}<label class="r-f r-cr-disc-path"><span>{{localize "VTM20.Creator.BmAddRitual"}}</span>
+          <select data-field="{{#if xp}}xbmRit{{else}}bmRit{{/if}}.{{key}}" data-list><option value="">—</option>{{#each ritualAdd}}<optgroup label="{{localize 'VTM20.Creator.RitualLevel' n=(rRoman level)}}">{{#each options}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>{{/each}}</select></label>{{/if}}
       </div>
       {{/each}}
     </div>
@@ -1097,7 +1181,7 @@
       {{#if isVampire}}
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Details.generation"}}</span><b>{{rRoman generation}}</b></div>
       <div class="r-cr-sum-item"><span>{{localize "VTM20.Sheet.BloodPool"}}</span><b>{{#if st.blood}}{{st.blood}}{{else}}?{{/if}}/{{bloodMax}}</b>
-        <a class="r-btn" data-action="rollBlood"><i class="fa-solid fa-dice-d10"></i> 1d10</a></div>
+        <a class="r-btn" data-action="rollBlood"{{#if darkAges}} data-tooltip="{{localize 'VTM20.Creator.BloodRollDA'}}"{{/if}}><i class="fa-solid fa-dice-d10"></i> 1d10{{#if bloodPlus}} + {{bloodPlus}}{{/if}}</a></div>
       {{/if}}
     </div>
     <div class="r-cr-sumgrid">
@@ -1106,6 +1190,9 @@
       {{#if isHunter}}{{#unless isLost}}<div><h4 class="r-h4">{{localize "VTM20.Hunter.Edges"}}</h4>{{#each summary.edges}}<div class="r-cr-sumrow"><span>{{name}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/unless}}{{/if}}
       {{#if isWerewolf}}<div><h4 class="r-h4">{{localize "VTM20.GarouCr.Gifts"}}</h4>{{#each summary.gifts}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{rRoman level}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{else}}
       <div><h4 class="r-h4">{{discLabel}}</h4>{{#each summary.discs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>{{/if}}
+      {{!-- магия крови: пути и ритуалы, которые лягут на лист --}}
+      {{#if summary.magic.length}}<div><h4 class="r-h4">{{localize "VTM20.Creator.BloodPaths"}}</h4>{{#each summary.magic}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/if}}
+      {{#if summary.rituals.length}}<div><h4 class="r-h4">{{localize "VTM20.Creator.Rituals"}}</h4>{{#each summary.rituals}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>{{/if}}
       <div><h4 class="r-h4">{{bgLabel}}</h4>{{#each summary.bgs}}<div class="r-cr-sumrow"><span>{{rName this}}</span><b>{{value}}</b></div>{{else}}<div class="r-note">—</div>{{/each}}</div>
       <div><h4 class="r-h4">{{virtLabel}}</h4>{{#each summary.virtues}}<div class="r-cr-sumrow"><span>{{label}}</span><b>{{value}}</b></div>{{/each}}</div>
       {{#if isWraith}}

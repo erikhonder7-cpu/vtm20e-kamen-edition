@@ -440,10 +440,12 @@ function gearLine(kind, p) {
   if (kind === "armor") return `${loc("VTM20.Armor.rating")} ${p.rating}${p.penalty ? ` · ${loc("VTM20.Armor.penalty")} −${p.penalty}` : ""}`;
   return p.quantity > 1 ? `×${p.quantity}` : "";
 }
+// в эпохе Тёмных веков — только снаряжение 1242 года (без пистолетов 1789 и бронежилетов нашего времени)
+const eraFits = p => !VTM20.isDarkAges() || p.era === "darkAges";
 const equip = (kind, list) => ({
   entries() {
-    const groups = [...new Set(list.filter(p => Codex.visible(p)).map(p => p.group))];
-    return list.map((p, i) => [p, i]).filter(([p]) => Codex.visible(p)).map(([p, i]) => ({
+    const groups = [...new Set(list.filter(p => Codex.visible(p) && eraFits(p)).map(p => p.group))];
+    return list.map((p, i) => [p, i]).filter(([p]) => Codex.visible(p) && eraFits(p)).map(([p, i]) => ({
       id: String(i), name: p.name, order: i, group: p.group, groupName: p.group, groupOrder: groups.indexOf(p.group),
       text: `<p><em>${esc(gearLine(kind, p))}</em></p>${p.description ?? ""}`, tags: p.source ? [{ label: p.source }] : []
     }));
@@ -473,7 +475,9 @@ const moralPath = {
   entries(a, o) {
     const cur = o.current ?? a?.system?.morality?.path ?? "humanity", shift = o.mode === "shift";
     const groupName = { humanity: loc("VTM20.Humanity"), v20: loc("VTM20.Sheet.EnlightenmentPaths"), da: loc("VTM20.Library.Filter.DarkAges"), fan: loc("VTM20.Library.Filter.Src.fan") };
-    return Codex.paths.filter(p => (Codex.visible(p) || p.key === cur) && !(shift && p.key === "humanity")).map((p, i) => {
+    // Тёмные века у вампира (лист или мастер): только Дороги эпохи — V20 и Тёмные века разведены
+    const daOnly = VTM20.isDarkAges() && (a ? a.type === "vampire" : !!o.onPick);
+    return Codex.paths.filter(p => ((Codex.visible(p) && (!daOnly || p.era === "darkAges")) || p.key === cur) && !(shift && p.key === "humanity")).map((p, i) => {
       const g = p.key === "humanity" ? "humanity" : p.fan ? "fan" : p.era ? "da" : "v20";
       const virt = (p.virtues ?? []).map(v => loc(VTM20.virtues[v]?.label ?? v)).join(" · ");
       const sins = [...(p.hierarchy ?? [])].sort((x, y) => y.rating - x.rating);
@@ -491,7 +495,8 @@ const moralPath = {
       const text = `<div class="r-mp-meta">${meta}</div>${html}${sins.length ? `<div class="r-mp-sins-h">${P("MoralPath.Sins")}</div>
         <ol class="r-mp-sins">${sins.map(s => `<li><b>${s.rating}</b><span>${esc(s.sin)}</span></li>`).join("")}</ol>` : ""}`;
       return { id: p.key, name: p.name, en: p.en, order: i, group: g, groupName: groupName[g], groupOrder: PATH_GROUPS.indexOf(g),
-        has: p.key === cur, reasons: shift && a ? pathBlockers(a, p) : [],
+        // Дорога-родитель без своей иерархии (Дорога Небес V20 DA): выбирается один из её Путей
+        has: p.key === cur, reasons: [...(shift && a ? pathBlockers(a, p) : []), ...(p.roadOnly ? [P("MoralPath.RoadOnly")] : [])],
         tags: [p.source && p.source !== "V20" && { label: p.source }].filter(Boolean), text };
     });
   },
@@ -512,7 +517,7 @@ const archetype = {
   takeLabel: () => P("Arch.As"),
   entries(a, o) {
     const cur = o.current ?? { nature: a?.system?.details?.nature ?? "", demeanor: a?.system?.details?.demeanor ?? "" };
-    return (Codex.archetypes ?? []).map((x, i) => ({
+    return (Codex.archetypesFor(a?.type ?? o.type) ?? []).map((x, i) => ({
       id: String(i), name: x.name, en: x.en, order: i,
       text: x.regain ? `<p><i class="fa-solid fa-star"></i> <b>${P("Arch.Regain")}:</b> ${esc(x.regain).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")}</p>` : "",
       tags: [cur.nature === x.name && { label: loc("VTM20.Details.nature"), red: true }, cur.demeanor === x.name && { label: loc("VTM20.Details.demeanor") }].filter(Boolean),
@@ -520,7 +525,7 @@ const archetype = {
     }));
   },
   async take(a, id, opts = {}, o = {}) {
-    const x = Codex.archetypes?.[Number(id)], field = opts.value === 2 ? "demeanor" : "nature";
+    const x = Codex.archetypesFor(a?.type ?? o.type)?.[Number(id)], field = opts.value === 2 ? "demeanor" : "nature";
     if (!x) return null;
     if (o.onPick) { o.onPick(x.name, field); if (o.current) o.current[field] = x.name; return null; }
     return a?.update({ [`system.details.${field}`]: x.name });

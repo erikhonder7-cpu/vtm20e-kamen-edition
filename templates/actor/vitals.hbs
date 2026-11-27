@@ -55,6 +55,7 @@
       {{#if wraithInfo}}<a class="r-vc-btn" data-action="wrHeal" data-tooltip="{{#if spectre}}{{localize 'VTM20.Wraith.Spectre.HealHint'}}{{else}}{{localize 'VTM20.Wraith.HealHint'}}{{/if}}"><i class="fa-solid fa-hand-sparkles"></i> {{#if spectre}}{{localize "VTM20.Wraith.Spectre.HealShort"}}{{else}}{{localize "VTM20.Wraith.HealShort"}}{{/if}}</a>
       {{#if editable}}<select name="system.wraith.state" class="r-mini-select" data-tooltip="{{localize 'VTM20.Wraith.StateHint'}}">{{#each wraithInfo.states}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}{{/if}}
       {{#if hasBlood}}<a class="r-vc-btn" data-action="bloodHeal" data-type="aggravated" data-tooltip="{{localize 'VTM20.Sheet.HealAggHint'}}"><i class="fa-solid fa-droplet"></i> {{localize "VTM20.Sheet.HealAggShort"}}</a>{{/if}}
+      {{#if lifelike}}<a class="r-vc-btn {{#if lifelike.on}}is-on{{/if}}" data-action="lifelike" data-tooltip="{{localize 'VTM20.Sheet.LifelikeHint' n=lifelike.cost}}"><i class="fa-solid fa-heart-pulse"></i> {{localize "VTM20.Sheet.Lifelike"}}</a>{{/if}}
       <span class="r-vc-hint" data-tooltip="{{localize 'VTM20.Sheet.SoakHint'}}"><i class="fa-solid fa-shield-halved"></i> {{soak.bashing}}/{{soak.lethal}}/{{soak.aggravated}}</span>
     </div>
   </div>
@@ -364,7 +365,7 @@
     </div>
     {{#if mortalKind.bars.length}}<div class="r-mk-bars is-{{mortalKind.key}}">{{#each mortalKind.bars}}<div class="r-virtue"><span class="r-trait-label">{{label}}</span><span class="r-virtue-dots">{{> rDots dots=dots cls="is-ten is-small"}}</span></div>{{/each}}</div>{{/if}}
     <div class="r-vc-tools">
-      <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Sheet.BearingHint'}}">{{localize "VTM20.Sheet.Bearing"}}: <b>{{bearing.name}}</b> {{bearing.mod}}</span>
+      <span class="r-vc-hint is-left" data-tooltip="{{localize 'VTM20.Sheet.BearingHint'}}">{{bearing.label}}: <b>{{bearing.name}}</b> {{bearing.mod}}</span>
       {{#if isMortal}}{{#if editable}}<a class="r-vc-btn is-sq" data-action="thrallPact" data-tooltip="{{localize 'VTM20.Demon.PactExistingBtn'}}"><i class="fa-solid fa-handshake-angle"></i></a>
       <a class="r-vc-btn is-sq" data-action="ghoulify" data-tooltip="{{localize 'VTM20.Ghoulify.Btn'}}"><i class="fa-solid fa-droplet"></i></a>
       <a class="r-vc-btn is-sq {{#if system.ebServant.empowerments}}is-on{{/if}}" data-action="ebServant" data-tooltip="{{localize 'VTM20.EbServant.BtnHint'}}"><i class="fa-solid fa-gem"></i></a>{{/if}}

@@ -22,7 +22,7 @@ import { openSceneNexus, refreshSceneNexus, execSceneTeleport, SceneNexus } from
 import { NEXUS_SCOPE } from "./module/constants/scene-nexus.mjs";
 import {
   NightCalendar, openCalendar, refreshCalendar, startNightClock, announceTime, registerNightExtras, checkDawn,
-  getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate
+  getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate, longDate
 } from "./module/apps/calendar.mjs";
 import { initTopBar, removeTopBar, refreshTopBar, paintClockBar } from "./module/ui/topbar.mjs";
 import { registerHud, renderHud } from "./module/ui/hud.mjs";
@@ -95,7 +95,7 @@ Hooks.once("init", () => {
     openHunt, nightfall, endScene, endStory, openAttack, openDefense, openHazard, openDiablerie, renderHud,
     openLibrary, openNpcGenerator, openClans, openLoreSearch, myNight: () => import("./module/apps/night.mjs").then(x => x.myNight()), openAtlas: (line, key) => import("./module/apps/atlas.mjs").then(x => x.openAtlas(line, key)),
     openWorkshop: (actor, mode) => import("./module/apps/thaum-workshop.mjs").then(x => x.openWorkshop(actor, mode)), openBoons, openDowntime, openSessionXp, openSessionPanel, newSession: newSessionAll, openCourt, openWeb, openCoterie, openChronicle, giveHandout, money: Money, openCity, closeCity, toggleCity, cityMap,
-    openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate,
+    openSceneNexus, openCalendar, announceTime, getClock, getDate, stamp, clockBarData, nightPhase, moonPhase, republicanDate, longDate,
     apps: { SceneNexus, NightCalendar }
   };
 
@@ -139,6 +139,8 @@ Hooks.once("init", () => {
     { id: "r-harano", name: S("harano"), img: "icons/svg/downgrade.svg" },
     { id: "r-rotschreck", name: S("rotschreck"), img: "icons/svg/terror.svg" },
     { id: "r-rapture", name: S("rapture"), img: "icons/svg/aura.svg" },
+    // Видимость жизни (V20, гл. 5; V20 Dark Ages) — до конца сцены
+    { id: "r-lifelike", name: S("lifelike"), img: "icons/svg/heal.svg" },
     { id: "r-torpor", name: S("torpor"), img: "icons/svg/sleep.svg" },
     // призрак в Испытании (Wraith 20, гл. 6) — до исхода броска выхода
     { id: "r-harrowing", name: S("harrowing"), img: "icons/svg/skull.svg" },
@@ -544,6 +546,13 @@ function registerSettings() {
   // снимок персонажей на начало ночи — для «Итогов ночи» (apps/night.mjs)
   game.settings.register(SYSTEM_ID, "nightSnapshot", { scope: "world", config: false, type: Object, default: {} });
   game.settings.register(SYSTEM_ID, "tokenLinkAll", { scope: "world", config: false, type: Boolean, default: false });
+  // Летоисчисление хроники (apps/calendar.mjs → longDate): от Рождества Христова или от сотворения мира (византийская эра)
+  game.settings.register(SYSTEM_ID, "reckoning", {
+    name: "VTM20.Settings.Reckoning.Name", hint: "VTM20.Settings.Reckoning.Hint",
+    scope: "world", config: true, type: String, default: "ad",
+    choices: { ad: "VTM20.Settings.Reckoning.ad", am: "VTM20.Settings.Reckoning.am" },
+    onChange: () => { for (const app of foundry.applications.instances.values()) if (app.rendered) app.render(); }
+  });
   game.settings.register(SYSTEM_ID, "era", {
     name: "VTM20.Settings.Era.Name", hint: "VTM20.Settings.Era.Hint",
     scope: "world", config: true, type: String, default: "revolution",
@@ -555,6 +564,15 @@ function registerSettings() {
   // Пути, ритуалы и черты Тёмных веков (era = "darkAges" в data/*.json) — отдельный переключатель, не зависит от эпохи
   game.settings.register(SYSTEM_ID, "darkAgesContent", {
     name: "VTM20.Settings.DarkAges.Name", hint: "VTM20.Settings.DarkAges.Hint",
+    scope: "world", config: true, type: Boolean, default: false,
+    onChange: () => {
+      for (const app of foundry.applications.instances.values()) if (app.rendered) app.render();
+    }
+  });
+  // «Vampire: Age of the Living Gods» (фанатское): Дисциплина Мортис, Пути, Способности и Статусы — по умолчанию скрыты
+  // в любой эпохе; включённые видны и в V20, и в Тёмных веках (Codex.visible, пометка alg)
+  game.settings.register(SYSTEM_ID, "livingGodsContent", {
+    name: "VTM20.Settings.LivingGods.Name", hint: "VTM20.Settings.LivingGods.Hint",
     scope: "world", config: true, type: Boolean, default: false,
     onChange: () => {
       for (const app of foundry.applications.instances.values()) if (app.rendered) app.render();

@@ -197,7 +197,7 @@ function core(ctx, rules) {
   // факты биографии своей линии: 1–3 разных (у бывалых — больше), любимые роли — чаще
   const seen = new Set();
   const pool = Codex.backgrounds.filter(b => !b.sabbat && (!b.sect || b.sect === rules.sect) && b.en !== "Generation" && Codex.visible(b) && VTM20.backgroundAllowed(b, rules.bgType ?? "mortal")
-    && (!b.dhampir || rules.dhampir) && !seen.has(b.name) && seen.add(b.name));
+    && (!b.dhampir || rules.dhampir) && !(daBgOf(rules) && !b.line && !b.alg && !b.ghoul && !daBgOf(rules).has(b.en)) && !seen.has(b.name) && seen.add(b.name));
   const total = Math.max(0, (rules.bg ?? 5) + power.add.bg);
   const chosen = pickN(pool, Math.min(total, (total >= 4 ? 2 : 1) + Math.floor(Math.random() * 2) + (power.tier >= 3 ? 1 : 0)), b => 1 + (role?.bg[b.en] ?? 0) * 3);
   const bgs = Object.fromEntries(chosen.map(b => [b.name, 1]));
@@ -206,8 +206,8 @@ function core(ctx, rules) {
 }
 
 /** Данные листа из общей части. */
-function baseSystem(ctx, c, { concept, morality = true } = {}) {
-  const archetypes = Codex.archetypes?.length ? Codex.archetypes : [{ name: "" }];
+function baseSystem(ctx, c, { concept, morality = true, type } = {}) {
+  const list = Codex.archetypesFor(type), archetypes = list?.length ? list : [{ name: "" }];
   const sys = {
     attributes: Object.fromEntries(Object.entries(c.attrs).map(([k, v]) => [k, { value: v }])),
     abilities: Object.fromEntries(Object.entries(c.abils).map(([k, v]) => [k, { value: v }])),
@@ -223,6 +223,8 @@ function baseSystem(ctx, c, { concept, morality = true } = {}) {
 const bgItems = c => Object.entries(c.bgs).filter(([, v]) => v > 0).map(([n, v]) => LibraryItems.background(c.chosen.find(b => b.name === n) ?? { name: n }, v));
 const bgView = c => Object.entries(c.bgs).filter(([, v]) => v > 0).map(([n, v]) => ({ label: VTM20.label(c.chosen.find(b => b.name === n) ?? { name: n }), v }));
 
+/** Факты V20 DA (data/dark-ages.json) — в Тёмных веках у всех, кто берёт общие Факты V20 (вампир, гуль, смертный). */
+const daBgOf = rules => rules.daBg ?? (VTM20.isDarkAges() ? new Set((Codex["dark-ages"]?.backgrounds ?? []).map(b => b.en)) : null);
 /** Дисциплины: dots точек по списку (веса роли), до cap; сверх — бонус до cap2. */
 function discs(list, role, dots, cap, bonus = 0, cap2 = cap, start = {}) {
   const out = { ...start };
@@ -231,25 +233,42 @@ function discs(list, role, dots, cap, bonus = 0, cap2 = cap, start = {}) {
   if (bonus > 0) spread(list, bonus, cap2, w, out);
   return Object.fromEntries(Object.entries(out).filter(([, v]) => v > 0));
 }
-const discItems = d => Object.entries(d).flatMap(([k, v]) => {
+const discItems = (d, clan = "") => Object.entries(d).flatMap(([k, v]) => {
   const items = [LibraryItems.discipline(k, v)];
-  const firstPath = { thaumaturgy: "Путь Крови", necromancy: "Путь Склепа" }[k];
-  if (firstPath) items.push({ name: firstPath, type: "thaumPath", img: Codex.disciplineIcon(k), system: { discipline: k, value: Math.min(5, v), primary: true, description: Codex.bloodPath(k, firstPath)?.html ?? "" } });
+  // первый путь — как в мастере (data/codex.mjs → defaultBloodPath): в Тёмных веках у Тремера малый путь, у Некромантии — путь клана
+  const firstPath = ["thaumaturgy", "necromancy"].includes(k) ? Codex.defaultBloodPath(k, clan) : null;     // как в мастере (data/codex.mjs)
+  if (firstPath) items.push({ name: firstPath.name, type: "thaumPath", img: Codex.disciplineIcon(k), system: { discipline: k, value: Math.min(5, v), primary: true, description: firstPath.html ?? "" } });
   return items;
 });
 const discView = d => Object.entries(d).map(([k, v]) => ({ label: Codex.disciplineLabel(k), v }));
 
 /** Клан: главные кланы чаще, линии крови и антитрибу — реже. */
+/**
+ * Дорога вампира Тёмных веков (V20 Dark Ages, гл. 2): чаще всего — Дорога Человечности; иначе одна из Дорог книги
+ * (с её «тропами»). Доля Человечности — правило системы: книга называет её самой распространённой, но чисел не даёт.
+ */
+function daRoad() {
+  const roads = Codex.paths.filter(p => p.era === "darkAges" && Codex.visible(p) && !p.roadOnly);
+  const human = roads.find(p => p.key === "dorogaChelovechnosti");
+  if (human && Math.random() < .55) return human.key;
+  return (roads.length ? pick(roads) : human)?.key ?? "humanity";
+}
 function randomClan(role) {
   const groups = Codex.clanGroups();
   const list = groups.flatMap(g => g.clans.filter(c => Codex.visible(c)).map(c => [c.key, (g.key === "clan" ? 6 : g.key === "bloodline" ? 1.2 : .7)
     * (1 + (c.disciplines ?? []).reduce((s, d) => s + (role?.disc[d] ?? 0), 0) * .25)]));
   return wpick(list);
 }
-function clanDisciplines(clanKey) {
+function clanDisciplines(clanKey, out = {}) {
   const c = Codex.clan(clanKey);
   const list = [...(c?.disciplines ?? [])];
-  if (c?.choice?.length) list.push(pick(c.choice));
+  if (c?.choice?.includes("original")) {
+    // «две Дисциплины исходного клана» (Дети Осириса, Киасиды в V20 Dark Ages): случайный клан и две его Дисциплины
+    const o = pick(Codex.clans.filter(x => x.group === "clan" && x.disciplines.length >= 2 && x.key !== clanKey));
+    const two = pickN(o.disciplines, 2, () => 1);
+    Object.assign(out, { clanOrigin: o.key, originDisciplines: two });
+    list.push(...two);
+  } else if (c?.choice?.length) list.push(pick(c.choice));
   return list.length ? list : ["animalism", "auspex", "celerity", "dominate", "fortitude", "obfuscate", "potence", "presence"];
 }
 const SECT_OF = { sabbat: /antitribu|lasombra|tzimisce|pander|^serpentsOfTheLight/i, independent: /giovanni|setite|followersOfSet|assamite|ravnos|cappadoc/i };
@@ -258,22 +277,25 @@ const SECT_OF = { sabbat: /antitribu|lasombra|tzimisce|pander|^serpentsOfTheLigh
 
 const BUILD = {
   vampire(ctx, p) {
-    const clan = p.clan || randomClan(ctx.role), ugly = VTM20.uglyClans.includes(clan);
-    const gen = Number(p.generation) || Math.clamp(ctx.power.gen + (Math.random() < .5 ? 1 : 0), 4, 13);
+    const clan = p.clan || randomClan(ctx.role), ugly = VTM20.uglyClans.includes(clan), da = VTM20.isDarkAges();
+    // V20 Dark Ages: поколение не младше 12-го, сект ещё нет, 4 точки Дисциплин, Дорога вместо Человечности (гл. 1)
+    const gen = Number(p.generation) || Math.clamp(ctx.power.gen + (Math.random() < .5 ? 1 : 0), 4, VTM20.baseGeneration());
     const trait = VTM20.generationOf(gen).trait;
     // секта — до фактов биографии: сектантские факты (Статус анархов…) — только своей секты
-    const sect = p.sect || (SECT_OF.sabbat.test(clan) ? "sabbat" : SECT_OF.independent.test(clan) ? wpick([["independent", 4], ["camarilla", 1], ["anarchs", 1]])
+    const sect = da ? "" : p.sect || (SECT_OF.sabbat.test(clan) ? "sabbat" : SECT_OF.independent.test(clan) ? wpick([["independent", 4], ["camarilla", 1], ["anarchs", 1]])
       : wpick([["camarilla", 5], ["anarchs", 2], ["sabbat", 1], ["independent", .5]]));
-    const c = core(ctx, { attr: [7, 5, 3], abil: [13, 9, 5], virt: 7, bg: 5, ugly, attrCap: trait, bgType: "vampire", sect });
-    const list = clanDisciplines(clan);
+    const c = core(ctx, { attr: [7, 5, 3], abil: [13, 9, 5], virt: 7, bg: 5, ugly, attrCap: trait, bgType: "vampire", sect,
+      daBg: da ? new Set((Codex["dark-ages"]?.backgrounds ?? []).map(b => b.en)) : null });
+    const origin = {}, list = clanDisciplines(clan, origin);
     // у бывалых — и Дисциплина вне клана, из любимых роли
     if (ctx.power.tier >= 3) { const extra = Object.keys(ctx.role?.disc ?? {}).filter(k => !list.includes(k) && Codex.discipline(k)); if (extra.length) list.push(pick(extra)); }
-    const d = discs(list, ctx.role, 3, 3, Math.max(0, ctx.power.add.power), Math.min(5, trait));
+    const d = discs(list, ctx.role, da ? VTM20.darkAgesCreation().disciplines : 3, 3, Math.max(0, ctx.power.add.power), Math.min(5, trait));
     const pool = VTM20.generationOf(gen).pool, clanName = Codex.clanName(clan);
-    const sys = { ...baseSystem(ctx, c, { concept: `${ctx.concept} · ${clanName}` }), clan, generation: gen, blood: { value: Math.max(1, Math.ceil(pool * (.4 + Math.random() * .6))) } };
-    sys.details.sect = loc(`VTM20.Sect.${sect}`);
-    const items = [...discItems(d), ...bgItems(c)];
-    const genDots = Math.min(5, Math.max(0, 13 - gen)), genBg = Codex.backgrounds.find(b => b.en === "Generation");
+    const sys = { ...baseSystem(ctx, c, { concept: `${ctx.concept} · ${clanName}`, type: "vampire" }), clan, ...origin, generation: gen, blood: { value: Math.max(1, Math.ceil(pool * (.4 + Math.random() * .6))) } };
+    sys.details.sect = sect ? loc(`VTM20.Sect.${sect}`) : "";
+    if (da) sys.morality.path = daRoad(clan);
+    const items = [...discItems(d, clan), ...bgItems(c)];
+    const genDots = Math.min(5, Math.max(0, VTM20.baseGeneration() - gen)), genBg = Codex.backgrounds.find(b => b.en === "Generation");
     if (genDots && genBg) items.push(LibraryItems.background(genBg, genDots));
     if (/^malkavian/.test(clan)) {   // клановый изъян — неизлечимое расстройство: настоящее из справочника, при пустом справочнике — заглушка
       const dr = (Codex.derangements ?? []).length ? pick(Codex.derangements) : null;
@@ -281,8 +303,8 @@ const BUILD = {
         : { name: t("Creator.MalkDerangement"), type: "derangement", img: ICON("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
     }
     return { actor: "vampire", img: "vampire", system: sys, items, c, powers: discView(d), powersLabel: t("NpcGen.Disciplines"),
-      traits: [[t("NpcGen.Generation"), `${gen}-е`], [t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent], [t("NpcGen.BloodPool"), `${sys.blood.value}/${pool}`]],
-      tags: [clanName, loc(`VTM20.Sect.${sect}`)] };
+      traits: [[t("NpcGen.Generation"), `${gen}-е`], [da ? Codex.path(sys.morality.path)?.name ?? t("Humanity") : t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent], [t("NpcGen.BloodPool"), `${sys.blood.value}/${pool}`]],
+      tags: [clanName, sect ? loc(`VTM20.Sect.${sect}`) : ""].filter(Boolean) };
   },
 
   ghoul(ctx, p) {
@@ -292,7 +314,7 @@ const BUILD = {
     const domGen = ctx.power.tier >= 4 ? 6 : ctx.power.tier >= 3 ? 7 : 10, cap = domGen >= 8 ? 1 : domGen === 7 ? 2 : 3;
     const list = type === "vassal" ? ["potence", ...clanDisciplines(clan)] : ["potence", "fortitude", "celerity", "auspex", "presence", "obfuscate", "dominate", "animalism"];
     const d = discs(list, ctx.role, 1, cap, Math.max(0, ctx.power.add.power), cap, { potence: 1 });
-    const sys = { ...baseSystem(ctx, c), ghoulType: type, domitorClan: type === "vassal" ? Codex.clanName(clan) : "", domitorGeneration: domGen, blood: { value: 1 + Math.floor(Math.random() * 2), max: 2 } };
+    const sys = { ...baseSystem(ctx, c, { type: "ghoul" }), ghoulType: type, domitorClan: type === "vassal" ? Codex.clanName(clan) : "", domitorGeneration: domGen, blood: { value: 1 + Math.floor(Math.random() * 2), max: 2 } };
     return { actor: "ghoul", img: "ghoul", system: sys, items: [...discItems(d), ...bgItems(c)], c, powers: discView(d), powersLabel: t("NpcGen.Disciplines"),
       traits: [[t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent], [t("NpcGen.BloodPool"), `${sys.blood.value}/2`]],
       tags: [loc(`VTM20.GhoulType.${type}`), type === "vassal" ? Codex.clanName(clan) : ""].filter(Boolean) };
@@ -348,7 +370,7 @@ const BUILD = {
 
   mortal(ctx) {
     const c = core(ctx, { attr: [6, 4, 3], abil: [11, 7, 4], virt: 7, bg: 5, bgType: "mortal" });
-    const sys = baseSystem(ctx, c);
+    const sys = baseSystem(ctx, c, { type: "mortal" });
     return { actor: "mortal", img: "mortal", system: sys, items: bgItems(c), c, powers: [], traits: [[t("Humanity"), sys.morality.value], [t("Willpower"), sys.willpower.permanent]], tags: [] };
   },
 

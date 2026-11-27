@@ -19,15 +19,15 @@ export function fitsLevel(p, level, choices = {}) {
 const takenElsewhere = (p, level, choices) => Object.entries(choices).some(([l, n]) => n === p.name && Number(l) !== level);
 
 /** Силы уровня, доступные сейчас (без Тёмных веков при выключенной настройке). */
-function levelOptions(key, level, choices = {}) {
-  return (Codex.discipline(key)?.powers ?? []).filter(p => Codex.visible(p) && fitsLevel(p, level, choices));
+function levelOptions(key, level, choices = {}, ghoulType = "") {
+  return (Codex.discipline(key)?.powers ?? []).filter(p => Codex.powerFor(p, ghoulType) && fitsLevel(p, level, choices));   // силы Богатырей — только Богатырю
 }
 
 /** Уровни до value включительно, где выбор нужен, но ещё не сделан. */
 function pendingLevels(item) {
   const s = item.system, ch = s.choices ?? {}, out = [];
   for (let lv = 1; lv <= s.value; lv++) {
-    const opts = levelOptions(s.key, lv, ch);
+    const opts = levelOptions(s.key, lv, ch, item.parent?.system?.ghoulType);
     if (opts.length > 1 && !opts.some(p => p.name === ch[lv])) out.push(lv);
   }
   return out;
@@ -37,7 +37,7 @@ function pendingLevels(item) {
 export async function choosePower(item, level) {
   await Codex.load();
   const d = Codex.discipline(item.system.key);
-  const opts = levelOptions(item.system.key, level, item.system.choices ?? {});
+  const opts = levelOptions(item.system.key, level, item.system.choices ?? {}, item.parent?.system?.ghoulType);
   if (!d || opts.length < 2) return null;
   const cur = item.system.choices?.[level];
   const L = (k, data) => data ? game.i18n.format(`VTM20.PowerChoice.${k}`, data) : game.i18n.localize(`VTM20.PowerChoice.${k}`);

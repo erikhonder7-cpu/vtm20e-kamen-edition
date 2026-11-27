@@ -369,6 +369,8 @@
 }
 .vtm20 .r-vc-btn i { font-size: 10px; color: var(--r-accent); }
 .vtm20 .r-vc-btn:hover { color: var(--r-ink); border-color: var(--r-ink-2); background: var(--r-s3); }
+/* включённое на сцену (Видимость жизни): рамка цвета линейки */
+.vtm20 .r-vc-btn.is-on { color: var(--r-ink); border-color: var(--r-accent); }
 .vtm20 .r-vc-btn.is-sq { width: 22px; padding: 0; font-family: var(--r-display); font-size: 13px; letter-spacing: 0; color: var(--r-ink); }
 .vtm20 .r-vc-btn.is-lethal:hover { background: #4a0d11; border-color: #8c1c22; color: #f1e9da; }
 .vtm20 .r-vc-btn.is-aggravated:hover { background: #8c1c22; border-color: #c4474c; color: #fff; }

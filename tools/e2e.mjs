@@ -291,7 +291,9 @@ try {
       await v.update({ "system.blood.value": 0 });
       out.drank = await N.drinkVessel(v, { n: 20, vessel: "werewolf", substance: "alcohol", dose: 3, noStop: true });
       out.dex = new RollDialog(v, { trait1: "attributes.dexterity", difficulty: 6 }).compute().breakdown.find(b => b.label.startsWith("Алкоголь"))?.value ?? 0;
-      await T.expireTimers(getClock() + 3 * 3600000 + 1000); out.sober = !v.effects.some(e => e.flags?.[SYS]?.substance);
+      // expireTimers пропускает вызов, пока идёт плановая проверка таймеров (флаг busy), — повторять, пока не снимет
+      for (let i = 0; i < 20 && v.effects.some(e => e.flags?.[SYS]?.substance); i++) { await T.expireTimers(getClock() + 3 * 3600000 + 1000); await wait(150); }
+      out.sober = !v.effects.some(e => e.flags?.[SYS]?.substance);
       // болезнь крови: заметил — не пьёт; не заметил и провалил Выносливость — «Разносчик заразы»
       await v.update({ "system.blood.value": 2 });
       await N.drinkVessel(v, { n: 2, vessel: "human", ill: true, look: { outcome: "success" } }); out.noticed = v.system.blood.value;
@@ -585,6 +587,253 @@ try {
     if (r.camarilla !== "3/5/7" || r.anarchs !== "3/5/7") throw new Error(`числа Камарильи и анархов: ${r.camarilla}, ${r.anarchs}`);
     if (r.sabbat !== "4/0/5") throw new Error(`числа Шабаша: ${r.sabbat}`);
     if (!r.banned) throw new Error("Камарилье доступно внеклановое Затмение");
+  });
+
+  // Факты гулей и ревенантов (V20 Ghouls & Revenants, data/backgrounds-ghouls.json): только гулю, не дампиру и не Сородичу;
+  // Поколение и Статус гулю закрыты, Стадо — открыто (смертному — нет)
+  await check("Мастер создания: Факты гулей из Ghouls & Revenants — в V20 и в Тёмных веках", async () => {
+    const ids = { ghoul: await temp("E2E — гуль G&R", "ghoul"), vampire: await temp("E2E — вампир G&R"), mortal: await temp("E2E — смертный G&R", "mortal") };
+    const r = await page.evaluate(async ids => {
+      const SYS = game.system.id, was = game.settings.get(SYS, "era"), out = {};
+      const { openCreator } = await import(`/systems/${SYS}/module/apps/creator.mjs`);
+      try {
+        // в обеих эпохах: V20 и Тёмные века
+        for (const era of ["modern", "darkAges"]) {
+          await game.settings.set(SYS, "era", era);
+          for (const [k, id] of Object.entries(ids)) {
+            const a = game.actors.get(id);
+            await openCreator(a); await new Promise(res => setTimeout(res, 600));
+            const cr = [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a);
+            cr.step = cr.steps.indexOf("advantages");
+            out[`${era}:${k}`] = ((await cr._prepareContext({})).bgCards ?? []).map(b => b.name);
+            await cr.close();
+          }
+        }
+      } finally { await game.settings.set(SYS, "era", was); }
+      return out;
+    }, ids);
+    const GR = ["Домитор", "Двойная жизнь", "Старший в семье", "Мажордом"];
+    const bad = [];
+    for (const era of ["modern", "darkAges"]) {
+      const g = r[`${era}:ghoul`];
+      if (!GR.every(n => g.includes(n))) bad.push(`${era}: у гуля нет ${GR.filter(n => !g.includes(n)).join(", ")}`);
+      if (["Поколение", "Статус"].some(n => g.includes(n))) bad.push(`${era}: гулю доступны Поколение или Статус`);
+      if (!g.includes("Стадо")) bad.push(`${era}: гулю недоступно Стадо`);
+      if (r[`${era}:mortal`].includes("Стадо")) bad.push(`${era}: смертному доступно Стадо`);
+      for (const k of ["vampire", "mortal"]) if (GR.some(n => r[`${era}:${k}`].includes(n))) bad.push(`${era}: Факты гулей у ${k}`);
+    }
+    if (bad.length) throw new Error(bad.join("; "));
+  });
+
+  // магия крови и линии Тёмных веков: исходный клан (Дети Осириса), Абомбве (Бонсам), пути и ритуалы за свободные пункты
+  // (Тёмные века: путь 4 за точку, ритуал — уровень) и опыт (путь 7 + текущее × 4; ритуал — уровень × 2, только Тёмные века)
+  await check("Мастер создания: исходный клан, Абомбве, пути и ритуалы за свободные пункты и опыт", async () => {
+    const id = await temp("E2E — магия крови");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), was = game.settings.get(SYS, "era"), out = {};
+      const { openCreator } = await import(`/systems/${SYS}/module/apps/creator.mjs`);
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`);
+      const open = async () => { await openCreator(a); await new Promise(res => setTimeout(res, 600));
+        return [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a); };
+      try {
+        await game.settings.set(SYS, "era", "darkAges");
+        let cr = await open();
+        // Дети Осириса: без исходного клана шаг не готов; Бруха + две его Дисциплины — клановые
+        cr.st.clan = "detiOsirisa"; cr.st.clanOrigin = ""; cr.st.originDiscs = [];
+        out.osirisBlocked = !cr.clanChoiceDone;
+        cr.st.clanOrigin = "brujah"; cr.st.originDiscs = ["potence", "presence"];
+        out.osirisDiscs = cr.baseClanDisciplines.join(",");
+        // Бонсам: Абомбве есть и клановая
+        cr.st.clan = "bonsam";
+        out.abombwe = !!Codex.discipline("abombwe") && Codex.visible(Codex.discipline("abombwe")) && cr.baseClanDisciplines.includes("abombwe");
+        // Тремер: путь за свободные пункты 2 точки (8) + ритуал I (1); за опыт путь 2 точки (11) + ритуал II (4)
+        cr.st.clan = "tremere"; cr.st.disc = { thaumaturgy: 2 }; cr.st.xpTotal = 60;
+        const paths = cr.pathOptions("thaumaturgy").map(p => p.name).filter(n => n !== cr.chosenPath("thaumaturgy").name);
+        const r1 = cr.ritualOptions("thaumaturgy").find(x => x.level === 1).name, r2 = cr.ritualOptions("thaumaturgy").find(x => x.level === 2).name;
+        cr.st.bm = { paths: { thaumaturgy: { [paths[0]]: 2 } }, rituals: { thaumaturgy: [r1] } };
+        cr.st.xbm = { paths: { thaumaturgy: { [paths[1]]: 2 } }, rituals: { thaumaturgy: [r2] } };
+        out.costs = [cr.bloodMagicFreeCost, cr.bloodMagicXpCost].join("/");
+        await cr.write(); await cr.close(); await new Promise(res => setTimeout(res, 800));
+        out.sheet = a.items.filter(i => ["thaumPath", "ritual"].includes(i.type)).length;
+        // V20: ритуалы за опыт не покупаются — только путь (11)
+        await game.settings.set(SYS, "era", "modern");
+        cr = await open();
+        cr.st.clan = "tremere"; cr.st.disc = { thaumaturgy: 2 };
+        cr.st.xbm = { paths: { thaumaturgy: { [cr.pathOptions("thaumaturgy")[1].name]: 2 } }, rituals: { thaumaturgy: [r2] } };
+        out.v20Xp = cr.bloodMagicXpCost; out.v20Free = cr.bloodMagicFree;
+        await cr.close();
+      } finally { await game.settings.set(SYS, "era", was); }
+      return out;
+    }, id);
+    const bad = [];
+    if (!r.osirisBlocked) bad.push("Дети Осириса: шаг клана готов без исходного клана");
+    if (r.osirisDiscs !== "bardo,potence,presence") bad.push(`Дети Осириса: клановые ${r.osirisDiscs}`);
+    if (!r.abombwe) bad.push("у Бонсам нет Абомбве");
+    if (r.costs !== "9/15") bad.push(`цены магии крови (свободные/опыт): ${r.costs}`);
+    if (r.sheet !== 5) bad.push(`на листе путей и ритуалов ${r.sheet} (нужно 5: основной, два купленных пути, два ритуала)`);
+    if (r.v20Xp !== 11 || r.v20Free) bad.push(`V20: опыт ${r.v20Xp}, покупка за свободные ${r.v20Free}`);
+    if (bad.length) throw new Error(bad.join("; "));
+  });
+
+  // эпоха «Тёмные века» (V20 Dark Ages, data/dark-ages.json): мастер вампира по правилам книги, магия крови в обеих эпохах,
+  // фанатский «Век живых богов» — своей настройкой; эпоха и настройки мира в конце — как были
+  await check("Мастер создания: Тёмные века — кланы, Факты, архетипы, Дороги, пути и ритуалы магии крови, запись", async () => {
+    const id = await temp("E2E — Тёмные века");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, V = CONFIG.VTM20, a = game.actors.get(id);
+      const was = { era: game.settings.get(SYS, "era"), alg: game.settings.get(SYS, "livingGodsContent") };
+      const { openCreator } = await import(`/systems/${SYS}/module/apps/creator.mjs`);
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`);
+      const open = async () => { await openCreator(a); await new Promise(res => setTimeout(res, 600));
+        return [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a); };
+      const out = {};
+      try {
+        await game.settings.set(SYS, "livingGodsContent", false);
+        // V20: 13-е поколение, один ритуал 1-го уровня, Путь Крови
+        await game.settings.set(SYS, "era", "modern");
+        let cr = await open();
+        cr.st.clan = "tremere"; cr.st.disc.thaumaturgy = 2;
+        out.v20 = [V.baseGeneration(), cr.ritualSlots("thaumaturgy").join(","), cr.chosenPath("thaumaturgy")?.name].join("|");
+        await cr.close();
+        // Тёмные века
+        await game.settings.set(SYS, "era", "darkAges");
+        cr = await open();
+        out.start = [V.baseGeneration(), cr.rules.disc, cr.st.path].join("|");
+        out.clans = ["kappadokiytsy", "bonsam", "salubriWarrior"].every(k => Codex.clans.some(c => c.key === k));
+        const ab = V.abilitiesForEra("darkAges", "vampire"), flat = Object.values(ab).flat();
+        out.abil = ["legerdemain", "archery", "commerce", "hearthWisdom", "seneschal", "enigmas"].every(k => flat.includes(k)) && !["firearms", "streetwise"].some(k => flat.includes(k));
+        out.arch = Codex.archetypesFor("vampire").length;
+        out.domain = Codex.backgrounds.find(b => b.en === "Domain" && !b.line)?.html.startsWith("<p>Территория");
+        // гуль: тоже только Факты V20 DA (без «Арсенала», «Культа» и других поздних)
+        const g = await Actor.create({ name: "E2E — гуль Тёмных веков", type: "ghoul", flags: { world: { e2e: true } } });
+        await openCreator(g); await new Promise(res => setTimeout(res, 600));
+        const gc = [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === g);
+        gc.step = gc.steps.indexOf("advantages");
+        out.ghoulBg = ((await gc._prepareContext({})).bgCards ?? []).map(b => b.name);
+        await gc.close();
+        cr.st.clan = "kappadokiytsy";
+        cr.step = cr.steps.indexOf("clan");
+        let ctx = await cr._prepareContext({});
+        out.roads = ctx.paths.length > 0 && ctx.paths.every(p => Codex.path(p.key)?.era === "darkAges" && !Codex.path(p.key)?.alg);
+        out.sects = ctx.darkAges === true;
+        cr.step = cr.steps.indexOf("advantages");
+        ctx = await cr._prepareContext({});
+        out.bg = ctx.bgCards.map(b => b.name);
+        cr.st.clan = "caitiff";
+        out.caitiffStatus = (await cr._prepareContext({})).bgCards.some(b => b.name === "Статус");
+        cr.st.clan = "kappadokiytsy"; cr.st.disc.necromancy = 2; cr.st.bg["Домен"] = 1;
+        out.necro = cr.chosenPath("necromancy")?.name;
+        const view = cr.ritualSlotView("necromancy");
+        out.slots = view.map(s => s.max).join(",");
+        const r1 = view[0].groups[0].options[0].value, r2 = view[1].groups.at(-1).options[0].value;
+        cr.st.rituals = { necromancy: { 0: r1, 1: r2 } };
+        out.picked = cr.chosenRituals("necromancy").filter(Boolean).length;
+        // «Век живых богов»: выключен — скрыт, включён — виден в обеих эпохах
+        const mortis = () => Codex.visible(Codex.disciplines.mortis);
+        out.alg = [mortis()];
+        await game.settings.set(SYS, "livingGodsContent", true); out.alg.push(mortis());
+        await game.settings.set(SYS, "era", "modern"); out.alg.push(mortis());
+        await game.settings.set(SYS, "livingGodsContent", false); await game.settings.set(SYS, "era", "darkAges");
+        // запись: 12-е поколение, Дорога, путь и ритуалы, Домен с текстом V20 DA
+        await cr.write(); await cr.close(); await new Promise(res => setTimeout(res, 800));
+        out.sheet = { gen: a.system.generation, road: a.system.morality?.path, path: a.items.find(i => i.type === "thaumPath")?.name,
+          rituals: a.items.filter(i => i.type === "ritual").length, domain: a.items.find(i => i.type === "background" && i.name === "Домен")?.system.description.startsWith("<p>Территория") };
+      } finally {
+        await game.settings.set(SYS, "era", was.era); await game.settings.set(SYS, "livingGodsContent", was.alg);
+      }
+      return out;
+    }, id);
+    const bad = [];
+    if (r.v20 !== "13|1|Путь Крови") bad.push(`V20: ${r.v20}`);
+    if (r.start !== "12|4|dorogaChelovechnosti") bad.push(`начало: ${r.start}`);
+    if (!r.clans) bad.push("нет кланов и линий V20 DA");
+    if (!r.abil) bad.push("Способности не по V20 DA");
+    if (r.arch !== 43) bad.push(`архетипов ${r.arch}`);
+    if (!r.domain) bad.push("Домен без текста V20 DA");
+    if (!r.roads) bad.push("в Дорогах не только Тёмные века");
+    if (r.bg.length !== 12 || r.bg.some(n => /Статус ./.test(n))) bad.push(`Факты: ${r.bg.join(", ")}`);
+    if (r.caitiffStatus) bad.push("Каитифу доступен Статус");
+    if (!r.ghoulBg.length || r.ghoulBg.some(n => ["Арсенал", "Культ", "Военная сила"].includes(n))) bad.push(`Факты гуля: ${r.ghoulBg.join(", ")}`);
+    if (r.necro !== "Путь «Труп в чудовище»") bad.push(`путь Каппадокийца: ${r.necro}`);
+    if (r.slots !== "1,2" || r.picked !== 2) bad.push(`ритуалы: ячейки ${r.slots}, выбрано ${r.picked}`);
+    if (r.alg.join() !== "false,true,true") bad.push(`Век живых богов: ${r.alg}`);
+    const s = r.sheet ?? {};
+    if (s.gen !== 12 || s.road !== "dorogaChelovechnosti" || s.path !== "Путь «Труп в чудовище»" || s.rituals !== 2 || !s.domain) bad.push(`лист: ${JSON.stringify(s)}`);
+    if (bad.length) throw new Error(bad.join("; "));
+  });
+
+  // магия крови Тёмных веков по книгам (data/codex.mjs → bloodPathsFor, _daThaum): пути школ по эпохам, общие пути у ассамитов и
+  // сеттитов, Садхана у Тауматургии, крайны V20 DA (точки крайн = точкам Колдовства) в мастере и на листе, силы Богатырей — только
+  // Богатырю. Настройки мира в конце — как были
+  await check("Тёмные века: пути магии крови по книгам, крайны Колдовства, силы Богатырей", async () => {
+    const id = await temp("E2E — колдун Тёмных веков");
+    const r = await page.evaluate(async id => {
+      const SYS = game.system.id, a = game.actors.get(id), set = (k, v) => game.settings.set(SYS, k, v);
+      const was = Object.fromEntries(["era", "livingGodsContent", "darkAgesContent", "bogatyri"].map(k => [k, game.settings.get(SYS, k)]));
+      const { Codex } = await import(`/systems/${SYS}/module/data/codex.mjs`);
+      const { openCreator } = await import(`/systems/${SYS}/module/apps/creator.mjs`);
+      const names = d => Codex.bloodPathsFor(d).map(p => p.name), wait = (ms = 500) => new Promise(res => setTimeout(res, ms));
+      const out = {};
+      try {
+        await set("livingGodsContent", false); await set("darkAgesContent", false); await set("bogatyri", false);
+        // V20: пути Тёмных веков и одолженные пути не видны
+        await set("era", "modern");
+        out.v20 = { thaum: names("thaumaturgy"), asm: names("assamiteSorcery"), set: names("setiteSorcery") };
+        await set("era", "darkAges");
+        const da = { thaum: names("thaumaturgy"), asm: names("assamiteSorcery"), set: names("setiteSorcery"), kold: names("koldunism") };
+        out.da = da;
+        out.def = ["thaumaturgy", "assamiteSorcery", "setiteSorcery", "koldunism"].map(k => Codex.defaultBloodPath(k)?.name).join("|");
+        const vitae = Codex.bloodPathsFor("thaumaturgy").find(p => p.en === "Potestas Vitae");
+        out.theft = /уз/.test(vitae?.powers?.[3]?.html ?? "");
+        out.rego = Codex.bloodPathsFor("thaumaturgy").find(p => p.en === "Rego Magica")?.powers?.[0]?.roll?.difficulty;
+        await set("livingGodsContent", true); out.asmAlg = names("assamiteSorcery").length; await set("livingGodsContent", false);
+        // мастер: Колдовство 3, основная Трансильванская, одна точка — Черноморской; запись — крайны 2 + 1
+        const cr = await (async () => { await openCreator(a); await wait(600);
+          return [...foundry.applications.instances.values()].find(x => x.constructor.name === "VtMCreator" && x.actor === a); })();
+        cr.st.clan = "tzimisce"; cr.st.disc.koldunism = 3; cr.st.kr = { koldunism: { "Черноморская крайна": 1 } };
+        const sp = cr.krainaSplit("koldunism");
+        out.split = [cr.chosenPath("koldunism")?.name, sp.primary, JSON.stringify(sp.extra)].join("|");
+        cr.step = cr.steps.indexOf("disciplines");
+        const card = (await cr._prepareContext({})).discCards.find(c => c.key === "koldunism");
+        out.card = [card?.kraina?.total, card?.kraina?.rows?.length, card?.pathChoices?.some(p => p.value === "Гений места")].join("|");
+        await cr.write(); await cr.close(); await wait(800);
+        const kr = () => Object.fromEntries(a.items.filter(i => i.type === "thaumPath").map(i => [i.name, i.system.value + (i.system.primary ? "*" : "")]));
+        out.written = JSON.stringify(kr());
+        // лист: точка Колдовства при двух крайнах — свободная; новая крайна за неё; без свободной — не берётся; опыта у крайн нет
+        const disc = () => a.items.find(i => i.type === "discipline" && i.system.key === "koldunism");
+        await disc().update({ "system.value": 4 }); await wait();
+        out.free = a.krainaFree();
+        await a.createEmbeddedDocuments("Item", [{ name: "Беловежская крайна", type: "thaumPath", system: { discipline: "koldunism", value: 1, primary: false } }]);
+        const blocked = await a.createEmbeddedDocuments("Item", [{ name: "Гений места", type: "thaumPath", system: { discipline: "koldunism", value: 1, primary: false } }]);
+        out.blocked = blocked.length === 0;
+        out.xp = a.xpCostOf({ doc: a.items.find(i => i.name === "Черноморская крайна"), path: "system.value", kind: "path" }).cost;
+        await disc().update({ "system.value": 2 }); await wait(900);
+        out.trimmed = a.items.filter(i => i.type === "thaumPath").reduce((s, i) => s + i.system.value, 0);
+        // силы Богатырей: при включённой настройке — только у Богатыря
+        await set("bogatyri", true);
+        const bygone = Codex.disciplines.vicissitude.powers.find(p => p.en === "Form of the Bygone");
+        out.bogatyr = [Codex.powerFor(bygone, ""), Codex.powerFor(bygone, "bogatyr")].join(",");
+      } finally {
+        for (const [k, v] of Object.entries(was)) await set(k, v);
+      }
+      return out;
+    }, id);
+    const bad = [], has = (list, n) => list.includes(n);
+    if (has(r.v20.thaum, "Контрмагия") || has(r.v20.thaum, "Путь Кармы") || has(r.v20.asm, "Сотворение огня") || has(r.v20.set, "Власть над бурями")) bad.push("в V20 видны пути Тёмных веков");
+    if (r.da.thaum.length !== 13 || !["Контрмагия", "Perdo Magica", "Путь Управления Магией", "Путь Кармы", "Путь Праапти"].every(n => has(r.da.thaum, n))) bad.push(`Тауматургия: ${r.da.thaum.join(", ")}`);
+    if (r.da.asm.length !== 10 || !["Отзвуки гнева Аллаха", "Шёпот небес", "Сотворение огня"].every(n => has(r.da.asm, n)) || has(r.da.asm, "Путь Крови")) bad.push(`Дур-Ан-Ки: ${r.da.asm.join(", ")}`);
+    if (r.asmAlg !== 22) bad.push(`Дур-Ан-Ки с «Веком живых богов»: ${r.asmAlg}`);
+    if (r.da.set.length !== 10 || !has(r.da.set, "Путь Откровений Дуата")) bad.push(`сеттиты: ${r.da.set.join(", ")}`);
+    if (!["Крайна Эноха", "Беловежская крайна", "Гений места"].every(n => has(r.da.kold, n))) bad.push(`Колдовство: ${r.da.kold.join(", ")}`);
+    if (r.def !== "Сотворение огня|Сотворение огня|Власть над бурями|Трансильванская крайна") bad.push(`основные пути: ${r.def}`);
+    if (!r.theft) bad.push("Кража витэ без уз");
+    if (r.rego !== 6) bad.push(`Rego Magica: сложность ${r.rego}`);
+    if (r.split !== 'Трансильванская крайна|2|{"Черноморская крайна":1}') bad.push(`мастер, раздел крайн: ${r.split}`);
+    if (r.card !== "3|1|false") bad.push(`карточка Колдовства: ${r.card}`);
+    if (r.written !== '{"Трансильванская крайна":"2*","Черноморская крайна":"1"}') bad.push(`записано: ${r.written}`);
+    if (r.free !== 1 || !r.blocked || r.xp !== null || r.trimmed !== 2) bad.push(`лист: свободно ${r.free}, без точки ${r.blocked ? "не взята" : "взята"}, опыт ${r.xp}, после убавки ${r.trimmed}`);
+    if (r.bogatyr !== "false,true") bad.push(`сила Богатырей: ${r.bogatyr}`);
+    if (bad.length) throw new Error(bad.join("; "));
   });
 
   await check("Винкулум: Братание стаи", async () => {
