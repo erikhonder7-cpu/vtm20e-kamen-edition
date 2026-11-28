@@ -6,10 +6,10 @@ import { SYSTEM_ID } from "../config.mjs";
 
 /** Разделы и ключи настроек по порядку (подписи — VTM20.Settings.Group.<раздел>). */
 const GROUPS = [
-  ["chronicle", ["era", "reckoning", "darkAgesContent", "livingGodsContent", "currency", "assignatRate", "nightlyWillpower", "monthlyIncome", "incomeTable", "herdNightly", "mageWeekly"]],
+  ["chronicle", ["era", "reckoning", "editionsMenu", "livingGodsContent", "currency", "assignatRate", "nightlyWillpower", "monthlyIncome", "incomeTable", "herdNightly", "mageWeekly"]],
   ["city", ["latitude", "longitude", "utcOffset", "dawnWarnings", "cityMapEnabled", "nexusNav", "huntersAlert"]],
   ["combat", ["combatInitEachTurn", "combatInitFixed", "combatDeclare"]],
-  ["rules", ["horridForm", "bogatyri", "tormentRule", "exorcismRule", "hunterGrowth", "hunterSacrifice", "hunterFreeform", "hunterEdgeCost", "hunterFifth", "koldunRoll", "koldunOutside"]],
+  ["rules", ["horridForm", "bogatyri", "tormentRule", "exorcismRule", "hunterGrowth", "hunterSacrifice", "hunterFreeform", "hunterEdgeCost", "hunterFifth", "koldunRoll", "koldunOutside", "krainaPaths"]],
   ["ui", ["sheetTheme", "uiSkin", "hud", "pauseLook", "uiSounds", "uiSoundVolume"]]
 ];
 
@@ -25,7 +25,8 @@ export function registerSettingsGroups() {
     const root = html instanceof HTMLElement ? html : html?.[0];
     const sec = root?.querySelector('section[data-category="system"]');
     if (!sec || sec.querySelector(".r-settings-head")) return;
-    const row = key => sec.querySelector(`[name="${SYSTEM_ID}.${key}"]`)?.closest(".form-group");
+    // настройка — по полю, меню (кнопка окна: «Редакции и источники») — по data-key
+    const row = key => sec.querySelector(`[name="${SYSTEM_ID}.${key}"], [data-key="${SYSTEM_ID}.${key}"]`)?.closest(".form-group");
     const placed = new Set();
     const frag = document.createDocumentFragment();
     for (const [group, keys] of GROUPS) {

@@ -2103,3 +2103,271 @@ body.r-theme-light .vtm20 .r-sp-state img { filter: none; }
   .vtm20.r-clans .r-cl-aside .r-cl-trait summary em { display: block; margin-top: 1px; }
   .vtm20.r-clans:not(.r-atlas) .r-cl-aside .r-cl-discs { flex-direction: column; align-items: stretch; }
 }
+
+/* ── «Редакции и источники» (module/apps/editions-config.mjs): разделы строками, редакции столбцами ── */
+.vtm20.r-editions .r-ed-body { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 4px; }
+.vtm20.r-editions .r-ed-base { margin: 2px 0 6px; font-size: 13px; color: var(--r-muted); }
+.vtm20.r-editions .r-ed-base b { color: var(--r-ink); font-weight: 600; }
+.vtm20.r-editions .r-ed-row { display: grid; grid-template-columns: minmax(170px, 1fr) repeat(6, 62px); align-items: center; min-height: 28px; border-top: 1px solid var(--r-line); }
+.vtm20.r-editions .r-ed-row.is-head { border-top: 0; min-height: 34px; align-items: end; padding-bottom: 4px; }
+.vtm20.r-editions .r-ed-cat { font-size: 13.5px; }
+.vtm20.r-editions .r-ed-col { display: grid; place-items: center; text-align: center; }
+.vtm20.r-editions .is-head .r-ed-col { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; line-height: 1.15; color: var(--r-muted); cursor: pointer; }
+.vtm20.r-editions .is-head .r-ed-col:hover { color: var(--r-ink); }
+.vtm20.r-editions .is-head .r-ed-col.is-base { color: var(--r-accent); cursor: default; }
+.vtm20.r-editions .r-ed-col.is-none { opacity: .35; }
+.vtm20.r-editions .r-ed-note { margin: 8px 0 0; font-size: 12px; line-height: 1.4; color: var(--r-muted); }
+.vtm20.r-editions .r-roll-foot { margin-top: 10px; display: flex; justify-content: flex-end; }
+.vtm20.r-editions .r-ed-intro { margin: 0 0 4px; font-size: 12.5px; font-style: italic; line-height: 1.45; color: var(--r-muted); }
+
+/* ── «Воинская выучка» (Тёмные века, Tome of Secrets): окно выбора особых приёмов — карточки r-vcard по Способностям ── */
+.vtm20.r-martial .r-mt-body { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 10px; max-height: 78vh; overflow-y: auto; }
+.vtm20.r-martial .r-mt-intro { margin: 0; font-size: 12.5px; font-style: italic; line-height: 1.45; color: var(--r-muted); }
+.vtm20.r-martial .r-mt-group { display: flex; flex-direction: column; gap: 6px; }
+.vtm20.r-martial .r-mt-group .r-banner { margin: 2px 0 0; }
+.vtm20.r-martial .r-mt-head { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--r-muted); }
+.vtm20.r-martial .r-mt-count { font-family: "Prata", serif; color: var(--r-ink); }
+.vtm20.r-martial .r-mt-warn { color: var(--r-accent); }
+.vtm20.r-martial .r-mt-none { margin: 0; font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-martial .r-mt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 8px; }
+.vtm20.r-martial .r-mt-card { position: relative; margin: 0; padding: 8px 10px 9px; gap: 4px; cursor: pointer; transition: border-color .15s, background-color .15s, opacity .15s; }
+.vtm20.r-martial .r-mt-card > input { position: absolute; top: 8px; right: 8px; margin: 0; }
+.vtm20.r-martial .r-mt-card-head { display: flex; align-items: baseline; gap: 6px; padding-right: 20px; }
+.vtm20.r-martial .r-mt-card-head i { color: var(--r-bone-d); font-size: 13px; }
+.vtm20.r-martial .r-mt-card-head b { font-family: "IM Fell SC", serif; font-weight: 400; font-size: 15px; letter-spacing: .02em; color: var(--r-ink); }
+.vtm20.r-martial .r-mt-kind { margin-left: auto; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--r-muted); white-space: nowrap; }
+.vtm20.r-martial .r-mt-card.is-defense .r-mt-kind { color: var(--r-gold-l); }
+.vtm20.r-martial .r-mt-card.is-passive .r-mt-kind { color: var(--r-gold); }
+.vtm20.r-martial .r-mt-roll { margin: 0; font-size: 12px; color: var(--r-accent); }
+.vtm20.r-martial .r-mt-text { margin: 0; font-size: 12.5px; line-height: 1.42; color: var(--r-ink); opacity: .86; }
+.vtm20.r-martial .r-mt-need { margin: 0; font-size: 11.5px; color: var(--r-muted); }
+.vtm20.r-martial .r-mt-card.is-on { border-color: var(--r-blood-l); background-color: rgba(184, 58, 63, .08); }
+.vtm20.r-martial .r-mt-card.is-on .r-mt-card-head i { color: var(--r-blood-l); }
+.vtm20.r-martial .r-mt-card:has(input:disabled:not(:checked)) { opacity: .5; cursor: default; }
+.vtm20.r-martial .r-mt-empty { margin: 8px 0; text-align: center; font-style: italic; color: var(--r-muted); }
+
+/* окно атаки: строка приёмов «Воинской выучки» */
+.vtm20 .r-atk-martial { display: flex; align-items: flex-start; gap: 8px; }
+.vtm20 .r-atk-martial > .r-roll-label { padding-top: 9px; white-space: normal; }
+.vtm20 .r-atk-martial > .r-roll-label i { color: var(--r-gold-l); margin-right: 3px; }
+.vtm20 .r-atk-picks.is-martial { flex: 1; align-items: stretch; }
+.vtm20 .r-atk-pick.is-martial i { color: var(--r-gold-l); }
+.vtm20 .r-atk-pick.is-martial.is-active i { color: var(--r-blood-l); }
+.vtm20 .r-atk-mt-info { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 5px 6px; font-size: 11.5px;
+  text-align: center; color: var(--r-muted); border: 1px dotted var(--r-line-2); }
+.vtm20 .r-atk-mt-info small { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; opacity: .8; }
+.vtm20 .r-atk-mt-none { grid-column: 1 / -2; align-self: center; font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-atk-mt-gear { align-self: center; justify-self: start; }
+
+/* ── Ведьмовство Тёмных веков (Tome of Secrets) — карточка .r-sn на вкладке преимуществ: метка — зверобой (старое золото) ── */
+.vtm20 .r-sn.is-witch { --sn: #c9a85c; --sn-glow: rgba(201, 168, 92, .18); }
+.vtm20 .r-wt-folk { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.vtm20 .r-wt-feat { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 6px 8px 7px; border: 1px solid var(--r-line-2);
+  background: rgba(0, 0, 0, .18); color: var(--r-ink); transition: border-color .15s, background-color .15s; }
+.vtm20 .r-wt-feat i { color: var(--sn); font-size: 13px; margin-bottom: 2px; }
+.vtm20 .r-wt-feat b { font-family: var(--r-display); font-size: 14px; font-weight: 400; line-height: 1.15; }
+.vtm20 .r-wt-feat small { font-size: 11px; color: var(--r-muted); }
+.vtm20 a.r-wt-feat[data-action]:hover { border-color: var(--sn); background: linear-gradient(180deg, var(--sn-glow), rgba(0, 0, 0, .18)); }
+.vtm20 .r-wt-inc { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; }
+.vtm20 .r-wt-inc i { color: var(--sn); font-size: 11px; }
+.vtm20 .r-wt-inc b { font-weight: 600; color: var(--r-ink); }
+.vtm20 .r-wt-inc small { font-size: 11px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-wt-found { display: flex; align-items: flex-end; gap: 12px; }
+.vtm20 .r-wt-key { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vtm20 .r-wt-key > span { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-wt-found > .r-dots { padding-bottom: 6px; }
+.vtm20 .r-wt-quint { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.vtm20 .r-wt-qlabel { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-wt-qlabel b { font-family: "Prata", serif; font-size: 14px; letter-spacing: 0; color: var(--r-ink); }
+.vtm20 .r-boxes.is-quint .r-box.is-filled { border-color: var(--sn); background: color-mix(in srgb, var(--sn) 55%, transparent); }
+.vtm20 .r-wt-pillar { align-items: center; }
+.vtm20 .r-wt-pname { min-width: 0; height: 26px; font-family: var(--r-display); font-size: 14px; }
+
+/* ── Сеньор и вассалы (Тёмные века, Tome of Secrets) — карточки r-vcard в блоке .r-sn: метка — геральдический пурпур ── */
+.vtm20 .r-sn.is-fealty { --sn: #b77a8c; --sn-glow: rgba(183, 122, 140, .18); }
+.vtm20 .r-fe-card { margin: 0; padding: 8px 10px 9px; gap: 7px; }
+.vtm20 .r-fe-card.is-short { box-shadow: inset 0 2px 0 var(--r-blood-l); }
+.vtm20 .r-fe-head { display: flex; align-items: center; gap: 8px; }
+.vtm20 .r-fe-role { flex: none; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--sn); }
+.vtm20 .r-fe-role i { margin-right: 3px; }
+.vtm20 .r-fe-who { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; color: var(--r-ink); }
+.vtm20 .r-fe-who img { width: 24px; height: 24px; object-fit: cover; border: 1px solid var(--r-line-2); }
+.vtm20 .r-fe-who b { font-family: var(--r-display); font-size: 16px; font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20 a.r-fe-who:hover b { color: var(--sn); }
+.vtm20 .r-fe-name { flex: 1; min-width: 0; height: 26px; font-family: var(--r-display); font-size: 15px; }
+.vtm20 .r-fe-pick { flex: 0 1 170px; min-width: 0; height: 26px; font-size: 12px; }
+.vtm20 .r-fe-lbl { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20 .r-fe-lbl b { font-family: "Prata", serif; font-size: 13px; letter-spacing: 0; color: var(--r-ink); }
+.vtm20 .r-fe-lbl i { color: #8fbf7a; }
+.vtm20 .r-fe-lbl small { font-family: var(--r-body); font-size: 11.5px; letter-spacing: 0; text-transform: none; font-style: italic; color: var(--r-accent); }
+.vtm20 .r-fe-anchor, .vtm20 .r-fe-owed { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.vtm20 .r-fe-anchor select { flex: 0 1 170px; height: 26px; font-size: 12.5px; }
+.vtm20 .r-fe-math { font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20 .r-fe-owe { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px; border: 1px dotted var(--r-line-2); }
+.vtm20 .r-fe-owe.is-over { border-color: var(--r-blood-l); }
+.vtm20 .r-fe-owe select { height: 24px; max-width: 140px; font-size: 12px; }
+.vtm20 .r-fe-owe input, .vtm20 .r-fe-flaws input { width: 38px; height: 24px; text-align: center; }
+.vtm20 .r-fe-x { color: var(--r-muted); font-size: 11px; }
+.vtm20 .r-fe-x:hover { color: var(--r-accent); }
+.vtm20 .r-fe-flaws, .vtm20 .r-fe-service { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--r-ink-2); }
+.vtm20 .r-fe-service { white-space: nowrap; }
+.vtm20 .r-fe-service select { width: auto; max-width: 200px; height: 24px; font-size: 12px; }
+.vtm20 .r-fe-terms { display: flex; flex-wrap: wrap; gap: 5px; }
+.vtm20 .r-fe-term { display: inline-flex; align-items: baseline; gap: 5px; padding: 3px 8px; border: 1px solid var(--r-line-2); font-size: 12.5px; color: var(--r-ink-2);
+  transition: border-color .15s, background-color .15s, color .15s; }
+.vtm20 .r-fe-term small { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--r-muted); }
+.vtm20 .r-fe-term.is-on { color: var(--r-ink); border-color: var(--sn); background: linear-gradient(180deg, var(--sn-glow), transparent); }
+.vtm20 .r-fe-warn { margin: 0; font-size: 12px; color: var(--r-accent); }
+
+/* ── Лист домена: уровень и действие у сторон поместья, поселения и люди домена (V20 Dark Ages Companion) ── */
+.vtm20 .r-gs-stat .r-gs-level { max-width: 92%; text-align: center; font-family: var(--r-display); font-size: 13.5px; line-height: 1.25; color: var(--r-ink); }
+.vtm20 .r-gs-stat .r-gs-effect { max-width: 92%; text-align: center; font-size: 11.5px; line-height: 1.3; font-style: italic; color: var(--r-accent); }
+.vtm20 .r-gs-stat .r-gs-effect.is-none { color: var(--r-muted); opacity: .7; }
+.vtm20 .r-gs-field .r-gs-empty { display: block; margin-top: 4px; }
+.vtm20 .r-gs-income { display: inline-flex; align-items: center; gap: 5px; margin-right: 8px; font-family: var(--r-body); font-size: 12.5px; font-style: italic; letter-spacing: 0; text-transform: none; color: var(--r-gold-l); }
+.vtm20 .r-gs-income i { color: var(--r-gold); }
+.vtm20 .r-gs-settles { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin: 6px 0 4px; }
+.vtm20 .r-gs-settle, .vtm20 .r-gs-cohort { position: relative; margin: 0; padding: 8px 10px 9px; gap: 5px; }
+.vtm20 .r-gs-settle.is-short { box-shadow: inset 0 2px 0 var(--r-blood-l); }
+.vtm20 .r-gs-settle header, .vtm20 .r-gs-cohort header { display: flex; align-items: center; gap: 6px; padding-right: 16px; }
+.vtm20 .r-gs-settle header input, .vtm20 .r-gs-cohort header input { flex: 1; min-width: 0; height: 26px; font-family: var(--r-display); font-size: 15px; }
+.vtm20 .r-gs-settle .r-gs-x, .vtm20 .r-gs-cohort .r-gs-x { top: 10px; right: 6px; }
+.vtm20 .r-gs-settle:hover .r-gs-x, .vtm20 .r-gs-cohort:hover .r-gs-x { opacity: 1; }
+.vtm20 .r-gs-settle-row { display: flex; align-items: center; gap: 10px; }
+.vtm20 .r-gs-settle-row .r-gs-dots b, .vtm20 .r-gs-cohort-row .r-gs-dots b { width: 13px; height: 13px; cursor: pointer; }
+.vtm20 .r-gs-settle-kind { font-family: var(--r-caps); font-size: 11px; font-weight: 400; letter-spacing: 1.4px; text-transform: uppercase; color: var(--r-ink); }
+.vtm20 .r-gs-settle-need { font-size: 11.5px; color: var(--r-muted); }
+.vtm20 .r-gs-settle-need.is-short { color: var(--r-accent); }
+.vtm20 .r-gs-settle-gives { font-size: 11.5px; font-style: italic; color: var(--r-gold-l); }
+.vtm20 .r-gs-staff { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 8px; margin: 6px 0 4px; }
+.vtm20 .r-gs-cohort-ic { flex: none; width: 24px; height: 24px; display: grid; place-items: center; font-size: 12px; color: var(--r-gold-l);
+  border: 1px solid var(--r-line-2); border-radius: 50%; background: rgba(0, 0, 0, .25); }
+.vtm20 .r-gs-cohort header select { flex: 0 1 120px; min-width: 0; height: 26px; font-size: 12px; }
+.vtm20 .r-gs-cohort-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.vtm20 .r-gs-kind { padding: 2px 8px; font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-ink-2);
+  border: 1px solid var(--r-line-2); }
+.vtm20 .r-gs-kind.is-ally { color: var(--r-gold-l); border-color: var(--r-gold); }
+.vtm20 .r-gs-people { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-gs-people select { width: 56px; height: 24px; font-size: 12px; }
+.vtm20 .r-gs-pool-n { margin-left: auto; font-size: 12px; color: var(--r-muted); }
+.vtm20 .r-gs-pool-n b { font-family: "Prata", serif; font-size: 17px; font-weight: 400; color: var(--r-ink); }
+.vtm20 .r-gs-cohort-abil { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.vtm20 .r-gs-cohort-abil select { min-width: 0; height: 24px; font-size: 12px; }
+.vtm20 .r-gs-cohort-bg { font-size: 11.5px; font-style: italic; color: var(--r-gold-l); }
+
+/* ── Святые реликвии (Tome of Secrets, «Черты веры»): знак веры в строке снаряжения и окно реликвии ── */
+.vtm20 .r-holy-badge { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; padding: 1px 6px; border: 1px solid rgba(214, 196, 140, .35);
+  color: #d6c48c; font-size: 11px; transition: border-color .15s, background-color .15s; }
+.vtm20 .r-holy-badge i { margin-right: 2px; }
+.vtm20 .r-holy-badge b { width: 7px; height: 7px; border-radius: 50%; border: 1px solid rgba(214, 196, 140, .6); }
+.vtm20 .r-holy-badge b.on { background: #d6c48c; box-shadow: 0 0 4px rgba(214, 196, 140, .55); }
+.vtm20 a.r-holy-badge[data-action]:hover { border-color: #d6c48c; background: rgba(214, 196, 140, .1); }
+.vtm20.r-holy .r-holy-dlg { display: flex; flex-direction: column; gap: 8px; }
+.vtm20.r-holy .r-holy-line { margin: 0; font-size: 14px; color: var(--r-ink); }
+.vtm20.r-holy .r-holy-line b { font-family: var(--r-display); font-weight: 400; font-size: 16px; }
+.vtm20.r-holy .r-holy-line small { color: var(--r-muted); font-style: italic; }
+.vtm20.r-holy .r-holy-aspects { margin: 0; font-size: 12.5px; font-style: italic; color: #d6c48c; }
+.vtm20.r-holy .r-holy-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: center; gap: 4px 10px; }
+.vtm20.r-holy .r-holy-row > span { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-holy .r-holy-row > small { grid-column: 2; font-size: 11.5px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-holy .r-holy-row input[type=number] { width: 60px; }
+
+/* ── Сражение Тёмных веков (Tome of Secrets): стороны — кровь и сталь, отряды и долгие ходы ── */
+.vtm20.r-battle .window-content { padding: 0; }
+.vtm20.r-battle .r-bt { display: flex; flex-direction: column; height: 100%; }
+.vtm20.r-battle .r-bt-top { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--r-line); }
+.vtm20.r-battle .r-bt-turn { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+.vtm20.r-battle .r-bt-turn small { font-family: var(--r-caps); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-turn b { font-family: "Prata", serif; font-size: 28px; font-weight: 400; line-height: 1; color: var(--r-ink); }
+.vtm20.r-battle .r-bt-intro { flex: 1; margin: 0; font-size: 12.5px; font-style: italic; line-height: 1.4; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-body { flex: 1; overflow-y: auto; padding: 10px 14px 14px; }
+.vtm20.r-battle .r-bt-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.vtm20.r-battle .r-bt-side { --bt: var(--r-blood-l); margin: 0; padding: 10px 12px; gap: 8px; box-shadow: inset 0 3px 0 var(--bt); }
+.vtm20.r-battle .r-bt-side.is-side1 { --bt: #8fa3b8; }
+.vtm20.r-battle .r-bt-sidename { height: 30px; font-family: var(--r-display); font-size: 19px; }
+.vtm20.r-battle .r-bt-lbl { font-family: var(--r-caps); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--bt); white-space: nowrap; }
+.vtm20.r-battle .r-bt-final { display: flex; align-items: center; gap: 6px; }
+.vtm20.r-battle .r-bt-final input { flex: 1; min-width: 0; height: 26px; }
+.vtm20.r-battle .r-bt-final.is-done input { text-decoration: line-through; opacity: .7; }
+.vtm20.r-battle .r-bt-objs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.vtm20.r-battle .r-bt-obj { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 6px; padding: 3px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-battle .r-bt-type { padding: 1px 6px; font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; color: var(--bt);
+  border: 1px solid color-mix(in srgb, var(--bt) 50%, transparent); }
+.vtm20.r-battle .r-bt-obj input { min-width: 0; height: 24px; font-size: 13px; }
+.vtm20.r-battle .r-bt-obj.is-done input { text-decoration: line-through; opacity: .6; }
+.vtm20.r-battle .r-bt-obj.is-failed { opacity: .55; }
+.vtm20.r-battle .r-bt-acts { display: inline-flex; align-items: center; gap: 4px; }
+.vtm20.r-battle .r-bt-mark { width: 22px; height: 22px; display: grid; place-items: center; font-size: 11px; color: var(--r-muted); border: 1px solid var(--r-line-2); }
+.vtm20.r-battle .r-bt-mark.is-on { color: #9bd17f; border-color: #6f9b5a; background: rgba(111, 155, 90, .15); }
+.vtm20.r-battle .r-bt-mark.is-fail.is-on { color: var(--r-accent); border-color: var(--r-blood-l); background: rgba(184, 58, 63, .15); }
+.vtm20.r-battle .r-bt-small { font-size: 11px; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-small:hover { color: var(--r-accent); }
+.vtm20.r-battle .r-bt-none { font-size: 12.5px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-add { display: flex; flex-wrap: wrap; gap: 4px; }
+.vtm20.r-battle .r-bt-chip { padding: 2px 7px; font-size: 11.5px; color: var(--r-ink-2); border: 1px dashed var(--r-line-2); }
+.vtm20.r-battle .r-bt-chip:hover { color: var(--r-ink); border-color: var(--bt); border-style: solid; }
+.vtm20.r-battle .r-bt-left { margin: 0; font-size: 12px; font-style: italic; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; margin: 6px 0 4px; }
+.vtm20.r-battle .r-bt-group { --bt: var(--r-blood-l); margin: 0; padding: 8px 10px 9px; gap: 7px; box-shadow: inset 3px 0 0 var(--bt); }
+.vtm20.r-battle .r-bt-group.is-side1 { --bt: #8fa3b8; }
+.vtm20.r-battle .r-bt-group header { display: flex; align-items: center; gap: 6px; }
+.vtm20.r-battle .r-bt-group header input { flex: 1; min-width: 0; height: 26px; font-family: var(--r-display); font-size: 15px; }
+.vtm20.r-battle .r-bt-sidetag { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 6px; font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--bt); border: 1px solid color-mix(in srgb, var(--bt) 50%, transparent); }
+.vtm20.r-battle .r-bt-members { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.vtm20.r-battle .r-bt-member { padding: 3px 4px 4px; border: 1px solid var(--r-line); background: rgba(0, 0, 0, .18); }
+.vtm20.r-battle .r-bt-member { display: grid; grid-template-columns: 22px 1fr 22px; grid-template-rows: auto auto; align-items: center; text-align: center; }
+.vtm20.r-battle .r-bt-member small { grid-column: 1 / -1; font-size: 10.5px; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-member b { font-family: "Prata", serif; font-size: 17px; font-weight: 400; color: var(--r-ink); }
+.vtm20.r-battle .r-bt-gear { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--r-ink-2); }
+.vtm20.r-battle .r-bt-gear input[type=number] { width: 42px; height: 22px; text-align: center; }
+.vtm20.r-battle .r-bt-stats { display: flex; align-items: stretch; gap: 6px; }
+.vtm20.r-battle .r-bt-stats > span:not(.r-bt-pips), .vtm20.r-battle .r-bt-roll { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 62px;
+  padding: 3px 8px; border: 1px solid var(--r-line-2); }
+.vtm20.r-battle .r-bt-stats small { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-stats b { font-family: "Prata", serif; font-size: 18px; font-weight: 400; line-height: 1.1; color: var(--r-ink); }
+.vtm20.r-battle .r-bt-roll em { font-size: 11px; color: var(--r-accent); font-style: normal; }
+.vtm20.r-battle .r-bt-roll { cursor: pointer; transition: border-color .15s, background-color .15s; }
+.vtm20.r-battle .r-bt-roll:hover { border-color: var(--bt); background: color-mix(in srgb, var(--bt) 12%, transparent); }
+.vtm20.r-battle .r-bt-pips { display: inline-flex; align-items: center; gap: 4px; }
+.vtm20.r-battle .r-bt-pips a { width: 12px; height: 12px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--r-accent) 60%, transparent); }
+.vtm20.r-battle .r-bt-pips a.on { background: transparent; border-color: var(--r-line-2); opacity: .45; }
+.vtm20.r-battle .r-bt-stats > .r-bt-pips { margin-left: auto; }
+.vtm20.r-battle .r-bt-fighters { display: flex; flex-direction: column; gap: 2px; margin: 6px 0 4px; }
+.vtm20.r-battle .r-bt-fighter { display: grid; grid-template-columns: minmax(0, 1.3fr) 34px repeat(3, minmax(0, 1fr)) 18px; align-items: center; gap: 8px; padding: 4px 0;
+  border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-battle .r-bt-face { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--r-ink); }
+.vtm20.r-battle .r-bt-face img { width: 30px; height: 30px; object-fit: cover; border-radius: 50%; border: 1px solid var(--r-line-2); }
+.vtm20.r-battle .r-bt-face b { font-family: var(--r-display); font-weight: 400; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vtm20.r-battle .r-bt-init { font-family: "Prata", serif; font-size: 18px; text-align: center; color: var(--r-accent); }
+.vtm20.r-battle .r-bt-kind { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.vtm20.r-battle .r-bt-kind small { flex: none; width: 44px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--r-muted); }
+.vtm20.r-battle .r-bt-kind .r-bt-pips { flex-wrap: wrap; }
+@container (max-width: 760px) { .vtm20.r-battle .r-bt-sides { grid-template-columns: 1fr; } }
+
+/* ── Кошелёк: другие валюты (вписывает игрок) и валюты мира (рассказчик) ── */
+.vtm20 .r-purse-x { display: inline-flex; align-items: baseline; gap: 4px; padding: 1px 7px; font-size: 12.5px; color: var(--r-ink-2); border: 1px solid var(--r-line-2); }
+.vtm20 .r-purse-x b { font-family: "Prata", serif; font-weight: 400; font-size: 14px; color: var(--r-ink); }
+.vtm20.r-money-dialog .r-money-xrow { display: grid; grid-template-columns: minmax(0, 1fr) 96px 26px; align-items: center; gap: 8px; padding: 3px 0; border-bottom: 1px dotted var(--r-line); }
+.vtm20.r-money-dialog .r-money-xname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--r-ink); }
+.vtm20.r-money-dialog .r-money-xname i { margin-right: 4px; color: var(--r-gold-l); font-size: 11px; }
+.vtm20.r-money-dialog .r-money-xname small { color: var(--r-muted); }
+.vtm20.r-money-dialog .r-money-xrow input[type=number] { height: 26px; text-align: right; }
+.vtm20.r-money-dialog .r-money-xdel { display: grid; place-items: center; cursor: pointer; color: var(--r-muted); }
+.vtm20.r-money-dialog .r-money-xdel input { display: none; }
+.vtm20.r-money-dialog .r-money-xdel:has(input:checked) { color: var(--r-accent); }
+.vtm20.r-money-dialog .r-money-xrow:has(.r-money-xdel input:checked) .r-money-xname { text-decoration: line-through; opacity: .6; }
+.vtm20.r-money-dialog .r-money-xnew { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 8px; margin-top: 6px; }
+.vtm20.r-money-dialog .r-money-xnew input { height: 28px; }
+
+/* ── Лист домена: вкладки корешком слева (r-rail, как у листа персонажа), шапка и содержимое справа ── */
+.vtm20 .r-gs.is-domain { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: "rail head" "rail body"; }
+.vtm20 .r-gs.is-domain > .r-gs-head { grid-area: head; }
+.vtm20 .r-gs.is-domain > .r-gs-body { grid-area: body; }
+.vtm20 .r-gs.is-domain > .r-gs-tabs { grid-area: rail; width: 96px; padding-top: 18px; }
+.vtm20 .r-gs-tab-badge { position: absolute; top: 5px; left: calc(50% + 10px); min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; font-style: normal;
+  font-size: 10px; line-height: 16px; text-align: center; color: var(--r-ink); background: #3a1517; border: 1px solid rgba(196, 71, 76, .55); }
+.vtm20 .r-gs-tab:not(.is-active) { display: none; }
+.vtm20 .r-gs-tab > .r-h2:first-child { margin-top: 2px; }
+@container (max-width: 640px) { .vtm20 .r-gs.is-domain > .r-gs-tabs { width: 56px; } .vtm20 .r-gs.is-domain .r-rtab-label { display: none; } }

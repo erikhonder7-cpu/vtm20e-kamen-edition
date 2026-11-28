@@ -38,6 +38,7 @@ import { openDiablerie } from "./module/apps/diablerie.mjs";
 import { openLibrary } from "./module/apps/library.mjs";
 import { openLoreSearch, registerLoreSearch } from "./module/apps/lore-search.mjs";
 import { registerBogatyr } from "./module/apps/bogatyr.mjs";
+import { registerBattle } from "./module/apps/battle.mjs";
 import { registerHomerulePacks } from "./module/apps/homerules.mjs";
 import { openClans } from "./module/apps/clans.mjs";
 import { openBoons } from "./module/apps/boons.mjs";
@@ -82,6 +83,7 @@ import { registerSounds } from "./module/ui/sounds.mjs";
 import { registerHintFold } from "./module/ui/hint-fold.mjs";
 import { registerTooltipTidy } from "./module/ui/tooltip-tidy.mjs";
 import * as Money from "./module/data/money.mjs";
+import { EditionsConfig, migrateEditions } from "./module/apps/editions-config.mjs";
 
 /* ── init ──────────────────────────────────────────────────────────────── */
 
@@ -184,6 +186,7 @@ Hooks.once("init", () => {
   registerTorment();
   registerZulo();
   registerBogatyr();
+  registerBattle();      // сражение Тёмных веков (Tome of Secrets) — окно рассказчика
   registerHomerulePacks();
   registerSettingsGroups();
   registerPossession();
@@ -266,6 +269,7 @@ Hooks.on("renderPlayers", (app, html) => {
 });
 
 Hooks.once("ready", async () => {
+  migrateEditions();          // «Контент из Dark Ages» → «Редакции и источники» (один раз, рассказчик)
   // шаблоны листов, предметов, броска — заранее, в простое после загрузки, по одному за раз. Handlebars компилирует шаблон
   // при первом вызове, а не при загрузке: без этого первое открытие листа за сессию стоило около полусекунды подвисания
   const warmQueue = [
@@ -396,6 +400,9 @@ Hooks.on("getSceneControlButtons", controls => {
     "r-session": { name: "r-session", title: "VTM20.Session.Title", icon: "fa-solid fa-table-list", order: 0, visible: isGM, button: true, onChange: () => openSessionPanel() },
     // все справочники одним окном: плитки и поиск сразу по всем (Ctrl+K)
     "r-lore": { name: "r-lore", title: "VTM20.LoreSearch.Title", icon: "fa-solid fa-book-atlas", order: 10, visible: true, button: true, onChange: () => openLoreSearch() },
+    // сражение Тёмных веков (Tome of Secrets, «Средневековая война»): цели сторон, отряды, долгие ходы
+    "r-battle": { name: "r-battle", title: "VTM20.Battle.Title", icon: "fa-solid fa-chess-board", order: 11, visible: isGM && VTM20.isDarkAges(), button: true,
+      onChange: () => import("./module/apps/battle.mjs").then(x => x.openBattle()) },
     "r-thaum": { name: "r-thaum", title: "VTM20.Artifact.Title", icon: "fa-solid fa-staff-snake", order: 9, visible: isGM, button: true,
       onChange: () => import("./module/apps/thaum-workshop.mjs").then(x => x.openWorkshop()) }
   };
@@ -561,13 +568,19 @@ function registerSettings() {
       for (const app of foundry.applications.instances.values()) if (app.document?.documentName === "Actor") app.render();
     }
   });
-  // Пути, ритуалы и черты Тёмных веков (era = "darkAges" в data/*.json) — отдельный переключатель, не зависит от эпохи
-  game.settings.register(SYSTEM_ID, "darkAgesContent", {
-    name: "VTM20.Settings.DarkAges.Name", hint: "VTM20.Settings.DarkAges.Hint",
-    scope: "world", config: true, type: Boolean, default: false,
+  // прежний переключатель «Контент из Dark Ages» — заменён настройкой «Редакции и источники»; хранится, чтобы перенести
+  // включённый в неё (migrateEditions) — в окне настроек больше не показывается
+  game.settings.register(SYSTEM_ID, "darkAgesContent", { scope: "world", config: false, type: Boolean, default: false });
+  // «Редакции и источники» (module/data/editions.mjs): какие редакции видны сверх основы эпохи — по разделам справочника
+  game.settings.register(SYSTEM_ID, "editions", {
+    scope: "world", config: false, type: Object, default: {},
     onChange: () => {
       for (const app of foundry.applications.instances.values()) if (app.rendered) app.render();
     }
+  });
+  game.settings.registerMenu(SYSTEM_ID, "editionsMenu", {
+    name: "VTM20.Editions.Title", label: "VTM20.Editions.Open", hint: "VTM20.Editions.Hint",
+    icon: "fa-solid fa-books", type: EditionsConfig, restricted: true
   });
   // «Vampire: Age of the Living Gods» (фанатское): Дисциплина Мортис, Пути, Способности и Статусы — по умолчанию скрыты
   // в любой эпохе; включённые видны и в V20, и в Тёмных веках (Codex.visible, пометка alg)
@@ -579,6 +592,8 @@ function registerSettings() {
     }
   });
   // Деньги: валюта хроники и курс ассигната (% номинала, задаёт рассказчик)
+  // валюты мира, заведённые рассказчиком в окне кошелька (module/data/money.mjs): [{ key, label, symbol }]
+  game.settings.register(SYSTEM_ID, "customCurrencies", { scope: "world", config: false, type: Array, default: [] });
   game.settings.register(SYSTEM_ID, "currency", {
     name: "VTM20.Settings.Currency.Name", hint: "VTM20.Settings.Currency.Hint",
     scope: "world", config: true, type: String, default: "auto",

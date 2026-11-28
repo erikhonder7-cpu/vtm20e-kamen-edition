@@ -33,7 +33,7 @@ import { dafView, learnCantrip } from "./dark-fae.mjs";
 import { dhampirView, addBloodright } from "./dhampir.mjs";
 import { S as SORC, addNumen, numenXpExtra } from "./sorcerer.mjs";
 import { M as MAGE, isFallen } from "./mage.mjs";
-import { VTM20 } from "../config.mjs";
+import { VTM20, SYSTEM_ID } from "../config.mjs";
 import { pathBlockers } from "./path-shift.mjs";
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
@@ -412,7 +412,7 @@ const roteRank = r => Math.max(0, ...(String(r.spheres ?? "").match(/\d+/g) ?? [
 const rote = {
   levelChips: true,
   entries(a) {
-    const mine = new Set((a?.system?.mage?.rotes ?? []).map(r => r.name)), all = (MAGE().rotes ?? []).map((r, i) => [r, i]).filter(([r]) => !r.nephandi || isFallen(a));
+    const mine = new Set((a?.system?.mage?.rotes ?? []).map(r => r.name)), all = (MAGE().rotes ?? []).map((r, i) => [r, i]).filter(([r]) => Codex.visible(r) && (!r.nephandi || isFallen(a)));
     const spheres = [...new Set(all.map(([r]) => roteSphere(r)))].sort((x, y) => x.localeCompare(y, "ru"));
     return all.map(([r, i]) => ({ id: String(i), name: r.name, en: r.en !== r.name ? r.en : "", has: mine.has(r.name), ...levelOf(roteRank(r)),
       text: `<p><b>${esc(r.spheres)}</b></p>${para(r.text)}`, group: roteSphere(r), groupName: roteSphere(r), groupOrder: spheres.indexOf(roteSphere(r)),
@@ -454,8 +454,10 @@ const equip = (kind, list) => ({
     const p = list[Number(id)];
     if (!p || !a) return null;
     if (kind === "gear") {
-      const { name, source, description = "", quantity = 1 } = p;
-      return a.createEmbeddedDocuments("Item", [{ name, type: "gear", system: { quantity, description, source: source ?? "" } }]);
+      const { name, source, description = "", quantity = 1, holy } = p;
+      // святая реликвия (Tome of Secrets): Истинная вера вещи и её черты — флагом (apps/holy.mjs)
+      return a.createEmbeddedDocuments("Item", [{ name, type: "gear", system: { quantity, description, source: source ?? "" },
+        ...(holy ? { flags: { [SYSTEM_ID]: { holy: { faith: holy.faith, aspects: holy.aspects, dormant: 0 } } } } : {}) }]);
     }
     const { name, group: _group, ...system } = p;
     return a.createEmbeddedDocuments("Item", [{ name, type: kind, img: kind === "weapon" ? weaponIcon(name, system.kind) : armorIcon(system.rating), system }]);
@@ -475,9 +477,8 @@ const moralPath = {
   entries(a, o) {
     const cur = o.current ?? a?.system?.morality?.path ?? "humanity", shift = o.mode === "shift";
     const groupName = { humanity: loc("VTM20.Humanity"), v20: loc("VTM20.Sheet.EnlightenmentPaths"), da: loc("VTM20.Library.Filter.DarkAges"), fan: loc("VTM20.Library.Filter.Src.fan") };
-    // Тёмные века у вампира (лист или мастер): только Дороги эпохи — V20 и Тёмные века разведены
-    const daOnly = VTM20.isDarkAges() && (a ? a.type === "vampire" : !!o.onPick);
-    return Codex.paths.filter(p => ((Codex.visible(p) && (!daOnly || p.era === "darkAges")) || p.key === cur) && !(shift && p.key === "humanity")).map((p, i) => {
+    // какие Пути и Дороги в эпохе — решают редакции (Codex.visible; Тёмные века — Дороги V20 DA, V20 — Пути V20)
+    return Codex.paths.filter(p => (Codex.visible(p) || p.key === cur) && !(shift && p.key === "humanity")).map((p, i) => {
       const g = p.key === "humanity" ? "humanity" : p.fan ? "fan" : p.era ? "da" : "v20";
       const virt = (p.virtues ?? []).map(v => loc(VTM20.virtues[v]?.label ?? v)).join(" · ");
       const sins = [...(p.hierarchy ?? [])].sort((x, y) => y.rating - x.rating);

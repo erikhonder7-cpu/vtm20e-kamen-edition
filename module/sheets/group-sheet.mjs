@@ -30,6 +30,16 @@ const POPULACE = [[0, 0, ""], [3, 15, "1"], [7, 35, "1–2"], [15, 75, "1–3"],
 /** Челядь (там же): сколько слуг можно взять в поездку или на дело. */
 const SERVANTS = [0, 3, 7, 15, 30, 60];
 /** События домена (там же): ключи — тексты механики в языке. */
+/** Поселение (Companion, «Building a Domain»): нужное Население [от, до] и срок развития. */
+const SETTLEMENT = [null, [1, 2, "half"], [3, 4, "year"], [5, 6, "five"], [7, 8, "ten"], [9, 10, "twenty"]];
+/** Люди домена (там же): Способности на выбор (три) и Факты союзников. Пул — 4 + точки, −1 за каждого сверх первого, не больше 10. */
+const STAFF = {
+  armigers: { icon: "fa-shield-halved", abil: ["alertness", "athletics", "archery", "brawl", "intimidation", "melee", "ride"] },
+  courtiers: { icon: "fa-masks-theater", abil: ["commerce", "empathy", "etiquette", "expression", "leadership", "performance", "politics", "seneschal"] },
+  foresters: { icon: "fa-tree", abil: ["alertness", "animalKen", "archery", "crafts", "hearthWisdom", "ride", "stealth", "survival"] },
+  scholars: { icon: "fa-book", abil: ["academics", "commerce", "crafts", "enigmas", "investigation", "law", "medicine", "occult", "politics", "seneschal", "theology"] }
+};
+const staffPool = (dots, people) => Math.min(10, 4 + dots - Math.max(0, people - 1));
 const DOMAIN_EVENTS = ["curse", "disaster", "saint", "famine", "invasion", "court", "heresy", "miracle", "brigands", "pilgrims"];
 const dots = (v, max = 5) => Array.from({ length: Math.max(max, v) }, (_, i) => i < v);
 
@@ -236,9 +246,9 @@ export class CoterieSheet extends GroupSheet {
 
 export class DomainSheet extends GroupSheet {
   static DEFAULT_OPTIONS = {
-    classes: ["r-domain-sheet"],
+    classes: ["r-domain-sheet"], position: { width: 920, height: 820 },
     actions: { rate: DomainSheet.#onRate, openActor: DomainSheet.#onOpen, unlink: DomainSheet.#onUnlink, showMap: DomainSheet.#onShowMap,
-      addEvent: DomainSheet.#onAddEvent, delEvent: DomainSheet.#onDelEvent, syncPool: DomainSheet.#onSyncPool }
+      addEvent: DomainSheet.#onAddEvent, delEvent: DomainSheet.#onDelEvent, syncPool: DomainSheet.#onSyncPool, estate: DomainSheet.#onEstate, dtab: DomainSheet.#onTab }
   };
   static PARTS = { body: { template: `${SYSTEM_PATH}/templates/actor/domain-sheet.hbs`, scrollable: [".r-gs-body"] } };
 
@@ -250,7 +260,11 @@ export class DomainSheet extends GroupSheet {
     try { const sp = citySpots(); zones = [...sp.zones, ...(sp.domains ?? [])]; } catch { zones = []; }
     const diff = HUNTING_GROUNDS[s.ground] ?? 6;
     const list = ids => (ids ?? []).map(id => game.actors.get(id)).filter(Boolean).map(card);
-    const stat = (k, icon, max = 5) => ({ key: k, icon, label: t(`Group.Stat.${k}`), hint: t(`Group.StatHint.${k}`), value: s[k] ?? 0, dots: row(k, max) });
+    // карточка стороны домена: уровень по Companion (в Тёмных веках; «Размер» вне эпохи — без описания) и что даёт в бросках
+    const da = VTM20.isDarkAges();
+    const stat = (k, icon, max = 5) => { const v = s[k] ?? 0;
+      return { key: k, icon, label: t(`Group.Stat.${k}`), hint: t(`Group.StatHint.${k}`), value: v, dots: row(k, max),
+        level: v && (da || k !== "rating") ? t(`Group.Level.${k}.${Math.min(v, 5)}`) : "", effect: v ? t(`Group.Effect.${k}`, { n: v }) : t("Group.EffectNone") }; };
     // сюзерен и вассалы (DA Companion): объединённый домен — свой размер и размеры вассалов
     const vassals = game.actors.filter(x => x.type === "domain" && x.system.liege === a.id);
     const liege = s.liege ? game.actors.get(s.liege) : null;
@@ -281,7 +295,23 @@ export class DomainSheet extends GroupSheet {
       // квартал стратегии и расклад фишек: к концу хода Защищённость +1 / −1 (план 2)
       swayLine: (() => { try { const w = domainSway(a); return w ? t("Group.SwayLine", { district: w.district, mine: w.mine, best: w.best,
         who: w.rival ? ` (${w.rival})` : "", sway: t(`Group.Sway.${w.d > 0 ? "up" : w.d < 0 ? "down" : "same"}`) }) : ""; } catch { return ""; } })(),
-      guests: list(s.guests), people: list(s.people)
+      guests: list(s.guests), people: list(s.people),
+      // Companion: поселения и люди домена — в Тёмных веках
+      da, settlements: (s.settlements ?? []).map((x, i) => { const req = SETTLEMENT[x.level] ?? SETTLEMENT[1];
+        return { i, name: x.name, level: x.level, dots: Array.from({ length: 5 }, (_, j) => ({ n: j + 1, on: j < x.level, i })), kind: t(`Group.Settle.${x.level}`),
+          time: t(`Group.SettleTime.${req[2]}`), need: t("Group.SettleNeed", { a: req[0], b: req[1] }), short: (s.populace ?? 0) < req[0] }; }),
+      settleIncome: (s.settlements ?? []).reduce((n, x) => n + (x.level ?? 0), 0),
+      staff: (s.staff ?? []).map((x, i) => { const type = STAFF[x.type] ?? STAFF.armigers, d = Math.clamp(x.dots ?? 1, 1, 5), ppl = Math.clamp(x.people ?? 1, 1, d), pool = staffPool(d, ppl);
+        return { i, name: x.name, icon: type.icon, type: x.type, ally: x.kind === "allies", kindLabel: t(`Group.StaffKind.${x.kind === "allies" ? "allies" : "retainers"}`),
+          dots: Array.from({ length: 5 }, (_, j) => ({ n: j + 1, on: j < d, i })), people: ppl, peopleOpts: Array.from({ length: d }, (_, j) => ({ value: j + 1, selected: j + 1 === ppl })), pool,
+          types: Object.keys(STAFF).map(k => ({ value: k, label: t(`Group.Staff.${k}`), selected: k === x.type })),
+          abil: [0, 1, 2].map(j => ({ j, options: type.abil.map(ab => ({ value: ab, label: loc(VTM20.abilities[ab]?.label ?? ab), selected: ab === x.abil?.[j] })) })),
+          allyBg: x.kind === "allies" ? t("Group.StaffAllyBg", { n: 2 + d }) : "" }; }),
+      staffTypes: Object.keys(STAFF).map(k => ({ key: k, icon: STAFF[k].icon, label: t(`Group.Staff.${k}`) })),
+      // вкладки листа: Владение, Поместье, Двор, Записи (выбранная помнится, пока окно открыто)
+      tab: this._tab ?? "domain",
+      tabs: [["domain", "fa-chess-rook"], ["estate", "fa-house-chimney", (s.settlements ?? []).length + (s.staff ?? []).length], ["court", "fa-crown", (s.events ?? []).length], ["notes", "fa-feather-pointed"]]
+        .map(([id, icon, n]) => ({ id, icon, label: t(`Group.Tab.${id}`), active: id === (this._tab ?? "domain"), badge: n || "" }))
     };
   }
 
@@ -325,6 +355,43 @@ export class DomainSheet extends GroupSheet {
     if (tr) ui.notifications.info(t("Group.EventTrend", { name: tr.name }));
   }
   static #onDelEvent(event, target) { const list = [...(this.actor.system.events ?? [])]; list.splice(Number(target.dataset.i), 1); return this.actor.update({ "system.events": list }); }
+  /** Вкладка листа: переключить без перерисовки (поля и прокрутка остаются как были). */
+  static #onTab(event, target) {
+    this._tab = target.dataset.tab;
+    for (const a of this.element.querySelectorAll(".r-gs-tabs .r-rtab")) a.classList.toggle("active", a.dataset.tab === this._tab);
+    for (const sec of this.element.querySelectorAll(".r-gs-tab")) sec.classList.toggle("is-active", sec.dataset.dtab === this._tab);
+    this.element.querySelector(".r-gs-body")?.scrollTo?.({ top: 0 });
+  }
+  /** Поселения и люди домена (Companion): добавить, убрать, точки, Союзники/Подручные. */
+  static #onEstate(event, target) {
+    const d = target.dataset, s = this.actor.system, i = Number(d.i), n = Number(d.n);
+    const st = (s.settlements ?? []).map(x => ({ ...x })), sf = (s.staff ?? []).map(x => ({ ...x, abil: [...(x.abil ?? [])] }));
+    switch (d.op) {
+      case "settleAdd": st.push({ name: "", level: 1 }); break;
+      case "settleDel": st.splice(i, 1); break;
+      case "settleLevel": if (st[i]) st[i].level = Math.max(1, st[i].level === n ? n - 1 : n); break;
+      case "staffAdd": sf.push({ name: "", type: d.type ?? "armigers", kind: "retainers", dots: 1, people: 1, abil: [] }); break;
+      case "staffDel": sf.splice(i, 1); break;
+      case "staffDots": if (sf[i]) { sf[i].dots = Math.max(1, sf[i].dots === n ? n - 1 : n); sf[i].people = Math.min(sf[i].people, sf[i].dots); } break;
+      case "staffKind": if (sf[i]) sf[i].kind = sf[i].kind === "allies" ? "retainers" : "allies"; break;
+      default: return;
+    }
+    return this.actor.update({ "system.settlements": st, "system.staff": sf });
+  }
+  /** Поля поселений и людей домена: data-est="settlements|i|name", "staff|i|type", "staff|i|abil|j"… */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    for (const el of this.element.querySelectorAll("[data-est]")) el.addEventListener("change", ev => {
+      ev.stopPropagation();
+      const [sec, i, field, j] = el.dataset.est.split("|"), list = (this.actor.system[sec] ?? []).map(x => ({ ...x, ...(x.abil ? { abil: [...x.abil] } : {}) })), x = list[Number(i)];
+      if (!x) return;
+      if (field === "abil") (x.abil ??= [])[Number(j)] = el.value;
+      else if (field === "type") { x.type = el.value; x.abil = []; }
+      else if (field === "people") x.people = Number(el.value) || 1;
+      else x[field] = el.value;
+      this.actor.update({ [`system.${sec}`]: list });
+    });
+  }
   /** Размер домена — по общему факту «Домен» котерии-хозяина. */
   static #onSyncPool() {
     const owner = domainOwner(this.actor);

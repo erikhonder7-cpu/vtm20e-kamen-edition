@@ -7,6 +7,7 @@ import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { mergeTexts } from "./text-split.mjs";
 import { zuloOn } from "./zulo.mjs";
 import { bogatyrOn } from "./bogatyr.mjs";
+import { editionOf, baseEdition, editionOrder, editionSettings, editionOn, dupName } from "./editions.mjs";
 
 const FILES = ["disciplines", "clans", "rituals", "paths", "merits", "merits-ghouls", "vampire-only", "backgrounds", "backgrounds-ghouls", "archetypes", "assets", "derangements", "combos", "abilities", "demon", "demon-merits", "demon-backgrounds", "demon-hof", "demon-pg", "demon-earthbound", "demon-form", "investments", "pact-templates", "hunter", "dhampir", "werewolf", "mage", "wraith", "changeling", "thaum-artifacts", "sabbat-ritae", "clan-lore", "line-lore", "dark-ages"];
 
@@ -179,6 +180,7 @@ export const Codex = {
       if (info) { p.daDetails = true; p.html = `${p.html ?? ""}<h4>${infoHead}</h4>${info}`; }
     }
     this.pathByKey = Object.fromEntries(this.paths.map(p => [p.key, p]));
+    this._tagEditions();
     // демоны (data/demon.json) — свой справочник: Знания не смешиваются с Дисциплинами вампиров
     const dm = this.demon ?? {};
     // Тёмные Знания Привязанных к Земле (data/demon-earthbound.json) — в конце, с пометкой dark
@@ -214,11 +216,6 @@ export const Codex = {
   /** Чьи клановые черты доступны персонажу: антитрибу и ветви берут черты родительского клана. */
   traitClan(key) { return TRAIT_CLAN_PARENT[key] ?? key; },
 
-  /** Включён ли контент Тёмных веков (настройка мира «Контент из Dark Ages»). */
-  /**
-   * Книга Тёмных веков: V20 Dark Ages, его Companion и Tome of Secrets, Dark Ages 1996/2002 и их дополнения (High/Low Clans,
-   * House of Tremere, Right of Princes, Storytellers Companion…), Libellus Sanguinis — по пометке эпохи или по источнику записи.
-   */
   /**
    * Сила Дисциплины для персонажа: видна по настройкам мира и не чужая — силы Богатырей (Fingers of the Eldest, пометка bogatyr)
    * только у самого Богатыря (гуль типа bogatyr), а не альтернативой у любого вампира.
@@ -231,29 +228,23 @@ export const Codex = {
    * следующая — следующая сила известной краины или первая сила новой. Сумма точек краин = точкам Дисциплины, отдельно за опыт
    * краины не покупаются, Гений места основной не бывает. Действует в Тёмных веках у колдуна с краиной основным путём.
    */
-  krainaRule(disc, primary) { return disc === "koldunism" && VTM20.isDarkAges() && this.isKraina(primary); },
+  krainaRule(disc, primary) { return disc === "koldunism" && VTM20.isDarkAges() && this.isKraina(primary) && !this.krainaPathsOn(); },
+  /**
+   * Хоумрул «Краины как пути Тауматургии» (настройка мира krainaPaths): правило V20 DA выключено — основная краина растёт вместе
+   * с Колдовством, остальные краины — вторичные пути: за свободные пункты и опыт, как пути Тауматургии.
+   */
+  krainaPathsOn() { try { return !!game.settings.get(SYSTEM_ID, "krainaPaths"); } catch { return false; } },
+  /** Запись из книги Тёмных веков (любой редакции) — по пометке эпохи или по источнику; для замены путей V20 DA при загрузке. */
   isDarkAgesBook(x) { return x?.era === "darkAges" || /Dark Ages|Libellus Sanguinis/i.test(x?.source ?? ""); },
   /**
-   * Пути магии крови по эпохе — Тёмные века и V20 разведены. В Тёмных веках — только из книг Тёмных веков и то, что V20 DA
-   * перепечатывает (data/dark-ages.json → bloodPaths: записи V20 с тем же английским именем); у одного пути две записи — берётся
-   * запись Тёмных веков. В V20 — без книг Тёмных веков (кроме настройки «Контент из Dark Ages»). Ритуалы и Дур-Ан-Ки не разводятся.
+   * Пути магии крови Дисциплины в эпохе: основа эпохи (V20 или V20 Dark Ages) и редакции, включённые в настройке «Редакции и
+   * источники» (раздел «Пути магии крови»); один путь из нескольких книг — одной записью (старшая редакция).
    */
   bloodPathsFor(disc) {
-    const all = this.disciplines[disc]?.paths ?? [], lent = this._lent?.[disc];
-    // пути, одолженные у другой Дисциплины (_daThaum), — только в Тёмных веках
-    if (!VTM20.isDarkAges()) return all.filter(x => !lent?.has(x) && this.visible(x) && (!this.isDarkAgesBook(x) || this.darkAgesOn()));
-    const norm = s => String(s ?? "").toLowerCase().replace(/[’]/g, "'").replace(/\b(path|of|the)\b/g, "").replace(/[^a-z']+/g, " ").trim();
-    const reprint = new Set([...(this["dark-ages"]?.bloodPaths?.[disc] ?? []),
-      ...(disc === "assamiteSorcery" && this.livingGodsOn() ? ALG_DUR_AN_KI : [])].map(norm));
-    const one = new Map();
-    for (const x of all) {
-      if (!this.visible(x)) continue;
-      const n = norm(x.en) || x.name, book = this.isDarkAgesBook(x);
-      // все официальные краины (V20 DA, Tome of Secrets, The Black Hand) — в Тёмных веках доступны
-      if (!book && !reprint.has(n) && !lent?.has(x) && !(disc === "koldunism" && this.isKraina(x))) continue;
-      if (!one.has(n) || book || lent?.has(x)) one.set(n, x);
-    }
-    return [...one.values()];
+    const all = this.disciplines[disc]?.paths ?? [], lent = this._lent?.[disc], da = VTM20.isDarkAges();
+    // редакции и повторы решает Codex.visible (module/data/editions.mjs); пути, одолженные у другой Дисциплины по правилу
+    // Тёмных веков (_daThaum: Тауматургия ассамитов и сеттитов, Садхана Данава), — только в этой эпохе
+    return all.filter(x => lent?.has(x) ? da : this.visible(x));
   },
 
   /**
@@ -306,35 +297,85 @@ export const Codex = {
     return (want && opts.find(p => String(p.en ?? "").toLowerCase().includes(want.toLowerCase()))) ?? opts[0] ?? null;
   },
 
+  /** Эпоха — Тёмные века (материалы Тёмных веков вне редакций — кланы, Способности — видны только в ней). */
   darkAgesOn() {
-    try { return !!game.settings.get(SYSTEM_ID, "darkAgesContent") || game.settings.get(SYSTEM_ID, "era") === "darkAges"; } catch { return false; }
+    try { return game.settings.get(SYSTEM_ID, "era") === "darkAges"; } catch { return false; }
   },
 
-  /** Показывать ли запись (путь, ритуал, черту): материалы Тёмных веков — только при включённой настройке. */
-  // «elder-only» (Elysium: The Elder Wars) — не эпоха, а черты для старейшин: видны всегда, с пометкой в библиотеке
-  // «zulo» — черты хоумрула «форма зуло» (data/zulo.mjs): только при настройке мира «Чудовищный облик» = форма зуло
+  /**
+   * Редакции записей справочника (module/data/editions.mjs): раздел (_cat), редакции (_eds) и ключ повтора (_dk).
+   * Записи вне редакций (свои настройки мира, другие линейки) — без пометок, их видимость прежняя.
+   * Несколько редакций у записи — когда книга эпохи её перепечатывает: силы основной книги V20 (V20 DA повторяет Дисциплины),
+   * Факты V20 с текстом V20 DA, черты и Факты гулей Ghouls & Revenants (в обеих эпохах), крайны The Black Hand (решение мира).
+   */
+  _tagEditions() {
+    const groups = new Map(), core = /^(|—|V20|V20 Core.*|Vampire: The Masquerade 20th Anniversary Edition.*|V20, основная.*|V20 Core Rulebook.*)$/;
+    const daBg = new Set((this["dark-ages"]?.backgrounds ?? []).map(b => b.en));
+    const tag = (x, cat, scope, extra = []) => {
+      const e = editionOf(x);
+      if (!e) return;
+      x._cat = cat;
+      x._eds = [...new Set([e, ...extra])];
+      x._dk = `${cat}|${scope}|${dupName(x)}`;
+      (groups.get(x._dk) ?? groups.set(x._dk, []).get(x._dk)).push(x);
+    };
+    for (const d of Object.values(this.disciplines)) {
+      for (const p of d.powers ?? []) tag(p, "powers", d.key, editionOf(p) === "v20" && core.test(String(p.source ?? "").trim()) ? ["v20da"] : []);
+      for (const p of d.paths ?? []) if (!this._lent?.[d.key]?.has(p)) tag(p, "paths", d.key, p.proc === "kraina" ? ["v20da"] : ALG_DUR_AN_KI.includes(p.en) && d.key === "assamiteSorcery" ? ["alg"] : []);
+    }
+    for (const [k, g] of Object.entries(this.rituals ?? {})) for (const r of g.rituals ?? []) tag(r, "rituals", k);
+    for (const m of this.merits) if (!m.line) tag(m, "merits", `${m.kind}|${m.clan ?? ""}`, m.ghoul ? ["v20", "v20da"] : []);
+    for (const b of this.backgrounds) if (!b.line) tag(b, "backgrounds", "", b.ghoul ? ["v20", "v20da"] : daBg.has(b.en) && editionOf(b) === "v20" ? ["v20da"] : []);
+    for (const p of this.paths) tag(p, "morality", "");
+    for (const x of this.derangements ?? []) tag(x, "derangements", "");
+    for (const x of this.combos ?? []) tag(x, "combos", "");
+    // ротэ магов (data/mage.json): M20 — основа в любой эпохе (своих Тёмных веков у магов в справочнике нет), Dead Magic — Revised
+    for (const r of this.mage?.rotes ?? []) {
+      r._cat = "rotes"; r._eds = /Мёртвая магия|Dead Magic/i.test(r.source ?? "") ? ["revised"] : ["v20", "v20da"]; r._dk = `rotes|${dupName(r)}`;
+      (groups.get(r._dk) ?? groups.set(r._dk, []).get(r._dk)).push(r);
+    }
+    this._edGroups = groups;
+    this._edStamp = null;
+  },
+
+  /** Видимые записи с редакциями: из каждой группы повторов — одна, из самой старшей включённой редакции. */
+  _edVisible() {
+    const base = baseEdition(), cfg = editionSettings(), alg = this.livingGodsOn();
+    const stamp = `${base}|${alg}|${JSON.stringify(cfg)}`;
+    if (stamp === this._edStamp) return this._edSet;
+    const order = editionOrder(base);
+    const rank = (cat, e) => e === "alg" ? (alg && base === "v20da" ? 0.5 : Infinity) : editionOn(cat, e, base, cfg) ? order.indexOf(e) : Infinity;
+    const set = new Set();
+    for (const list of this._edGroups?.values() ?? []) {
+      let best = null, bestR = Infinity;
+      for (const x of list) {
+        const r = Math.min(...x._eds.map(e => rank(x._cat, e)));
+        if (r < bestR) { best = x; bestR = r; }
+      }
+      if (best) set.add(best);
+    }
+    this._edStamp = stamp; this._edSet = set;
+    return set;
+  },
+
+  /** Редакция записи для подписи: основа эпохи, если запись в ней есть, иначе её первая редакция; null — вне редакций. */
+  editionLabelOf(x) {
+    if (!x?._eds) return null;
+    const base = baseEdition();
+    return x._eds.includes(base) ? base : x._eds.find(e => e !== "alg") ?? null;
+  },
+
   /** Фанатский «Vampire: Age of the Living Gods» включён настройкой мира (по умолчанию — нет). */
   livingGodsOn() {
     try { return !!game.settings.get(SYSTEM_ID, "livingGodsContent"); } catch { return false; }
   },
-  visible(x) { if (x?.alg) return this.livingGodsOn(); return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()) || (x.era === "zulo" && zuloOn()) || (x.era === "bogatyr" && bogatyrOn()); },
-
-  /** Черта Тёмных веков — повтор: есть такая же черта V20 (вид и английское название) или та же черта Тёмных веков из другой
-   *  книги (первая остаётся). Библиотека прячет повторы без фильтра «Тёмные века», мастер создания — всегда, кроме выбранных. */
-  daDuplicate(m) {
-    if (m?.era !== "darkAges" || !m.en) return false;
-    if (this._dupFor !== this.merits) {
-      const key = x => `${x.kind}|${String(x.en ?? "").toLowerCase().replace(/\(.*?\)/g, "").replace(/\b13th\b/g, "thirteenth").replace(/[^a-z]/g, "")}`;
-      const core = new Set(), first = new Map();
-      for (const x of this.merits ?? []) {
-        if (!x.en) continue;
-        if (x.era !== "darkAges") core.add(key(x)); else if (!first.has(key(x))) first.set(key(x), x);
-      }
-      this._dupSet = new Set((this.merits ?? []).filter(x => x.era === "darkAges" && x.en && (core.has(key(x)) || first.get(key(x)) !== x)));
-      this._dupFor = this.merits;
-    }
-    return this._dupSet.has(m);
-  },
+  /**
+   * Показывать ли запись. С редакцией (_eds: силы, пути, ритуалы, черты, Факты, Пути и Дороги, психозы, комбинации) — по основе
+   * эпохи и настройке «Редакции и источники», повторы — одной записью (_edVisible). Без редакции: «Век живых богов», хоумрулы
+   * «форма зуло» и «Богатыри» — своими настройками; прочие материалы Тёмных веков (кланы, Способности) — в своей эпохе.
+   * «elder-only» (Elysium) — пометка черт для старейшин, на видимость не влияет.
+   */
+  visible(x) { if (x?.alg) return this.livingGodsOn(); if (x?._eds) return this._edVisible().has(x); return !x?.era || x.era === "elder-only" || (x.era === "darkAges" && this.darkAgesOn()) || (x.era === "zulo" && zuloOn()) || (x.era === "bogatyr" && bogatyrOn()); },
 
   /** Ключ секты по свободному тексту (поле «Секта» на листе): «Камарилья» → camarilla. */
   sectKey(text) { return SECT_KEYS.find(([re]) => re.test(text ?? ""))?.[1] ?? ""; },

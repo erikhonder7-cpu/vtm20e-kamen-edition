@@ -9,19 +9,29 @@
 
 import { VTM20, SYSTEM_ID } from "../config.mjs";
 
+const esc = x => foundry.utils.escapeHTML(String(x ?? ""));
 const L = (k, d) => d ? game.i18n.format(`VTM20.Money.${k}`, d) : game.i18n.localize(`VTM20.Money.${k}`);
+
+/** Валюты мира, заведённые рассказчиком (настройка customCurrencies): { ключ: { label, symbol, custom } }. */
+export function customCurrencies() {
+  let list = [];
+  try { list = game.settings.get(SYSTEM_ID, "customCurrencies") ?? []; } catch { list = []; }
+  return Object.fromEntries(list.filter(c => c?.key && c.label).map(c => [c.key, { label: c.label, symbol: c.symbol || c.label, custom: true }]));
+}
+/** Все валюты: встроенные и валюты мира. */
+export const allCurrencies = () => ({ ...VTM20.currencies, ...customCurrencies() });
 
 /** Валюта хроники: из настройки или по эпохе. */
 export function worldCurrency() {
   const c = game.settings.get(SYSTEM_ID, "currency");
-  if (VTM20.currencies[c]) return c;
+  if (allCurrencies()[c]) return c;
   return ["revolution", "darkAges"].includes(game.settings.get(SYSTEM_ID, "era")) ? "livre" : "dollar";
 }
 
 /** Валюта персонажа (своя или хроники). */
 export const currencyOf = actor => {
   const c = actor?.system?.money?.currency;
-  return VTM20.currencies[c] ? c : worldCurrency();
+  return allCurrencies()[c] ? c : worldCurrency();
 };
 
 /** Курс ассигната: доля номинала, которую дают монетой (0…1). */
@@ -29,7 +39,7 @@ export const assignatRate = () => Math.clamp(Number(game.settings.get(SYSTEM_ID,
 
 /** Округлить сумму до мельчайшей монеты валюты (денье, цент, копейка). */
 export function roundMoney(amount, cur) {
-  const step = VTM20.currencies[cur]?.lsd ? 240 : 100;
+  const step = allCurrencies()[cur]?.lsd ? 240 : 100;
   return Math.round((Number(amount) || 0) * step) / step;
 }
 
@@ -41,7 +51,7 @@ function toLsd(amount) {
 
 /** Сумма с единицами: «12 л. 8 с. 9 д.», «$ 1 250». */
 export function fmtMoney(amount, cur = worldCurrency()) {
-  const c = VTM20.currencies[cur] ?? VTM20.currencies.dollar;
+  const c = allCurrencies()[cur] ?? VTM20.currencies.dollar;
   const lang = game.i18n.lang;
   if (c.lsd) {
     const { l, s, d } = toLsd(amount);
@@ -88,7 +98,7 @@ export async function changeMoney(actor, delta, { force = false } = {}) {
   if (!m) return false;
   const cur = currencyOf(actor);
   // ливры: монеты отдельно — доход ложится монетами, трата — с разменом лишь по необходимости
-  if (VTM20.currencies[cur]?.lsd) {
+  if (allCurrencies()[cur]?.lsd) {
     const c = coinsOf(m);
     if (delta >= 0) { await actor.update(coinUpdate(add(c, toLsd(delta)))); return true; }
     const paid = payCoins(c, -delta * 240);
@@ -105,7 +115,7 @@ export async function changeMoney(actor, delta, { force = false } = {}) {
 /** Для листа: строка кошелька, ассигнаты и их цена монетой. */
 export function moneyView(actor) {
   const m = actor.system.money, cur = currencyOf(actor);
-  const lsd = !!VTM20.currencies[cur]?.lsd;
+  const lsd = !!allCurrencies()[cur]?.lsd;
   const rate = assignatRate();
   return {
     text: fmtMoney(m.amount, cur), currency: cur, lsd,
@@ -116,17 +126,75 @@ export function moneyView(actor) {
     ])(coinsOf(m)) : null,
     paper: lsd && m.paper > 0 ? fmtMoney(m.paper, cur) : "",
     paperCoin: lsd && m.paper > 0 ? fmtMoney(roundMoney(m.paper * rate, cur), cur) : "",
-    rate: Math.round(rate * 100)
+    rate: Math.round(rate * 100),
+    // другие валюты кошелька (вписаны игроком или рассказчиком)
+    extra: (m.extra ?? []).filter(x => x.name).map(x => ({ name: x.name, symbol: x.symbol, amount: extraText(x.amount) }))
   };
+}
+
+/** Сумма другой валюты: целое — без дробной части. */
+const extraText = n => (Number(n) || 0).toLocaleString(game.i18n.lang, { maximumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2 });
+
+/** Подсказки названий валют: встроенные и валюты мира. */
+const currencyNames = () => Object.values(allCurrencies()).map(c => game.i18n.localize(c.label));
+
+/**
+ * Другие валюты и валюты мира — разделы окна кошелька. У каждой своей валюты в кошельке — поле суммы и «убрать»;
+ * новая — название (с подсказками) и сумма. Рассказчику — валюты мира: их видят все в подсказках и в выборе основной валюты.
+ */
+function extraFields(m) {
+  const rows = (m.extra ?? []).map((x, i) => `<div class="r-money-xrow">
+      <span class="r-money-xname"><i class="fa-solid fa-coins"></i> ${esc(x.name)}${x.symbol ? ` <small>${esc(x.symbol)}</small>` : ""}</span>
+      <input type="number" name="x${i}" value="${Number(x.amount) || 0}" min="0" step="any">
+      <label class="r-money-xdel" data-tooltip="${esc(L("ExtraDrop"))}"><input type="checkbox" name="xdel${i}"><i class="fa-solid fa-trash"></i></label></div>`).join("");
+  const list = `<datalist id="r-money-curlist">${currencyNames().map(n => `<option value="${esc(n)}">`).join("")}</datalist>`;
+  const gm = game.user.isGM ? `
+      <details class="r-money-more">
+        <summary><i class="fa-solid fa-globe"></i> ${L("WorldCur")} <em>${Object.keys(customCurrencies()).length || ""}</em></summary>
+        <p class="r-money-note">${L("WorldCurHint")}</p>
+        ${Object.entries(customCurrencies()).map(([k, c]) => `<div class="r-money-xrow"><span class="r-money-xname"><i class="fa-solid fa-landmark"></i> ${esc(c.label)} <small>${esc(c.symbol)}</small></span>
+          <span></span><label class="r-money-xdel" data-tooltip="${esc(L("WorldDrop"))}"><input type="checkbox" name="wdel-${esc(k)}"><i class="fa-solid fa-trash"></i></label></div>`).join("")}
+        <div class="r-money-xnew"><input type="text" name="wname" placeholder="${esc(L("WorldName"))}"><input type="text" name="wsym" placeholder="${esc(L("WorldSym"))}" maxlength="6"></div>
+      </details>` : "";
+  return `
+      <details class="r-money-more"${(m.extra ?? []).length ? " open" : ""}>
+        <summary><i class="fa-solid fa-coins"></i> ${L("Extra")} <em>${(m.extra ?? []).length || ""}</em></summary>
+        ${rows}
+        <div class="r-money-xnew"><input type="text" name="xname" list="r-money-curlist" placeholder="${esc(L("ExtraName"))}"><input type="number" name="xamount" min="0" step="any" placeholder="${esc(L("Amount"))}"></div>
+        ${list}
+      </details>${gm}`;
+}
+
+/** Применить разделы «Другие валюты» и «Валюты мира». */
+async function applyExtra(actor, form) {
+  const m = actor.system.money, f = form.elements, val = k => f[k]?.value;
+  const extra = (m.extra ?? []).map((x, i) => ({ ...x, amount: Math.max(0, Number(val(`x${i}`)) || 0) })).filter((x, i) => !f[`xdel${i}`]?.checked);
+  const name = String(val("xname") ?? "").trim().slice(0, 40);
+  if (name) {
+    const known = Object.values(allCurrencies()).find(c => game.i18n.localize(c.label).toLowerCase() === name.toLowerCase());
+    const same = extra.find(x => x.name.toLowerCase() === name.toLowerCase());
+    const add = Math.max(0, Number(val("xamount")) || 0);
+    if (same) same.amount += add; else extra.push({ name, symbol: known?.symbol ?? "", amount: add });
+  }
+  const changed = JSON.stringify(extra) !== JSON.stringify((m.extra ?? []).map(x => ({ ...x })));
+  if (changed) await actor.update({ "system.money.extra": extra });
+  if (!game.user.isGM) return;
+  // валюты мира — только рассказчик
+  let world = (game.settings.get(SYSTEM_ID, "customCurrencies") ?? []).filter(c => !f[`wdel-${c.key}`]?.checked);
+  const wname = String(val("wname") ?? "").trim().slice(0, 40);
+  if (wname && !world.some(c => c.label.toLowerCase() === wname.toLowerCase())) {
+    world = [...world, { key: `c${foundry.utils.randomID(6)}`, label: wname, symbol: String(val("wsym") ?? "").trim().slice(0, 6) || wname }];
+  }
+  if (JSON.stringify(world) !== JSON.stringify(game.settings.get(SYSTEM_ID, "customCurrencies") ?? [])) await game.settings.set(SYSTEM_ID, "customCurrencies", world);
 }
 
 /** Окно «Кошелёк»: прибавить, убавить, задать; обмен ассигнатов на монету по курсу. */
 export async function openMoney(actor) {
   if (!actor?.system?.money) return;
   const m = actor.system.money, cur = currencyOf(actor);
-  const lsd = !!VTM20.currencies[cur]?.lsd;
+  const lsd = !!allCurrencies()[cur]?.lsd;
   const rate = assignatRate();
-  const opts = Object.entries(VTM20.currencies)
+  const opts = Object.entries(allCurrencies())
     .map(([k, c]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${game.i18n.localize(c.label)}</option>`).join("");
   const view = moneyView(actor);
   const have = coinsOf(m);
@@ -157,8 +225,9 @@ export async function openMoney(actor) {
       <div class="r-tiles r-money-ops" style="--cols: 3">${ops}</div>
       ${amountFields}
       ${paperFields}
+      ${extraFields(m)}
       <details class="r-money-more">
-        <summary><i class="fa-solid fa-sliders"></i> ${L("Currency")} <em>${game.i18n.localize(VTM20.currencies[cur]?.label ?? cur)}</em></summary>
+        <summary><i class="fa-solid fa-sliders"></i> ${L("Currency")} <em>${esc(game.i18n.localize(allCurrencies()[cur]?.label ?? cur))}</em></summary>
         <select name="currency">${opts}</select>
       </details>
       <p class="r-hint">${L(lsd ? "HintLsd" : "Hint")}</p>
@@ -174,7 +243,8 @@ export async function openMoney(actor) {
     },
     buttons: [
       { action: "apply", icon: "fa-solid fa-check", label: L("Apply"), default: true,
-        callback: (e, b) => ({ op: Number(b.form.elements.op.value), ...read(b.form, lsd), lsdIn: lsd ? readLsd(b.form) : null }) }
+        // другие валюты и валюты мира пишутся сразу; основная валюта — ниже, как раньше
+        callback: async (e, b) => { await applyExtra(actor, b.form); return { op: Number(b.form.elements.op.value), ...read(b.form, lsd), lsdIn: lsd ? readLsd(b.form) : null }; } }
     ],
     rejectClose: false
   });

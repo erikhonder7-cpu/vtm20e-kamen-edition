@@ -1,0 +1,90 @@
+{{!-- Сражение Тёмных веков (Tome of Secrets, гл. 3) — module/apps/battle.mjs --}}
+<div class="r-bt">
+  <header class="r-bt-top">
+    <span class="r-bt-turn"><small>{{localize "VTM20.Battle.LongTurn"}}</small><b>{{turn}}</b></span>
+    <p class="r-hint-note r-bt-intro" data-keep><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Battle.Intro"}}</p>
+    <a class="r-btn is-primary" data-action="act" data-op="nextTurn" data-tooltip="{{localize 'VTM20.Battle.NextHint'}}"><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Battle.Next"}}</a>
+    <a class="r-icon-btn" data-action="act" data-op="reset" data-tooltip="{{localize 'VTM20.Battle.Reset'}}"><i class="fa-solid fa-broom"></i></a>
+  </header>
+
+  <div class="r-bt-body">
+    {{!-- цели сторон --}}
+    <div class="r-bt-sides">
+      {{#each sides}}
+      <section class="r-vcard r-bt-side is-side{{si}}">
+        <input class="r-bt-sidename" type="text" data-bt="side|{{si}}|name" value="{{name}}" placeholder="{{#if si}}{{localize 'VTM20.Battle.SideB'}}{{else}}{{localize 'VTM20.Battle.SideA'}}{{/if}}">
+        <div class="r-bt-final {{#if finalDone}}is-done{{/if}}">
+          <span class="r-bt-lbl"><i class="fa-solid fa-flag-checkered"></i> {{localize "VTM20.Battle.Final"}}</span>
+          <input type="text" data-bt="side|{{si}}|final" value="{{final}}" placeholder="{{localize 'VTM20.Battle.FinalHint'}}">
+          <a class="r-bt-mark {{#if finalDone}}is-on{{/if}}" data-action="act" data-op="finalDone" data-si="{{si}}" data-tooltip="{{localize 'VTM20.Battle.Done'}}"><i class="fa-solid fa-check"></i></a>
+        </div>
+        <ol class="r-bt-objs">
+          {{#each objectives}}
+          <li class="r-bt-obj is-{{status}}">
+            <span class="r-bt-type" data-tooltip="{{hint}}">{{typeLabel}}</span>
+            <input type="text" data-bt="obj|{{si}}|{{oi}}|text" value="{{text}}" placeholder="{{hint}}">
+            <span class="r-bt-acts">
+              <a class="r-bt-mark {{#if (rEq status 'done')}}is-on{{/if}}" data-action="act" data-op="objDone" data-si="{{si}}" data-oi="{{oi}}" data-tooltip="{{localize 'VTM20.Battle.Done'}}"><i class="fa-solid fa-check"></i></a>
+              <a class="r-bt-mark is-fail {{#if (rEq status 'failed')}}is-on{{/if}}" data-action="act" data-op="objFail" data-si="{{si}}" data-oi="{{oi}}" data-tooltip="{{localize 'VTM20.Battle.Fail'}}"><i class="fa-solid fa-xmark"></i></a>
+              <a class="r-bt-small" data-action="act" data-op="objUp" data-si="{{si}}" data-oi="{{oi}}" data-tooltip="{{localize 'VTM20.Battle.Up'}}"><i class="fa-solid fa-arrow-up"></i></a>
+              <a class="r-bt-small" data-action="act" data-op="objDel" data-si="{{si}}" data-oi="{{oi}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>
+            </span>
+          </li>
+          {{else}}<li class="r-bt-none">{{localize "VTM20.Battle.NoObj"}}</li>{{/each}}
+        </ol>
+        <div class="r-bt-add">{{#each types}}<a class="r-bt-chip" data-action="act" data-op="objAdd" data-si="{{../si}}" data-type="{{key}}" data-tooltip="{{hint}}"><i class="fa-solid fa-plus"></i> {{label}}</a>{{/each}}</div>
+        <p class="r-bt-left">{{localize "VTM20.Battle.Left" n=left}}</p>
+      </section>
+      {{/each}}
+    </div>
+
+    {{!-- отряды смертных --}}
+    <h2 class="r-h2"><span><i class="fa-solid fa-people-group"></i> {{localize "VTM20.Battle.Groups"}}</span>
+      <span class="r-h2-tools"><a class="r-h2-btn" data-action="act" data-op="groupAdd" data-side="0"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Battle.GroupAddA"}}</span></a>
+        <a class="r-h2-btn" data-action="act" data-op="groupAdd" data-side="1"><i class="fa-solid fa-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Battle.GroupAddB"}}</span></a></span></h2>
+    <div class="r-bt-groups">
+      {{#each groups}}
+      <article class="r-vcard r-bt-group {{#if sideB}}is-side1{{else}}is-side0{{/if}}">
+        <header>
+          <a class="r-bt-sidetag" data-action="act" data-op="groupSide" data-gi="{{gi}}" data-tooltip="{{localize 'VTM20.Battle.SwapSide'}}">{{sideName}}</a>
+          <input type="text" data-bt="group|{{gi}}|name" value="{{name}}" placeholder="{{localize 'VTM20.Battle.GroupName'}}">
+          <a class="r-bt-small" data-action="act" data-op="groupDel" data-gi="{{gi}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-trash"></i></a>
+        </header>
+        <div class="r-bt-members">
+          {{#each members}}
+          <span class="r-bt-member"><small>{{label}}</small>
+            <a class="r-step" data-action="act" data-op="member" data-gi="{{../gi}}" data-k="{{k}}" data-d="-1">−</a><b>{{n}}</b><a class="r-step" data-action="act" data-op="member" data-gi="{{../gi}}" data-k="{{k}}" data-d="1">+</a></span>
+          {{/each}}
+        </div>
+        <div class="r-bt-gear">
+          <label data-tooltip="{{localize 'VTM20.Battle.WeaponHint'}}">{{localize "VTM20.Battle.Weapon"}} <input type="number" min="0" max="6" data-bt="group|{{gi}}|weapon" value="{{weapon}}"></label>
+          <label data-tooltip="{{localize 'VTM20.Battle.ArmorHint'}}">{{localize "VTM20.Battle.Armor"}} <input type="number" min="0" max="6" data-bt="group|{{gi}}|armor" value="{{armor}}"></label>
+          <label data-tooltip="{{localize 'VTM20.Battle.HorsesHint'}}">{{localize "VTM20.Battle.Horses"}} <input type="number" min="0" max="99" data-bt="group|{{gi}}|horses" value="{{horses}}"></label>
+          <label data-tooltip="{{localize 'VTM20.Battle.PotenceHint'}}"><input type="checkbox" data-bt="group|{{gi}}|potence" {{checked potence}}> {{localize "VTM20.Battle.Potence"}}</label>
+        </div>
+        <div class="r-bt-stats">
+          <span data-tooltip="{{localize 'VTM20.Battle.InitHint'}}"><small>{{localize "VTM20.Battle.Init"}}</small><b>{{init}}</b></span>
+          <a class="r-bt-roll" data-action="act" data-op="groupRoll" data-gi="{{gi}}" data-mode="atk"><small>{{localize "VTM20.Battle.Attack"}}</small><b>{{attack}}</b>{{#if auto}}<em>+{{auto}}</em>{{/if}}</a>
+          <a class="r-bt-roll is-def" data-action="act" data-op="groupRoll" data-gi="{{gi}}" data-mode="def"><small>{{localize "VTM20.Battle.Defend"}}</small><b>{{defense}}</b></a>
+          <span class="r-bt-pips" data-tooltip="{{localize 'VTM20.Battle.GroupActs'}}">{{#each pips}}<a class="{{#if on}}on{{/if}}" data-action="act" data-op="groupPip" data-gi="{{../gi}}" data-n="{{n}}"></a>{{/each}}</span>
+        </div>
+      </article>
+      {{else}}<p class="r-gs-empty">{{localize "VTM20.Battle.NoGroups"}}</p>{{/each}}
+    </div>
+
+    {{!-- долгие ходы: персонажи по инициативе --}}
+    <h2 class="r-h2"><span><i class="fa-solid fa-hourglass-half"></i> {{localize "VTM20.Battle.Fighters"}}</span>
+      <span class="r-h2-tools"><a class="r-h2-btn" data-action="act" data-op="fighterAdd" data-tooltip="{{localize 'VTM20.Battle.AddTokensHint'}}"><i class="fa-solid fa-user-plus"></i> <span class="r-h2-lbl">{{localize "VTM20.Battle.AddTokens"}}</span></a></span></h2>
+    <div class="r-bt-fighters">
+      {{#each fighters}}
+      <div class="r-bt-fighter">
+        <a class="r-bt-face" data-action="act" data-op="fighterOpen" data-uuid="{{uuid}}"><img src="{{img}}" alt=""><b>{{name}}</b></a>
+        <span class="r-bt-init" data-tooltip="{{localize 'VTM20.Battle.FInitHint'}}">{{init}}</span>
+        {{#each kinds}}<span class="r-bt-kind"><small>{{label}}</small><span class="r-bt-pips">{{#each pips}}<a class="{{#if on}}on{{/if}}" data-action="act" data-op="pip" data-uuid="{{../../uuid}}" data-k="{{../k}}" data-i="{{i}}"></a>{{/each}}</span></span>{{/each}}
+        <a class="r-bt-small" data-action="act" data-op="fighterDel" data-fi="{{fi}}" data-tooltip="{{localize 'VTM20.Battle.Remove'}}"><i class="fa-solid fa-xmark"></i></a>
+      </div>
+      {{else}}<p class="r-gs-empty">{{localize "VTM20.Battle.NoFighters"}}</p>{{/each}}
+    </div>
+    <p class="r-hint">{{localize "VTM20.Battle.LongTurnRules"}}</p>
+  </div>
+</div>

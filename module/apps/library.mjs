@@ -12,6 +12,7 @@
 import { VTM20, SYSTEM_PATH, SYSTEM_ID } from "../config.mjs";
 import { isTechnocrat, isNephandus } from "../ui/themes.mjs";
 import { Codex } from "../data/codex.mjs";
+import { baseEdition } from "../data/editions.mjs";
 import { blockerFor } from "../data/trait-rules.mjs";
 import { traitIcon, backgroundIcon } from "../data/icons.mjs";
 import { ritualFields } from "../data/ritual-text.mjs";
@@ -34,8 +35,14 @@ const statusTags = x => {
     /^cross-tradition/i.test(s) && { label: L("Status.cross"), tip },
     /unresolved|unconfirmed|unverified/i.test(s) && { label: L("Status.check"), tip, red: true }].filter(Boolean);
 };
-/** Метки записи: книга (кроме основной V20), «Тёмные века» для материалов эпохи и статус по аудиту. */
-const sourceTags = x => [x.era === "darkAges" && { label: L("Filter.DarkAges"), red: true },
+/** Метки записи: редакция (если не основа эпохи; Тёмные века и V20 друг для друга — красным), книга (кроме основной V20),
+ *  статус по аудиту. Записи вне редакций — прежняя пометка «Тёмные века». */
+const edTag = x => {
+  const e = Codex.editionLabelOf(x);
+  if (!e) return x.era === "darkAges" && { label: L("Filter.DarkAges"), red: true };
+  return e !== baseEdition() && { label: game.i18n.localize(`VTM20.Editions.Short.${e}`), tip: game.i18n.localize(`VTM20.Editions.Name.${e}`), red: e === "v20" || e === "v20da" };
+};
+const sourceTags = x => [edTag(x),
   x.era === "elder-only" && { label: L("Filter.ElderOnly"), tip: L("Filter.ElderOnlyTip") },
   x.source && x.source !== "V20" && { label: x.source, tip: x.sourceNote }, ...statusTags(x)].filter(Boolean);
 /** Пометка у силы в списке: старая редакция (Revised) или старый путь — мелко после названия. */
@@ -45,9 +52,17 @@ const statusLine = p => {
   return tags.length ? `<p class="r-lib-status"><i class="fa-solid fa-circle-info"></i> ${tags.join(" · ")}</p>` : "";
 };
 const norm = s => s.toLowerCase().replace(/ё/g, "е");
-/** Вид источника для фильтра: основная книга, дополнение, Тёмные века, фанатское. */
-const srcKind = x => x.source === "Demon: The Fallen" ? "core" : x.fan ? "fan" : x.era === "darkAges" ? "da" : (x.source && !/^V20(,|$)/.test(x.source.trim())) ? "ext" : "core";   // «V20 The Black Hand» — дополнение
-const SRC_KINDS = ["core", "ext", "da", "fan"];
+/**
+ * Вид источника для фильтра. С редакцией: основа эпохи — «Основная» (книга эпохи: V20 или V20 Dark Ages) и «Дополнения»,
+ * другие редакции — своим именем (module/data/editions.mjs). Без редакции: основная книга, дополнение, Тёмные века, фанатское.
+ */
+const CORE_BOOK = /^(|—|V20|V20 Core.*|Vampire: The Masquerade 20th Anniversary Edition.*|V20, основная.*|V20 Dark Ages)$/;
+const srcKind = x => {
+  const e = Codex.editionLabelOf(x);
+  if (e) return e !== baseEdition() ? (e === "da" ? "daOld" : e) : CORE_BOOK.test(String(x.source ?? "").trim()) ? "core" : "ext";
+  return x.source === "Demon: The Fallen" ? "core" : x.fan ? "fan" : x.era === "darkAges" ? "da" : (x.source && !/^V20(,|$)/.test(x.source.trim())) ? "ext" : "core";   // «V20 The Black Hand» — дополнение
+};
+const SRC_KINDS = ["core", "ext", "v20", "v20da", "revised", "classic", "daOld", "da", "fan"];
 /** Редакция записи Колдовства (поле edition пути или источник ритуала) — подпись группы и порядок: V20, дополнения, Тёмные века, Revised. */
 export const EDITIONS = [
   [/^V20$/, "V20"], [/Rites of the Blood/, "Rites of the Blood"], [/Black Hand/, "Чёрная рука"], [/^V20 Dark Ages$/, "Тёмные века V20"],
@@ -200,7 +215,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     }
     // Источник — если в списке больше одного вида (основная книга, дополнения, Тёмные века, фанатское)
     const srcSeen = SRC_KINDS.filter(k => entries.some(e => e.src === k));
-    const srcChips = srcSeen.length > 1 && !BY_EDITION.has(this.o.discipline) ? [chip("src", "", L("Filter.AllSources")), ...srcSeen.map(k => chip("src", k, L(`Filter.Src.${k}`)))] : null;
+    const srcChips = srcSeen.length > 1 && !BY_EDITION.has(this.o.discipline) ? [chip("src", "", L("Filter.AllSources")), ...srcSeen.map(k => chip("src", k, ["core", "ext", "da", "fan"].includes(k) ? L(`Filter.Src.${k}`) : game.i18n.localize(`VTM20.Editions.Short.${k === "daOld" ? "da" : k}`)))] : null;
     // Виды из library-picks.mjs: группы — кнопками (если их от 2 до 16), уровни — отдельным рядом
     let levelChips = null;
     if (kind === "path" && BY_EDITION.has(this.o.discipline)) {
@@ -308,13 +323,17 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
 
   #rituals() {
     const disc = this.o.discipline;
+    // Мистика Бездны: уровень ритуала — не выше Оккультизма (V20 Rites of the Blood, V20 Dark Ages); в V20 DA ещё Оккультизм 3
+    const occ = this.actor?.system.abilities?.occult?.value ?? 0, occL = game.i18n.localize("VTM20.Abil.occult");
+    const abyssNeed = lv => disc !== "obtenebration" ? [] : [lv > occ && L("NeedLevel", { name: occL, level: lv }),
+      VTM20.isDarkAges() && occ < 3 && L("NeedLevel", { name: occL, level: 3 })];
     const mine = new Set(this.itemsOf("ritual").map(r => r.name));
     const dots = this.dotsOf(disc);
     return (Codex.rituals[disc]?.rituals ?? []).map((r, i) => [r, i]).filter(([r]) => Codex.visible(r)).map(([r, i]) => this.#entry({
       id: String(i), name: r.name, en: r.en, level: r.level, levels: String(r.level), order: r.level,
       roman: ROMAN[r.level - 1] ?? r.level, has: mine.has(r.name), text: r.html ?? "", long: true, tags: sourceTags(r), src: srcKind(r),
       ...(BY_EDITION.has(disc) ? (e => ({ group: e.key, groupName: e.label, groupOrder: e.order }))(editionOf(r)) : {}),
-      reasons: r.level > dots ? [L("NeedLevel", { name: Codex.disciplineLabel(disc), level: r.level })] : []
+      reasons: [r.level > dots && L("NeedLevel", { name: Codex.disciplineLabel(disc), level: r.level }), ...abyssNeed(r.level)].filter(Boolean)
     }));
   }
 
@@ -357,7 +376,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
     };
     // кому видна черта — VTM20.traitFor (то же правило, что в мастере создания)
     const who = { type: this.actor?.type, dhampir: !!this.actor?.isDhampir, lost: isLost(this.actor), nephandi: isNephandus(this.actor) };
-    // повтор черты Тёмных веков (Codex.daDuplicate) виден только с фильтром «Тёмные века» или если уже взят
+    // повторы одной черты из разных редакций прячет Codex.visible (module/data/editions.mjs)
     return Codex.merits.filter(m => m.kind === kind && Codex.visible(m) && VTM20.traitFor(m, who)).map(m => {
       const costs = costsOf(m);
       const blocker = blockerFor(m.name, mine);
@@ -365,7 +384,7 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
       const banned = !!clanKey && (m.notClan ?? []).includes(clanKey);
       return this.#entry({
         id: String(Codex.merits.indexOf(m)), name: m.name, en: m.en, has: mine.includes(m.name), text: m.html ?? "", long: true,
-        flaw: kind === "flaw", cost: m.cost, order: costs[0], src: srcKind(m), dup: Codex.daDuplicate(m),
+        flaw: kind === "flaw", cost: m.cost, order: costs[0], src: srcKind(m),
         ...place(m),
         levels: costs.join(","),
         tags: sourceTags(m),
@@ -503,7 +522,6 @@ export class VtMLibrary extends HandlebarsApplicationMixin(ApplicationV2) {
         && (!f.cat || d.cat === f.cat)
         && (!f.scope || d.scope === f.scope)
         && (!f.src || d.src === f.src)
-        && (d.dup !== "1" || f.src === "da" || card.classList.contains("is-owned"))
         && (!f.avail || d.can === "1");
       card.hidden = !ok;
       if (ok) shown++;

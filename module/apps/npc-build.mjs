@@ -112,25 +112,26 @@ export const KINDS = [
 /**
  * Готовые группы: кто входит (подвид, роль, специализация, сдвиг силы от выбранной, выбор подвида) и какой котерией
  * их оформить. Сила группы — выбранная в окне; у лидера она выше на ступень, у рядовых — как есть или ниже.
+ * В Тёмных веках у участника может быть свой подвид эпохи (subDA): князю 1242 года — барон, а не «босс».
  */
-const M = (kind, role, sub = "", shift = 0, params = {}) => ({ kind, role, sub, shift, params });
+const M = (kind, role, sub = "", shift = 0, params = {}, subDA = "") => ({ kind, role, sub, shift, params, subDA });
 export const GROUPS = [
-  { key: "court", label: "Двор князя", coterie: "coterie", members: [M("vampire", "leader", "boss", 2, { sect: "camarilla" }), M("vampire", "schemer", "harpy", 1, { sect: "camarilla" }),
-    M("vampire", "bodyguard", "elysium", 1, { sect: "camarilla" }), M("vampire", "detective", "", 0, { sect: "camarilla" }), M("ghoul", "servant", "butler", 0, { ghoulType: "vassal" }), M("ghoul", "bodyguard", "escort", 0, { ghoulType: "vassal" })] },
-  { key: "anarchs", label: "Банда анархов", coterie: "coterie", members: [M("vampire", "leader", "gangleader", 1, { sect: "anarchs" }), M("vampire", "brute", "biker", 0, { sect: "anarchs" }),
+  { key: "court", label: "Двор князя", coterie: "coterie", members: [M("vampire", "leader", "boss", 2, { sect: "camarilla" }, "baron"), M("vampire", "schemer", "harpy", 1, { sect: "camarilla" }),
+    M("vampire", "bodyguard", "elysium", 1, { sect: "camarilla" }, "housecarl"), M("vampire", "detective", "", 0, { sect: "camarilla" }, "bailiff"), M("ghoul", "servant", "butler", 0, { ghoulType: "vassal" }, "steward"), M("ghoul", "bodyguard", "escort", 0, { ghoulType: "vassal" })] },
+  { key: "anarchs", noDA: true, label: "Банда анархов", coterie: "coterie", members: [M("vampire", "leader", "gangleader", 1, { sect: "anarchs" }), M("vampire", "brute", "biker", 0, { sect: "anarchs" }),
     M("vampire", "streetrat", "punk", 0, { sect: "anarchs" }), M("vampire", "techie", "hacker", 0, { sect: "anarchs" })] },
-  { key: "sabbat", label: "Стая Шабаша", coterie: "sabbat", members: [M("vampire", "leader", "preacher", 1, { sect: "sabbat" }), M("vampire", "brute", "pitfighter", 0, { sect: "sabbat" }),
+  { key: "sabbat", noDA: true, label: "Стая Шабаша", coterie: "sabbat", members: [M("vampire", "leader", "preacher", 1, { sect: "sabbat" }), M("vampire", "brute", "pitfighter", 0, { sect: "sabbat" }),
     M("vampire", "assassin", "blade", 0, { sect: "sabbat" }), M("vampire", "occultist", "warlock", 0, { sect: "sabbat" }), M("vampire", "madman", "maniac", 0, { sect: "sabbat" })] },
   { key: "garou", label: "Стая Гару", coterie: "pack", members: [M("garou", "brute", "", 1, { auspice: "ahroun" }), M("garou", "artist", "", 0, { auspice: "galliard" }),
     M("garou", "lawyer", "", 0, { auspice: "philodox" }), M("garou", "seer", "shaman", 0, { auspice: "theurge" }), M("garou", "thief", "", 0, { auspice: "ragabash" })] },
-  { key: "cell", label: "Ячейка охотников", coterie: "cell", members: [M("hunter", "soldier", "veteran", 1), M("hunter", "detective", "cop", 0), M("hunter", "cleric", "priest", 0), M("hunter", "techie", "hacker", 0)] },
+  { key: "cell", noDA: true, label: "Ячейка охотников", coterie: "cell", members: [M("hunter", "soldier", "veteran", 1), M("hunter", "detective", "cop", 0), M("hunter", "cleric", "priest", 0), M("hunter", "techie", "hacker", 0)] },
   { key: "cult", label: "Культ падшего", coterie: "coterie", members: [M("demon", "leader", "preacher", 1), M("thrall", "cleric", "cultist", 0), M("thrall", "broker", "banker", 0),
     M("thrall", "bodyguard", "escort", 0), M("thrall", "servant", "secretary", -1)] },
   { key: "ghouls", label: "Гули одного дома", coterie: "coterie", members: [M("ghoul", "servant", "butler", 0, { ghoulType: "vassal" }), M("ghoul", "bodyguard", "", 0, { ghoulType: "vassal" }),
     M("ghoul", "broker", "", 0, { ghoulType: "vassal" }), M("ghoul", "doctor", "", -1, { ghoulType: "vassal" })] },
-  { key: "pentex", label: "Фоморы Пентекса", coterie: "coterie", members: [M("fomor", "broker", "banker", 1), M("fomor", "brute", "thug", 0), M("fomor", "assassin", "hitman", 0), M("fomor", "techie", "engineer", 0)] },
+  { key: "pentex", noDA: true, label: "Фоморы Пентекса", coterie: "coterie", members: [M("fomor", "broker", "banker", 1), M("fomor", "brute", "thug", 0), M("fomor", "assassin", "hitman", 0), M("fomor", "techie", "engineer", 0)] },
   { key: "kin", label: "Семья Родни", coterie: "coterie", members: [M("garou", "leader", "", 1), M("kinfolk", "worker", "farmer", 0), M("kinfolk", "doctor", "", 0), M("kinfolk", "drifter", "", -1)] },
-  { key: "police", label: "Полицейский наряд", coterie: "", members: [M("mortal", "detective", "cop", 1), M("mortal", "soldier", "guard", 0), M("mortal", "soldier", "guard", 0), M("mortal", "detective", "forensic", -1)] },
+  { key: "police", noDA: true, label: "Полицейский наряд", coterie: "", members: [M("mortal", "detective", "cop", 1), M("mortal", "soldier", "guard", 0), M("mortal", "soldier", "guard", 0), M("mortal", "detective", "forensic", -1)] },
   // Мир мёртвых (Wraith 20): Круги одного Легиона (shared — выбирается один раз на группу); Отпуститель — Гильдия Отпустителей,
   // Пугало — Гильдия Пугал; Спектры — без Круга; проекторы «Орфея» — Круг со скреплённым крусиблом
   { key: "hierarchy", label: "Патруль Иерархии", coterie: "circle", shared: { legion: "legion" }, members: [M("wraith", "leader", "officer", 1, { faction: "hierarchy" }),
@@ -141,18 +142,28 @@ export const GROUPS = [
     M("wraith", "seer", "prophet", 0, { faction: "heretic", guild: "fatalism" }), M("wraith", "cleric", "monk", 0, { faction: "heretic" }), M("wraith", "cleric", "cultist", -1, { faction: "heretic" })] },
   { key: "spectres", label: "Стая Спектров", coterie: "", members: [M("spectre", "leader", "", 1, { caste: "shade" }), M("spectre", "brute", "", 0, { caste: "shade" }),
     M("spectre", "assassin", "", 0, { caste: "doppelganger" }), M("spectre", "madman", "", -1, { caste: "stripling" })] },
-  { key: "orpheus", label: "Крусибл «Орфея»", coterie: "circle", system: { circle: { crucible: true } }, members: [M("projector", "leader", "officer", 1),
-    M("projector", "techie", "hacker", 0), M("projector", "scholar", "professor", 0), M("projector", "seer", "fortune", 0)] }
+  { key: "orpheus", noDA: true, label: "Крусибл «Орфея»", coterie: "circle", system: { circle: { crucible: true } }, members: [M("projector", "leader", "officer", 1),
+    M("projector", "techie", "hacker", 0), M("projector", "scholar", "professor", 0), M("projector", "seer", "fortune", 0)] },
+  // Тёмные века (1242): вместо групп Нового времени — свита сюзерена-Каинита, охотники на нечисть, городская стража (правило системы)
+  { key: "lord", da: true, label: "Свита сюзерена", coterie: "coterie", members: [M("vampire", "leader", "baron", 2), M("vampire", "soldier", "knight", 1),
+    M("ghoul", "soldier", "manatarms", 0, { ghoulType: "vassal" }), M("ghoul", "servant", "steward", 0, { ghoulType: "vassal" }), M("mortal", "servant", "groom", -1)] },
+  { key: "inquisition", da: true, label: "Охотники на нечисть", coterie: "cell", members: [M("hunter", "soldier", "knight", 1), M("hunter", "cleric", "inquisitor", 0),
+    M("hunter", "tracker", "huntsman", 0), M("hunter", "scholar", "astrologer", 0)] },
+  { key: "watch", da: true, label: "Городская стража", coterie: "", members: [M("mortal", "detective", "watchman", 1), M("mortal", "soldier", "crossbowman", 0),
+    M("mortal", "soldier", "manatarms", 0), M("mortal", "detective", "bailiff", -1)] }
 ];
 /** Общие для группы параметры: выбираются один раз (Легион Круга). */
 const SHARED = { legion: () => pick(WR().legions ?? [{ key: "" }]).key };
-export const groupOf = key => GROUPS.find(g => g.key === key) ?? GROUPS[0];
+/** Группы эпохи: в Тёмных веках — без групп Нового времени (noDA), в остальных — без групп Тёмных веков (da). */
+export const groupsForEra = () => { const da = VTM20.isDarkAges(); return GROUPS.filter(g => da ? !g.noDA : !g.da); };
+/** Группа по ключу; без ключа или с группой не своей эпохи — первая группа эпохи. */
+export const groupOf = key => groupsForEra().find(g => g.key === key) ?? groupsForEra()[0];
 
 /** Черновики группы: по одному на участника; сила — выбранная со сдвигом участника. */
 export function buildGroup(key, power = "normal") {
   const g = groupOf(key), keys = ["mook", "normal", "seasoned", "veteran", "legend"], base = Math.max(0, keys.indexOf(power));
   const shared = Object.fromEntries(Object.entries(g.shared ?? {}).map(([k, f]) => [k, SHARED[f]?.()]));
-  return g.members.map(m => buildNpc({ kind: m.kind, role: m.role, sub: m.sub || undefined, power: keys[Math.clamp(base + m.shift, 0, 4)], params: { ...shared, ...m.params } }));
+  return g.members.map(m => buildNpc({ kind: m.kind, role: m.role, sub: (VTM20.isDarkAges() && m.subDA) || m.sub || undefined, power: keys[Math.clamp(base + m.shift, 0, 4)], params: { ...shared, ...m.params } }));
 }
 export const kindOf = key => KINDS.find(k => k.key === key) ?? KINDS[0];
 
@@ -298,7 +309,8 @@ const BUILD = {
     const genDots = Math.min(5, Math.max(0, VTM20.baseGeneration() - gen)), genBg = Codex.backgrounds.find(b => b.en === "Generation");
     if (genDots && genBg) items.push(LibraryItems.background(genBg, genDots));
     if (/^malkavian/.test(clan)) {   // клановый изъян — неизлечимое расстройство: настоящее из справочника, при пустом справочнике — заглушка
-      const dr = (Codex.derangements ?? []).length ? pick(Codex.derangements) : null;
+      const drs = (Codex.derangements ?? []).filter(d => Codex.visible(d));   // психозы эпохи и включённых редакций
+      const dr = drs.length ? pick(drs) : null;
       items.push(dr ? { ...LibraryItems.derangement(dr), system: { ...LibraryItems.derangement(dr).system, permanent: true } }
         : { name: t("Creator.MalkDerangement"), type: "derangement", img: ICON("derangement"), system: { permanent: true, description: `<p>${t("Creator.MalkDerangementHint")}</p>` } });
     }
@@ -882,7 +894,8 @@ export function buildNpc(o) {
     role = roleOf(pref?.length ? pick(pref) : pick(ROLES).key);
   }
   const subs = subsForEra(role, game.settings.get(SYSTEM_ID, "era"));
-  const sub = role?.subs.find(s => s.key === o.sub) ?? (subs.length ? pick(subs) : null);
+  // подвид — только из подвидов эпохи (в Тёмных веках у группы «Двор князя» нет «босса» — выпадет барон или аббат)
+  const sub = subs.find(s => s.key === o.sub) ?? (subs.length ? pick(subs) : null);
   const concept = sub ? lab(`Sub.${sub.key}`, sub.concept) : role ? lab(`Role.${role.key}`, role.label) : lab(`Kind.${kind.key}`, kind.label);
   const ctx = { kind: kind.key, role, sub, power, concept };
   const d = BUILD[kind.key](ctx, o.params ?? {});

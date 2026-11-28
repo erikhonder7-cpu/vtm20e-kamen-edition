@@ -1,0 +1,32 @@
+<div class="r-dialog-body r-mt-body">
+  <p class="r-hint-note r-mt-intro" data-keep><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Martial.Intro"}}</p>
+  {{#each groups}}
+  <section class="r-mt-group" data-max="{{dots}}">
+    <h4 class="r-banner"><span>{{label}}</span></h4>
+    <div class="r-mt-head">
+      <span class="r-dots">{{#each dotRow}}<span class="r-dot {{#if filled}}is-filled{{/if}}"></span>{{/each}}</span>
+      <span class="r-mt-count">{{count}}</span>
+      {{#if over}}<span class="r-mt-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Martial.Over" name=label n=have}}</span>{{/if}}
+    </div>
+    {{#if none}}<p class="r-mt-none">{{localize "VTM20.Martial.NoneInBook"}}</p>{{/if}}
+    <div class="r-mt-grid">
+      {{#each items}}
+      <label class="r-vcard r-mt-card is-{{kind}} {{#if on}}is-on{{/if}} {{#if locked}}is-locked{{/if}}">
+        <input type="checkbox" name="{{key}}" {{#if on}}checked{{/if}} {{#if locked}}disabled data-locked{{/if}}>
+        <header class="r-mt-card-head">
+          <i class="fa-solid {{icon}}"></i><b>{{name}}</b>
+          <span class="r-mt-kind">{{kindLabel}}</span>
+        </header>
+        {{#if roll}}<p class="r-mt-roll">{{roll}}</p>{{/if}}
+        <p class="r-mt-text">{{text}}</p>
+        {{#if need}}<p class="r-mt-need"><i class="fa-solid fa-lock"></i> {{need}}</p>{{/if}}
+      </label>
+      {{/each}}
+    </div>
+  </section>
+  {{/each}}
+  {{#if empty}}<p class="r-mt-empty"><i class="fa-solid fa-chess-knight"></i> {{localize "VTM20.Martial.Empty"}}</p>{{/if}}
+  <div class="r-roll-foot">
+    <button type="submit" class="r-btn is-primary" {{#if empty}}disabled{{/if}}><i class="fa-solid fa-check"></i> {{localize "VTM20.Martial.Save"}}</button>
+  </div>
+</div>

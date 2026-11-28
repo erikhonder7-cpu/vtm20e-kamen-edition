@@ -4,6 +4,18 @@
     {{#each weapons}}<a class="r-atk-pick {{#if active}}is-active{{/if}} {{#if dim}}is-dim{{/if}}" data-action="pick" data-key="{{key}}" data-tooltip="{{label}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
     {{#each maneuvers}}<a class="r-atk-pick is-man {{#if active}}is-active{{/if}} {{#if dim}}is-dim{{/if}}" data-action="pick" data-key="{{key}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
   </div>
+  {{!-- «Воинская выучка» (V20 Dark Ages: Tome of Secrets): выученные особые приёмы; ⚙ — выбрать, какие --}}
+  {{#if martialOn}}
+  <div class="r-atk-martial">
+    <span class="r-roll-label"><i class="fa-solid fa-chess-knight"></i> {{localize "VTM20.Martial.Short"}}</span>
+    <div class="r-atk-picks is-martial">
+      {{#each martial}}<a class="r-atk-pick is-man is-martial {{#if active}}is-active{{/if}} {{#if dim}}is-dim{{/if}}" data-action="pick" data-key="{{key}}" data-tooltip="{{tip}}"><i class="fa-solid {{icon}}"></i><span>{{name}}</span></a>{{/each}}
+      {{#each martialInfo}}<span class="r-atk-mt-info" data-tooltip="{{tip}}"><i class="fa-solid {{icon}}"></i> {{name}} <small>{{kind}}</small></span>{{/each}}
+      {{#unless martial.length}}{{#unless martialInfo.length}}<span class="r-atk-mt-none">{{localize "VTM20.Martial.NonePicked"}}</span>{{/unless}}{{/unless}}
+      <a class="r-icon-btn r-atk-mt-gear" data-action="martial" data-tooltip="{{localize 'VTM20.Martial.Pick'}}"><i class="fa-solid fa-gear"></i></a>
+    </div>
+  </div>
+  {{/if}}
 
   <label class="r-atk-target" data-tooltip="{{localize 'VTM20.Combat.TargetHint'}}"><span class="r-roll-label">{{localize "VTM20.Combat.Target.label"}}</span>
     <select name="foe"><option value="">{{localize "VTM20.Combat.NoTarget"}}</option>{{#each foes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>

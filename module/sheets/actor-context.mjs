@@ -16,6 +16,7 @@ import { effectTimer, readingRituals } from "../apps/timers.mjs";
 import { dhampirView } from "../apps/dhampir.mjs";
 import { torporView, deathOf } from "../apps/torpor.mjs";
 import { ritualHTML } from "../data/ritual-text.mjs";
+import { holyView } from "../apps/holy.mjs";
 import { H as hunterData } from "../apps/hunter.mjs";
 import { pactValue, investmentLimit } from "../apps/infernal.mjs";
 import { possessionView } from "../apps/possession.mjs";
@@ -167,7 +168,7 @@ export function prepareHeader(sheet, ctx) {
   // Дороги Тёмных веков — только при включённой настройке; уже выбранный путь не прячем
   // в мире Тёмных веков у вампира — только Дороги (V20 Dark Ages); пометка эпохи тогда не нужна
   const da = VTM20.isDarkAges() && a.type === "vampire";
-  ctx.paths = Codex.paths.filter(p => (da ? p.era === "darkAges" && Codex.visible(p) && !p.roadOnly : Codex.visible(p)) || p.key === s.morality.path)
+  ctx.paths = Codex.paths.filter(p => (da ? Codex.visible(p) && !p.roadOnly : Codex.visible(p)) || p.key === s.morality.path)
     .map(p => ({ key: p.key, name: p.era && !da ? `${p.name} · ${t("Library.Filter.DarkAges")}` : p.name, selected: p.key === s.morality.path }));
   // переход с Человечности на Путь в игре (apps/path-shift.mjs) — кнопкой у вампира на Человечности
   ctx.pathShift = a.isVampire && sheet.isEditable && (s.morality.path ?? "humanity") === "humanity";
@@ -420,7 +421,8 @@ export function prepareDisciplines(sheet, ctx) {
       pathChoices: VTM20.pathDisciplines.includes(k) ? Codex.bloodPathsFor(k).filter(pp => !myPaths.some(m => m.name === pp.name)).map(pp => pp.name) : [],   // пути своей эпохи
       hasRituals: !!Codex.rituals[k]?.rituals?.some(r => Codex.visible(r)) || myRituals.length > 0,
       rituals: myRituals.sort((x, y) => x.system.level - y.system.level || x.name.localeCompare(y.name)).map(mapRitual),
-      ritualChoices: (Codex.rituals[k]?.rituals ?? []).some(r => Codex.visible(r) && r.level <= v && !rituals.some(m => m.name === r.name)),
+      // Мистика Бездны — ещё и не выше Оккультизма
+      ritualChoices: (Codex.rituals[k]?.rituals ?? []).some(r => Codex.visible(r) && r.level <= (k === "obtenebration" ? Math.min(v, a.system.abilities?.occult?.value ?? 0) : v) && !rituals.some(m => m.name === r.name)),
       xp: a.xpCost("discipline", v, { key: k, inClan }),
       open: sheet._open.has(it.id)
     };
@@ -541,7 +543,9 @@ export function prepareAdvantages(sheet, ctx) {
   const byType = type => a.items.filter(i => i.type === type).sort((x, y) => x.name.localeCompare(y.name, "ru"));
   ctx.backgrounds = byType("background").map(i => ({
     id: i.id, name: i.name, en: Codex.enOf(i), value: i.system.value, html: i.system.description, open: sheet._open.has(i.id),
-    dots: dots(i.system.value, Math.max(5, i.system.value), { path: "system.value", itemId: i.id })
+    dots: dots(i.system.value, Math.max(5, i.system.value), { path: "system.value", itemId: i.id }),
+    // «Воинская выучка» (Tome of Secrets): кнопка выбора особых приёмов прямо у Факта
+    martial: /^Martial Training/.test(i.system?.source ?? Codex.enOf(i) ?? "")
   }));
   const mf = type => byType(type).map(i => ({
     id: i.id, name: i.name, en: Codex.enOf(i), cost: i.system.cost, html: i.system.description, open: sheet._open.has(i.id),
@@ -810,7 +814,8 @@ export function prepareGear(sheet, ctx) {
   ctx.money = moneyView(a);
   const res = a.items.find(i => i.type === "background" && /^ресурс/i.test(i.name));
   ctx.resources = res ? { dots: "●".repeat(res.system.value), html: plainText(res.system.description).slice(0, 400) } : null;
-  ctx.gear = a.items.filter(i => i.type === "gear").map(i => ({ id: i.id, name: i.name, img: i.img, quantity: i.system.quantity }));
+  // святая реликвия (Tome of Secrets): Истинная вера вещи — знаком и кнопкой (apps/holy.mjs)
+  ctx.gear = a.items.filter(i => i.type === "gear").map(i => ({ id: i.id, name: i.name, img: i.img, quantity: i.system.quantity, holy: holyView(i) }));
   // готовое оружие, броня и снаряжение — в библиотеке (apps/library-picks.mjs: weapon, armor, gear)
 }
 

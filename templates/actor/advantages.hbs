@@ -28,6 +28,7 @@
         <a class="r-trait-label" data-action="toggleRow" data-row-id="{{id}}">{{rName this}}</a>
         <span class="r-leader"></span>
         {{> rDots dots=dots}}
+        {{#if martial}}<a class="r-icon-btn" data-action="openMartial" data-tooltip="{{localize 'VTM20.Martial.Pick'}}"><i class="fa-solid fa-chess-knight"></i></a>{{/if}}
         <a class="r-icon-btn" data-action="itemEdit" data-tooltip="{{localize 'VTM20.Sheet.Edit'}}"><i class="fa-solid fa-pen-nib"></i></a>
         {{#if @root.editable}}<a class="r-icon-btn is-danger" data-action="itemDelete" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}
       </div>
@@ -303,6 +304,86 @@
     {{/each}}
   </div>
   <p class="r-hint">{{localize "VTM20.Agenda.Hint"}}</p>
+  {{/if}}
+  {{!-- Сеньор и вассалы (Tome of Secrets, гл. 3): опорный Факт, долг вассала, условия клятвы — apps/fealty.mjs --}}
+  {{#*inline "fealtyRel"}}
+  <article class="r-vcard r-fe-card is-{{side}} {{#if ok}}is-ok{{else}}is-short{{/if}}">
+    <header class="r-fe-head">
+      <span class="r-fe-role">{{#if (rEq side "liege")}}<i class="fa-solid fa-crown"></i> {{localize "VTM20.Fealty.Liege"}}{{else}}<i class="fa-solid fa-chess-pawn"></i> {{localize "VTM20.Fealty.Vassal"}}{{/if}}</span>
+      {{#if linked}}<a class="r-fe-who is-link" data-action="fealty" data-op="open" data-uuid="{{uuid}}" data-tooltip="{{localize 'VTM20.Fealty.OpenSheet'}}">{{#if img}}<img src="{{img}}" alt="">{{/if}}<b>{{name}}</b></a>
+      {{else}}<input class="r-fe-name" type="text" data-fealty="{{side}}|{{i}}|name" value="{{name}}" placeholder="{{localize 'VTM20.Fealty.NameHint'}}" {{#unless @root.editable}}disabled{{/unless}}>{{/if}}
+      {{#if @root.editable}}<select class="r-fe-pick" data-fealty="{{side}}|{{i}}|who" data-tooltip="{{localize 'VTM20.Fealty.PickHint'}}"><option value="">{{localize "VTM20.Fealty.ByName"}}</option>{{#each @root.fealtyInfo.actors}}<option value="{{value}}" {{#if (rEq value ../uuid)}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <a class="r-sn-btn is-del" data-action="fealty" data-op="drop" data-side="{{side}}" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Fealty.Break'}}"><i class="fa-solid fa-link-slash"></i></a>{{/if}}
+    </header>
+    <div class="r-fe-anchor">
+      <span class="r-fe-lbl">{{localize "VTM20.Fealty.Anchor"}}</span>
+      <select data-fealty="{{side}}|{{i}}|bg" {{#unless @root.editable}}disabled{{/unless}}>{{#each bgOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      <span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="fealty" data-op="dots" data-side="{{side}}" data-i="{{i}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+      <span class="r-fe-math">{{localize "VTM20.Fealty.Gets" n=math.got}} · {{localize "VTM20.Fealty.Owes" n=math.owe r=math.r}}</span>
+    </div>
+    {{#if overUse}}<p class="r-fe-warn"><i class="fa-solid fa-triangle-exclamation"></i> {{localize "VTM20.Fealty.OverUse" bg=bgName n=have}}</p>{{/if}}
+    <div class="r-fe-owed">
+      <span class="r-fe-lbl">{{localize "VTM20.Fealty.Payment"}} <b class="r-fe-sum">{{math.paid}}/{{math.owe}}</b>{{#if ok}} <i class="fa-solid fa-check"></i>{{else}} <small>{{localize "VTM20.Fealty.Short" n=math.short}}</small>{{/if}}</span>
+      {{#each owed}}<span class="r-fe-owe {{#if over}}is-over{{/if}}">
+        <select data-fealty="{{../side}}|{{../i}}|owedBg|{{j}}" {{#unless @root.editable}}disabled{{/unless}}>{{#each options}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        <input type="number" min="0" max="5" data-fealty="{{../side}}|{{../i}}|owedDots|{{j}}" value="{{dots}}" {{#unless @root.editable}}disabled{{/unless}}>
+        {{#if @root.editable}}<a class="r-fe-x" data-action="fealty" data-op="owedDel" data-side="{{../side}}" data-i="{{../i}}" data-j="{{j}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span>{{/each}}
+      {{#if @root.editable}}<a class="r-sn-btn" data-action="fealty" data-op="owedAdd" data-side="{{side}}" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Fealty.OwedAdd'}}"><i class="fa-solid fa-plus"></i></a>{{/if}}
+      <label class="r-fe-flaws" data-tooltip="{{localize 'VTM20.Fealty.FlawsHint'}}">{{localize "VTM20.Fealty.Flaws"}} <input type="number" min="0" max="10" data-fealty="{{side}}|{{i}}|flaws" value="{{flaws}}" {{#unless @root.editable}}disabled{{/unless}}></label>
+      {{#if cainite}}<label class="r-fe-service" data-tooltip="{{localize 'VTM20.Fealty.ServiceHint'}}">{{localize "VTM20.Fealty.ServiceLbl"}} <select data-fealty="{{side}}|{{i}}|service" {{#unless @root.editable}}disabled{{/unless}}>{{#each services}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>{{/if}}
+    </div>
+    <div class="r-fe-terms">{{#each terms}}<a class="r-fe-term {{#if on}}is-on{{/if}}" {{#if @root.editable}}data-action="fealty" data-op="term" data-side="{{../side}}" data-i="{{../i}}" data-key="{{key}}"{{/if}} data-tooltip="{{tip}}">{{label}}<small>{{who}}</small></a>{{/each}}</div>
+  </article>
+  {{/inline}}
+  {{#if fealtyInfo}}
+  <section class="r-sn is-fealty">
+    <header class="r-sn-head"><span class="r-sn-sigil"><i class="fa-solid fa-chess-rook"></i></span>
+      <span class="r-sn-title"><b>{{localize "VTM20.Fealty.Title"}}</b><small>V20 Dark Ages: Tome of Secrets</small></span></header>
+    <div class="r-sn-body">
+      {{#if fealtyInfo.liege}}{{> fealtyRel fealtyInfo.liege}}{{else}}{{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide" data-action="fealty" data-op="addLiege"><i class="fa-solid fa-crown"></i> {{localize "VTM20.Fealty.AddLiege"}}</a></div>{{/if}}{{/if}}
+      {{#each fealtyInfo.vassals}}{{> fealtyRel this}}{{/each}}
+      {{#if editable}}<div class="r-sn-add"><a class="r-sn-btn is-wide" data-action="fealty" data-op="addVassal"><i class="fa-solid fa-chess-pawn"></i> {{localize "VTM20.Fealty.AddVassal"}}</a></div>{{/if}}
+      <p class="r-sn-hint">{{localize "VTM20.Fealty.Rules"}}</p>
+    </div>
+  </section>
+  {{/if}}
+  {{!-- Ведьмовство Тёмных веков (Tome of Secrets, гл. 2): народная мудрость, заговоры, пробуждённая ведьма — apps/witch.mjs --}}
+  {{#if witchInfo}}
+  <section class="r-sn is-witch">
+    <header class="r-sn-head"><span class="r-sn-sigil"><i class="fa-solid fa-hat-wizard"></i></span>
+      <span class="r-sn-title"><b>{{localize "VTM20.Witch.Title"}}</b><small>V20 Dark Ages: Tome of Secrets</small></span>
+      {{#if witchInfo.canAwake}}{{#if editable}}<label class="r-sn-toggle" data-tooltip="{{localize 'VTM20.Witch.AwakeHint'}}"><input type="checkbox" data-action="witch" data-op="awake" {{checked witchInfo.awake}}> {{localize "VTM20.Witch.AwakeToggle"}}</label>{{/if}}{{/if}}</header>
+    <div class="r-sn-body">
+      <h4 class="r-sn-sub"><i class="fa-solid fa-leaf"></i> {{localize "VTM20.Witch.FolkTitle"}} <small>{{localize "VTM20.Witch.FolkSmall"}}</small></h4>
+      <div class="r-wt-folk">{{#each witchInfo.folk}}<a class="r-wt-feat" {{#if @root.editable}}data-action="witch" data-op="folk" data-key="{{key}}"{{/if}} data-tooltip="{{tip}}">
+        <i class="fa-solid {{icon}}"></i><b>{{name}}</b><small>{{pool}}</small></a>{{/each}}</div>
+
+      <h4 class="r-sn-sub"><i class="fa-solid fa-feather-pointed"></i> {{localize "VTM20.Witch.IncTitle"}} <small>{{localize "VTM20.Witch.IncSmall"}}</small></h4>
+      {{#if witchInfo.incantations.length}}
+      <ul class="r-sn-list">{{#each witchInfo.incantations}}<li class="r-sn-item">
+        <span class="r-wt-inc"><i class="fa-solid fa-feather-pointed"></i><b>{{name}}</b>{{#if summon}}<small>{{localize "VTM20.Witch.TwoRolls"}}</small>{{/if}}</span>
+        {{#if @root.editable}}<span class="r-sn-acts"><a class="r-sn-btn" data-action="witch" data-op="inc" data-id="{{id}}" data-tooltip="{{localize 'VTM20.Witch.IncRoll'}}"><i class="fa-solid fa-dice-d10"></i></a></span>{{/if}}</li>{{/each}}</ul>
+      {{else}}<p class="r-sn-hint">{{localize "VTM20.Witch.IncNone"}}</p>{{/if}}
+
+      {{#if witchInfo.awake}}
+      <h4 class="r-sn-sub"><i class="fa-solid fa-sun-plant-wilt"></i> {{localize "VTM20.Witch.Awakened"}} <small>{{localize "VTM20.Witch.AwakenedSmall"}}</small></h4>
+      <div class="r-wt-found">
+        <label class="r-wt-key"><span>{{localize "VTM20.Witch.Foundation"}}</span><input type="text" data-witch-field="keyword" value="{{witchInfo.keyword}}" placeholder="{{localize 'VTM20.Witch.KeywordHint'}}" {{#unless editable}}disabled{{/unless}}></label>
+        <span class="r-dots">{{#each witchInfo.foundationDots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="witch" data-op="dots" data-key="{{key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+      </div>
+      <div class="r-wt-quint">
+        <span class="r-wt-qlabel" data-tooltip="{{localize 'VTM20.Witch.QuintHint' per=witchInfo.quint.perTurn}}">{{localize "VTM20.Witch.Quint"}} <b>{{witchInfo.quint.value}}</b>/{{witchInfo.quint.max}}</span>
+        <span class="r-boxes is-quint">{{#each witchInfo.quint.boxes}}<a class="r-box {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="witch" data-op="quint" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+      </div>
+      <ul class="r-sn-list">{{#each witchInfo.pillars}}<li class="r-sn-item r-wt-pillar">
+        <input class="r-wt-pname" type="text" data-witch-field="pillar-{{i}}" value="{{name}}" placeholder="{{localize 'VTM20.Witch.PillarHint'}}" {{#unless @root.editable}}disabled{{/unless}}>
+        <span class="r-sn-acts"><span class="r-dots">{{#each dots}}<a class="r-dot {{#if filled}}is-filled{{/if}}" {{#if @root.editable}}data-action="witch" data-op="dots" data-key="{{key}}" data-n="{{n}}"{{/if}}></a>{{/each}}</span>
+          {{#if @root.editable}}<a class="r-sn-btn" data-action="witch" data-op="pillarRoll" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Witch.PillarRoll'}}"><i class="fa-solid fa-dice-d10"></i></a><a class="r-sn-btn is-del" data-action="witch" data-op="pillarDel" data-i="{{i}}" data-tooltip="{{localize 'VTM20.Sheet.Delete'}}"><i class="fa-solid fa-xmark"></i></a>{{/if}}</span></li>{{/each}}</ul>
+      {{#if editable}}{{#if witchInfo.canAddPillar}}<div class="r-sn-add"><a class="r-sn-btn is-wide" data-action="witch" data-op="pillarAdd"><i class="fa-solid fa-plus"></i> {{localize "VTM20.Witch.PillarAdd"}}</a></div>{{/if}}{{/if}}
+      <p class="r-sn-hint">{{localize "VTM20.Witch.AwakenedRules"}}</p>
+      {{/if}}
+    </div>
+  </section>
   {{/if}}
   {{!-- Сверхъестественное у смертного (линия магов): колдун — Пути и психические феномены (M20 Sorcerer); консор — спутник мага (Gods & Monsters) --}}
   {{#if sorcInfo}}

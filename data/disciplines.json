@@ -2438,7 +2438,7 @@
      {
       "level": 5,
       "name": "Милосердие к Сифу",
-      "en": "Murrain of Seth?; «в честь смертных — Детей Сифа»",
+      "en": "Mercy for Seth",
       "roll": {
        "trait1": "attributes.stamina",
        "trait2": "abilities.occult"
@@ -7624,7 +7624,7 @@
   "paths": [
    {
     "name": "Уклад Ветра (Восприятие)",
-    "en": "",
+    "en": "Way of Wind",
     "powers": [
      {
       "level": 1,
@@ -7694,7 +7694,7 @@
    },
    {
     "name": "Уклад Воды (Смекалка)",
-    "en": "",
+    "en": "Way of Water",
     "powers": [
      {
       "level": 1,
@@ -7765,7 +7765,7 @@
    },
    {
     "name": "Уклад Земли (Выносливость)",
-    "en": "",
+    "en": "Way of Earth",
     "powers": [
      {
       "level": 1,
@@ -7836,7 +7836,7 @@
    },
    {
     "name": "Уклад Огня (Манипуляция)",
-    "en": "",
+    "en": "Way of Fire",
     "powers": [
      {
       "level": 1,

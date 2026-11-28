@@ -116,6 +116,9 @@ export function registerHunter() {
   game.settings.register(SYSTEM_ID, "koldunRoll", { ...K("KoldunRoll"), type: String, default: "rotb",
     choices: { rotb: "VTM20.Settings.KoldunRoll.rotb", v20: "VTM20.Settings.KoldunRoll.v20" } });
   game.settings.register(SYSTEM_ID, "koldunOutside", { ...K("KoldunOutside"), type: Boolean, default: false });
+  // хоумрул: краины Тёмных веков как пути Тауматургии — основная растёт с Колдовством, вторичные покупаются отдельно (Codex.krainaRule)
+  game.settings.register(SYSTEM_ID, "krainaPaths", { ...K("KrainaPaths"), type: Boolean, default: false,
+    onChange: () => { for (const app of foundry.applications.instances.values()) if (app.document || app.id?.startsWith("r-library") || app.constructor?.name === "VtMCreator") app.render(); } });
 }
 
 /** Грани персонажа (данные справочника) по порядку путей и уровней. */

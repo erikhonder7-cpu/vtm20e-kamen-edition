@@ -65,7 +65,9 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
         paper: new NumberField({ required: true, min: 0, initial: 0 }),
         // ливры, су, денье — как лежат в кошельке, без самовольного размена (amount — их общая цена)
         coins: new SchemaField({ l: int(0, 0, 999999999), s: int(0, 0, 999999), d: int(0, 0, 999999) }),
-        currency: str()
+        currency: str(),
+        // другие валюты в кошельке — вписывает игрок или рассказчик (флорины, безанты, дирхемы…): название, знак, сумма
+        extra: new ArrayField(new SchemaField({ name: str(), symbol: str(), amount: new NumberField({ required: true, min: 0, initial: 0 }) }))
       }),
       experience: new SchemaField({
         total: int(0), spent: int(0),
@@ -1102,6 +1104,9 @@ export class DomainData extends foundry.abstract.TypeDataModel {
       prosperity: int(0, 0, 5), passages: int(0, 0, 5), populace: int(0, 0, 10), servants: int(0, 0, 5), liege: str(),
       events: new ArrayField(new SchemaField({ key: str(), note: str(), date: str() })),
       population: str(), zone: str(), holdings: str(),
+      // V20 Dark Ages Companion, «Building a Domain»: поселения (достоинство «Поселение» 1–5) и люди домена (Союзники и Подручные по типам)
+      settlements: new ArrayField(new SchemaField({ name: str(), level: int(1, 1, 5) })),
+      staff: new ArrayField(new SchemaField({ name: str(), type: str("armigers"), kind: str("retainers"), dots: int(1, 1, 5), people: int(1, 1, 5), abil: new ArrayField(str()) })),
       guests: new ArrayField(str()),      // кому хозяин позволил охотиться (id актёров)
       people: new ArrayField(str()),      // свои люди в домене: гули, Стадо, слуги (id актёров)
       biography: new HTMLField({ required: true, blank: true, initial: "" }), notes: new HTMLField({ required: true, blank: true, initial: "" })

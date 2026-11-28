@@ -1,0 +1,20 @@
+<div class="r-dialog-body r-ed-body">
+  <p class="r-hint-note r-ed-intro" data-keep><i class="fa-solid fa-circle-info"></i> {{localize "VTM20.Editions.Intro"}}</p>
+  <p class="r-ed-base">{{localize "VTM20.Editions.Base"}}: <b>{{baseName}}</b></p>
+  {{!-- «Везде» — отметить редакцию во всех разделах сразу --}}
+  <div class="r-ed-row is-head">
+    <span class="r-ed-cat"></span>
+    {{#each eds}}<a class="r-ed-col{{#if base}} is-base{{/if}}" {{#unless base}}data-action="row" data-ed="{{key}}"{{/unless}} data-tooltip="{{name}}{{#unless base}} — {{localize 'VTM20.Editions.AllHint'}}{{/unless}}">{{short}}</a>{{/each}}
+  </div>
+  {{#each cats}}
+  <div class="r-ed-row">
+    <span class="r-ed-cat">{{label}}</span>
+    {{#each eds}}<label class="r-ed-col{{#if base}} is-base{{/if}}{{#if none}} is-none{{/if}}" data-tooltip="{{tip}}">
+      <input type="checkbox" name="{{../key}}.{{key}}" data-ed="{{key}}" {{#if on}}checked{{/if}} {{#if base}}disabled{{/if}}{{#if none}}{{#unless on}} disabled{{/unless}}{{/if}}></label>{{/each}}
+  </div>
+  {{/each}}
+  <p class="r-ed-note">{{localize "VTM20.Editions.Dups"}}</p>
+  <div class="r-roll-foot">
+    <button type="submit" class="r-btn is-primary"><i class="fa-solid fa-check"></i> {{localize "VTM20.Editions.Save"}}</button>
+  </div>
+</div>

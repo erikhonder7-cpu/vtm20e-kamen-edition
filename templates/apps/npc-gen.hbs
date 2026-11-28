@@ -133,7 +133,7 @@
         <header class="r-ng-chead">
           <span class="r-ng-kicker">{{groupLabel}} · {{typeLabel}}</span>
           <h3>{{name}}</h3>
-          {{#if page}}<span class="r-ng-src">{{../book.source}}, {{localize "VTM20.NpcGen.Page" n=page}}</span>{{/if}}
+          {{#if page}}<span class="r-ng-src">{{src}}, {{localize "VTM20.NpcGen.Page" n=page}}</span>{{/if}}
         </header>
         <dl class="r-ng-stats">
           {{#each attrs}}<dt>{{label}}</dt><dd>{{list}}</dd>{{/each}}

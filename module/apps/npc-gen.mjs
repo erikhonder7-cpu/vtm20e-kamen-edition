@@ -23,7 +23,7 @@ import { M as MM } from "./mage.mjs";
 import { ROLES, ROLE_GROUPS, POWERS, roleOf, lab, subsForEra, ROLE_DA } from "./npc-roles.mjs";
 /** Название роли: в Тёмных веках у некоторых — своё (NpcGen.RoleDA.*). */
 const roleLabel = r => VTM20.isDarkAges() && ROLE_DA.has(r.key) ? lab(`RoleDA.${r.key}`, r.label) : lab(`Role.${r.key}`, r.label);
-import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, GROUPS, groupOf, buildGroup, GHOULED_ACTORS } from "./npc-build.mjs";
+import { KINDS, KIND_GROUPS, kindOf, buildNpc, npcView, createNpc, groupsForEra, groupOf, buildGroup, GHOULED_ACTORS } from "./npc-build.mjs";
 import * as FOES from "../data/changeling-foes.mjs";
 
 /** Заготовки рассказчика (настройка мира): имя и всё, что выбрано в окне. */
@@ -50,12 +50,20 @@ export const spawnFromTemplate = (tpl, o) => createFromTemplate(tpl, o);
 
 /** Статблоки книги, которые остаются в генераторе: люди и звери; оборотни и падшие — полноценными листами, магов, фей и призраков пока нет. */
 const BOOK_GROUPS = ["hunters", "criminals", "animals", "swarms"];
+/** Разделы статблоков эпохи: в Тёмных веках — ещё твари Бездны (Tome of Secrets) и создания V20 DA Companion (группы с era). */
+const bookGroups = () => [...BOOK_GROUPS, ...(VTM20.isDarkAges() ? (DATA?.groups ?? []).filter(g => g.era === "darkAges").map(g => g.key) : [])];
 
-/** Случайное имя из набора: «Имя Фамилия»; у русских женская фамилия согласуется. */
+/** Наборы имён эпохи: в Тёмных веках — имена XIII века (data/npc.json → namesDA), иначе — names. */
+const nameSets = () => (VTM20.isDarkAges() && DATA.namesDA) || DATA.names;
+/** Набор по ключу; ключа нет в эпохе — первый набор эпохи. */
+const nameSet = key => nameSets()[key] ?? Object.values(nameSets())[0];
+
+/** Случайное имя из набора: «Имя Фамилия»; у русских женская фамилия согласуется, на Руси XIII века — отчество («Ярославич» → «Ярославна»). */
 function randomName(set, gender = "") {
   const g = gender || (Math.random() < .5 ? "m" : "f");
   let last = pick(set.last);
   if (set.femLast && g === "f") last = last.endsWith("ий") ? last.replace(/ий$/, "ая") : `${last}а`;
+  if (set.femPat && g === "f") last = last.replace(/([ое])вич$/, "$1вна").replace(/ич$/, "на");
   return `${pick(set[g])} ${last}`;
 }
 
@@ -81,7 +89,7 @@ function statText(tpl, { trained = false, ghoul = false } = {}) {
     if (trained && Object.keys(tpl.trained ?? {}).length) lines.push(`<p><em>${esc(L("TrainedApplied"))}</em></p>`);
     if (ghoul) lines.push(`<p><em>${esc(D.animalRule)}</em></p>`);
   }
-  lines.push(`<p class="r-muted">${esc(D.source)}${tpl.page ? `, ${esc(L("Page", { n: tpl.page }))}` : ""}</p>`);
+  lines.push(`<p class="r-muted">${esc(tpl.source ?? D.source)}${tpl.page ? `, ${esc(L("Page", { n: tpl.page }))}` : ""}</p>`);
   return lines.join("");
 }
 
@@ -144,7 +152,8 @@ function paramFields(kind, p) {
       F.push(clanField(L("Clan")));
       F.push({ name: "generation", label: L("Generation"), options: [opt("", L("GenByPower"), p.generation),
         ...Object.keys(VTM20.generations).map(Number).filter(g => g >= 4).sort((a, b) => a - b).map(g => opt(g, t("GenerationN", { n: g }), p.generation))] });
-      F.push({ name: "sect", label: L("Sect"), options: [any(p.sect), ...["camarilla", "sabbat", "anarchs", "independent", "autarkis"].map(s => opt(s, loc(`VTM20.Sect.${s}`), p.sect))] });
+      // секта — не в Тёмных веках: сект в 1242 году ещё нет (V20 Dark Ages)
+      if (!VTM20.isDarkAges()) F.push({ name: "sect", label: L("Sect"), options: [any(p.sect), ...["camarilla", "sabbat", "anarchs", "independent", "autarkis"].map(s => opt(s, loc(`VTM20.Sect.${s}`), p.sect))] });
       break;
     case "ghoul":
       F.push({ name: "ghoulType", label: L("GhoulKind"), options: [any(p.ghoulType), ...["vassal", "independent"].map(k => opt(k, loc(`VTM20.GhoulType.${k}`), p.ghoulType))] });
@@ -241,7 +250,7 @@ function paramFields(kind, p) {
       break;
     }
     case "group":
-      F.push({ name: "group", label: L("GroupKind"), options: GROUPS.map(g => opt(g.key, lab(`Group.${g.key}`, g.label), p.group || GROUPS[0].key)) });
+      F.push({ name: "group", label: L("GroupKind"), options: groupsForEra().map(g => opt(g.key, lab(`Group.${g.key}`, g.label), groupOf(p.group).key)) });
       break;
     case "demon": case "earthbound":
       F.push({ name: "house", label: L("House"), options: [any(p.house), ...Codex.houses.map(h => opt(h.key, h.name, p.house))] });
@@ -311,8 +320,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     const s = this.ng;
     if (this.isGroup) {
       try {
-        const list = buildGroup(s.params.group || GROUPS[0].key, s.power);
-        this.draft = { group: true, list, names: list.map(d => d.spirit || d.plasmic ? d.name : randomName(DATA.names[s.names], s.gender)) };
+        const list = buildGroup(groupOf(s.params.group).key, s.power);
+        this.draft = { group: true, list, names: list.map(d => d.spirit || d.plasmic ? d.name : randomName(nameSet(s.names), s.gender)) };
       } catch (err) { console.error(err); this.draft = null; ui.notifications.error(L("BuildFailed")); }
       return;
     }
@@ -324,7 +333,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       ui.notifications.error(L("BuildFailed"));
       return;
     }
-    this.draftName = this.draft.spirit || this.draft.plasmic ? this.draft.name : randomName(DATA.names[s.names], s.gender);
+    this.draftName = this.draft.spirit || this.draft.plasmic ? this.draft.name : randomName(nameSet(s.names), s.gender);
     s.auto = autoKit(this.draft);
   }
   #reset() { this.draft = null; }
@@ -376,11 +385,11 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
           trainedText: Object.entries(tpl.trained ?? {}).map(([k, v]) => `${abilLabel(k)} ${v.value}`).join(", "),
           discText: Object.entries(tpl.disciplines ?? {}).map(([k, v]) => `${Codex.disciplineLabel(k)} ${v}`).join(", "),
           poolText: tpl.pool ? `${tpl.pool.name} ${tpl.pool.value ?? "—"}` : "",
-          isAnimal: tpl.group === "animals", typeLabel: loc(`TYPES.Actor.${tpl.kind}`)
+          isAnimal: tpl.group === "animals", typeLabel: loc(`TYPES.Actor.${tpl.kind}`), src: tpl.source ?? D.source
         };
       }
-      book = { preview, total: D.templates.filter(x => BOOK_GROUPS.includes(x.group)).length, source: D.source,
-        groups: D.groups.filter(g => BOOK_GROUPS.includes(g.key)).map(g => ({ ...g, items: D.templates.filter(x => x.group === g.key).map(x => ({
+      book = { preview, total: D.templates.filter(x => bookGroups().includes(x.group)).length, source: D.source,
+        groups: D.groups.filter(g => bookGroups().includes(g.key)).map(g => ({ ...g, items: D.templates.filter(x => x.group === g.key).map(x => ({
           key: x.key, name: x.name, active: x.key === s.template, s: norm(`${g.label} ${x.name}`) })) })) };
     }
 
@@ -395,13 +404,13 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       s, kinds, kind: { ...kind, label: lab(`Kind.${kind.key}`, kind.label) }, roleGroups, subs, role: role ? { key: role.key, label: roleLabel(role) } : null,
       powers, isBook: this.isBook, isSpirit: s.kind === "spirit" || s.kind === "plasmic",   // готовый образец: без ролей и снаряжения (дух, плазмик)
       isGroup: this.isGroup, book,
-      group: grp ? { title: lab(`Group.${groupOf(s.params.group || GROUPS[0].key).key}`, groupOf(s.params.group || GROUPS[0].key).label),
-        coterie: groupOf(s.params.group || GROUPS[0].key).coterie, members: grp.list.map((x, i) => ({ name: grp.names[i], kind: x.kindLabel, icon: x.kindIcon, role: x.roleLabel,
+      group: grp ? { title: lab(`Group.${groupOf(s.params.group).key}`, groupOf(s.params.group).label),
+        coterie: groupOf(s.params.group).coterie, members: grp.list.map((x, i) => ({ name: grp.names[i], kind: x.kindLabel, icon: x.kindIcon, role: x.roleLabel,
           concept: x.concept, power: x.powerLabel, tags: (x.tags ?? []).filter(Boolean).slice(0, 3).join(" · "), traits: (x.traits ?? []).slice(0, 3).map(([l, v]) => `${l} ${v}`).join(" · ") })) } : null,
       presets: presets().map((p, i) => ({ i, name: p.name })), fields: this.isBook ? [] : paramFields(s.kind, s.params),
       draft: d ? { ...npcView(d), name: s.name.trim() || this.draftName, kindLabel: d.kindLabel, kindIcon: d.kindIcon, roleLabel: d.roleLabel, roleIcon: d.roleIcon,
         subLabel: d.subLabel, powerLabel: d.powerLabel, concept: d.concept } : null,
-      nameSets: Object.entries(D.names).map(([k, n]) => ({ value: k, label: n.label, selected: k === s.names })),
+      nameSets: Object.entries(nameSets()).map(([k, n]) => ({ value: k, label: n.label, selected: n === nameSet(s.names) })),
       genders: [{ value: "", label: L("GenderAny") }, { value: "m", label: L("GenderM") }, { value: "f", label: L("GenderF") }].map(o => ({ ...o, selected: o.value === s.gender })),
       weaponGroups: presetOpts(WEAPON_PRESETS, "w"), armorGroups: presetOpts(ARMOR_PRESETS, "a"),
       extra: [...(this.draft && !this.isGroup && !this.isBook ? s.auto : []).map((k, i) => ({ i, auto: true, label: this.#preset(k)?.name ?? "" })),
@@ -428,8 +437,8 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
         if (key === "spiritKind") s.params.spirit = "";
       }
     }
-    if (o.names !== undefined && o.names !== s.names) { s.names = String(o.names); rerender = true; if (this.draft && !this.draft.spirit && !this.draft.plasmic) this.draftName = randomName(DATA.names[s.names], s.gender); }
-    if (o.gender !== undefined && o.gender !== s.gender) { s.gender = String(o.gender); rerender = true; if (this.draft && !this.draft.spirit && !this.draft.plasmic) this.draftName = randomName(DATA.names[s.names], s.gender); }
+    if (o.names !== undefined && o.names !== s.names) { s.names = String(o.names); rerender = true; if (this.draft && !this.draft.spirit && !this.draft.plasmic) this.draftName = randomName(nameSet(s.names), s.gender); }
+    if (o.gender !== undefined && o.gender !== s.gender) { s.gender = String(o.gender); rerender = true; if (this.draft && !this.draft.spirit && !this.draft.plasmic) this.draftName = randomName(nameSet(s.names), s.gender); }
     if (o.name !== undefined) s.name = String(o.name);
     if (o.as !== undefined) s.as = String(o.as);
     if (o.count !== undefined) s.count = Math.clamp(Number(o.count) || 1, 1, 20);
@@ -451,7 +460,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
   /** «Удиви меня»: случайный подвид, роль и сила (статблоки — случайный). */
   static #onSurprise() {
     const s = this.ng;
-    if (this.isBook) { s.template = pick(DATA.templates.filter(x => BOOK_GROUPS.includes(x.group))).key; this.render(); return; }
+    if (this.isBook) { s.template = pick(DATA.templates.filter(x => bookGroups().includes(x.group))).key; this.render(); return; }
     s.role = pick(ROLES).key; s.sub = ""; s.power = pick(POWERS.slice(1, 4)).key;
     this.#reset(); this.render();
   }
@@ -461,9 +470,9 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
   static #onRollName() {
-    if (this.isBook) { this.ng.name = randomName(DATA.names[this.ng.names], this.ng.gender); this.render(); return; }
+    if (this.isBook) { this.ng.name = randomName(nameSet(this.ng.names), this.ng.gender); this.render(); return; }
     this.ng.name = "";
-    this.draftName = randomName(DATA.names[this.ng.names], this.ng.gender);
+    this.draftName = randomName(nameSet(this.ng.names), this.ng.gender);
     this.render();
   }
   static #onGearAdd(event, target) {
@@ -499,7 +508,7 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** Группа целиком: все участники — по показанным черновикам; котерия нужного вида с ними. */
   async #createGroup(folder, gear) {
-    const s = this.ng, g = groupOf(s.params.group || GROUPS[0].key), made = [];
+    const s = this.ng, g = groupOf(s.params.group), made = [];
     const sub = await Folder.create({ name: lab(`Group.${g.key}`, g.label), type: "Actor", folder: folder.id, color: "#4a0d11" });
     for (const [i, d] of this.draft.list.entries()) {
       const a = await createNpc(d, { name: this.draft.names[i], folder: sub.id });
@@ -545,11 +554,11 @@ export class NpcGenerator extends HandlebarsApplicationMixin(ApplicationV2) {
       const typed = i === 0 && s.name.trim();
       let actor;
       if (this.isBook) {
-        const name = typed || (beast ? (s.count > 1 ? `${tpl.name} ${i + 1}` : tpl.name) : randomName(DATA.names[s.names], s.gender));
+        const name = typed || (beast ? (s.count > 1 ? `${tpl.name} ${i + 1}` : tpl.name) : randomName(nameSet(s.names), s.gender));
         actor = await createFromTemplate(tpl, { name, folder: folder.id, trained: s.trained, ghoul: s.ghoul && tpl.group === "animals", gear });
       } else {
         const d = i === 0 ? this.draft : buildNpc({ kind: s.kind, role: s.role, sub: s.sub, power: s.power, params: s.params });
-        const name = typed || (i === 0 ? this.draftName : d.spirit || d.plasmic ? `${d.name} ${i + 1}` : randomName(DATA.names[s.names], s.gender));
+        const name = typed || (i === 0 ? this.draftName : d.spirit || d.plasmic ? `${d.name} ${i + 1}` : randomName(nameSet(s.names), s.gender));
         actor = await createNpc(d, { name, folder: folder.id });
         // первый — с показанным (и поправленным) комплектом, следующие — со своим по их навыкам
         const kit = [...gearOf(i === 0 ? s.auto : autoKit(d)), ...gear];

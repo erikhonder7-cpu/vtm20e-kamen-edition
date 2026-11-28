@@ -7,6 +7,8 @@
     {{#if money.coins}}<span class="r-coins" data-tooltip="{{money.text}}">{{#each money.coins}}{{#if n}}<span class="r-coin is-{{metal}}"><i></i><b>{{n}}</b> {{unit}}</span>{{/if}}{{/each}}</span>
     {{else}}<b class="r-purse-sum">{{money.text}}</b>{{/if}}
     {{#if money.paper}}<span class="r-purse-paper" data-tooltip="{{localize 'VTM20.Money.RateNow' rate=money.rate}}"><i class="fa-solid fa-scroll"></i> {{money.paper}} <em>≈ {{money.paperCoin}}</em></span>{{/if}}
+    {{!-- другие валюты кошелька: флорины, безанты… (вписаны в окне кошелька) --}}
+    {{#each money.extra}}<span class="r-purse-x" data-tooltip="{{name}}"><b>{{amount}}</b> {{#if symbol}}{{symbol}}{{else}}{{name}}{{/if}}</span>{{/each}}
     <span class="r-leader"></span>
     {{#if resources}}<span class="r-purse-res" data-tooltip="{{resources.html}}">{{localize "VTM20.Money.Resources"}} <b>{{resources.dots}}</b></span>{{/if}}
     {{#if editable}}<a class="r-btn" data-action="money"><i class="fa-solid fa-pen-nib"></i> {{localize "VTM20.Money.Edit"}}</a>{{/if}}
@@ -146,6 +148,7 @@
       <div class="r-trait-main r-gear-row" data-item-id="{{id}}">
         <img class="r-thumb" src="{{img}}" alt="">
         <a class="r-trait-label" data-action="itemEdit">{{name}}</a>
+        {{#if holy}}<a class="r-holy-badge" {{#if @root.editable}}data-action="holyRelic"{{/if}} data-tooltip="{{localize 'VTM20.Holy.BadgeHint' aspects=holy.aspects}}"><i class="fa-solid fa-hand-sparkles"></i>{{#each holy.pips}}<b class="{{#if on}}on{{/if}}"></b>{{/each}}</a>{{/if}}
         <span class="r-leader"></span>
         <input class="r-qty" type="number" value="{{quantity}}" min="0" data-item-id="{{id}}" data-item-field="system.quantity">
         <a class="r-icon-btn" data-action="itemChat" data-tooltip="{{localize 'VTM20.Sheet.ToChat'}}"><i class="fa-solid fa-comment-dots"></i></a>

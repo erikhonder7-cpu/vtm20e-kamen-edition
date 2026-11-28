@@ -71,6 +71,9 @@ import { togglePowerEffect } from "../apps/power-effects.mjs";
 import { usePower } from "../apps/use-power.mjs";
 import { isTechnocrat } from "../ui/themes.mjs";
 import { sorcererInfo, consorInfo, numenAbility as sorcAbility } from "../apps/sorcerer.mjs";
+import { witchInfo, witchField, WITCH_ACTIONS } from "../apps/witch.mjs";
+import { fealtyInfo, fealtyField, FEALTY_ACTIONS } from "../apps/fealty.mjs";
+import { useRelic } from "../apps/holy.mjs";
 import { mageInfo, mageSigil, spheresView, addTool } from "../apps/mage.mjs";
 import { stateView, mindView } from "../apps/mage-state.mjs";
 import { POWER_EFFECTS, fxKey } from "../data/effects.mjs";
@@ -98,7 +101,7 @@ export class VtMActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: { resizable: true, contentClasses: ["r-sheet-content"] },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
-      ...MAGE_ACTIONS, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS, ...WRAITH_ACTIONS, ...CHANGELING_ACTIONS, ...THAUM_ACTIONS, ...SABBAT_ACTIONS,
+      ...MAGE_ACTIONS, ...WITCH_ACTIONS, ...FEALTY_ACTIONS, async openMartial() { const { openMartial } = await import("../apps/martial.mjs"); openMartial(this.actor); }, holyRelic(event, target) { const it = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId); return it && useRelic(this.actor, it); }, ...WEREWOLF_ACTIONS, ...HUNTER_ACTIONS, ...DEMON_ACTIONS, ...WRAITH_ACTIONS, ...CHANGELING_ACTIONS, ...THAUM_ACTIONS, ...SABBAT_ACTIONS,
       setDots: { handler: VtMActorSheet.#onSetDots, buttons: [0, 2] },
       choosePower: VtMActorSheet.#onChoosePower,
       setHealth: { handler: VtMActorSheet.#onSetHealth, buttons: [0, 2] },
@@ -394,6 +397,10 @@ openStrategy: () => openStrategy(),
     // вкладка «Витэ» (гуль или ревенант среди смертных): Дисциплины тем же расчётом, что у гуля
     if (this.showVitae) { ctx.ghouled = ghouledView(actor, dots); if (!ctx.disciplines) prepareDisciplines(this, ctx); }
     prepareAdvantages(this, ctx);
+    // ведьмовство Тёмных веков (Tome of Secrets): народная мудрость, заговоры, пробуждённая ведьма — apps/witch.mjs
+    ctx.witchInfo = witchInfo(actor, dots);
+    // сюзерен и вассалы (Tome of Secrets, гл. 3) — apps/fealty.mjs
+    ctx.fealtyInfo = fealtyInfo(actor, dots);
     if (actor.type === "mortal") { ctx.sorcInfo = sorcererInfo(actor, dots); ctx.consorInfo = consorInfo(actor);
       ctx.kinInfo = kinfolkInfo(actor); ctx.kamiInfo = kamiInfo(actor); ctx.fomorInfo = fomorInfo(actor); if (actor.system.kinfolk?.on) ctx.kinInfo.fetch = fetchInfo(actor);
       // Ками, фомор, Родня, колдун — смертный особого рода: подпись в шапке, знак на печати и их шкалы рядом с Человечностью
@@ -535,6 +542,8 @@ openStrategy: () => openStrategy(),
     }
     // Колдун: Способность Пути — выбор в строке нумины (поле без name — в форму листа не попадает)
     for (const el of all("select[data-sorc-ability]")) el.addEventListener("change", ev => { ev.stopPropagation(); sorcAbility(this.actor, el.dataset.sorcAbility, el.value); });
+    for (const el of all("input[data-witch-field]")) el.addEventListener("change", ev => { ev.stopPropagation(); witchField(this.actor, el.dataset.witchField, el.value); });
+    for (const el of all("[data-fealty]")) el.addEventListener("change", ev => { ev.stopPropagation(); fealtyField(this.actor, el.dataset.fealty, el.value); });
     // Призрак: Некрополь сцены — у рассказчика (apps/wraith.mjs, setNecropolis)
     for (const el of all("select.r-wr-necro")) el.addEventListener("change", async ev => { ev.stopPropagation(); await setNecropolis(el.value); this.render(); });
     for (const el of all("select.r-wr-place")) el.addEventListener("change", async ev => { ev.stopPropagation(); await setPlace(el.value); this.render(); });
@@ -1345,6 +1354,14 @@ export function rollRitual(actor, item) {
     if (/классика/.test(ed) && !/колдун|колдов|koldun/i.test(actor.system.abilities?.occult?.specialty ?? "")) {
       r.difficulty = Math.min(10, r.difficulty + 1); r.note = [r.note, game.i18n.localize("VTM20.Koldun.NoSpecNote")].filter(Boolean).join(" · ");
     }
+  }
+  // Мистика Бездны (V20 Dark Ages, гл. 9): без специализации Оккультизма «Мистика Бездны» сложность каждого ритуала +1
+  if (disc === "obtenebration" && VTM20.isDarkAges() && !/бездн|abyss/i.test(actor.system.abilities?.occult?.specialty ?? "")) {
+    r.difficulty = Math.min(10, r.difficulty + 1); r.note = [r.note, game.i18n.localize("VTM20.Magic.AbyssNoSpec")].filter(Boolean).join(" · ");
+  }
+  // Раманга (V20 Dark Ages Companion, «Апокрифы Раманга»): Безликий ревнив — ритуалы Бездны +1 к сложности
+  if (disc === "obtenebration" && actor.system.clan === "ramanga") {
+    r.difficulty = Math.min(10, r.difficulty + 1); r.note = [r.note, game.i18n.localize("VTM20.Magic.RamangaAbyss")].filter(Boolean).join(" · ");
   }
   const time = t("Magic.RitualTime", { n: 5 * lvl });
   return rollFromSpec(actor, { ...r, note: [r.note, time].filter(Boolean).join(" · ") },

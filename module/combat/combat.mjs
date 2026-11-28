@@ -18,6 +18,7 @@ import { RollDialog } from "../dice/dialog.mjs";
 import { mobBonus } from "../apps/extras.mjs";
 import { dreadDice, mindDiff, centered, painless, pathFlag, majestyCheck } from "../apps/target-powers.mjs";
 import { talismanAttack } from "../data/talisman.mjs";
+import { martialDef, martialKnown, martialDots, MARTIAL_ABILITIES } from "../data/martial.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const t = (k, d) => d ? game.i18n.format(`VTM20.${k}`, d) : game.i18n.localize(`VTM20.${k}`);
@@ -137,7 +138,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     window: { title: "VTM20.Combat.Attack", icon: "fa-solid fa-khanda" },
     position: { width: 660 },
     form: { handler: AttackDialog.#onSubmit, closeOnSubmit: true, submitOnChange: false },
-    actions: { pick: AttackDialog.#onPick, bump: AttackDialog.#onBump }
+    actions: { pick: AttackDialog.#onPick, bump: AttackDialog.#onBump, martial: AttackDialog.#onMartial }
   };
 
   static PARTS = { form: { template: `${SYSTEM_PATH}/templates/dice/attack-dialog.hbs` } };
@@ -193,6 +194,28 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       if (w) return { name: w.name, attr: "dexterity", ability: "brawl", dice: 0, diff: w.diff ?? 0, ranged: false,
         dmg: str + w.dmg, auto, strengthDamage: true, type: w.type ?? (w.agg ? "aggravated" : "lethal"), venom: false, fangs: true, supernatural: true, note: a.type === "werewolf" ? "" : t("Combat.FormWeaponNote"), pierce: 0, bullet: false };
     }
+    // особый приём «Воинской выучки» (V20 Dark Ages: Tome of Secrets, data/martial.mjs): оружием — от экипированного клинка,
+    // Дракой — Силой, верхом — Верховой ездой; свои сложность и урон, правило приёма — заметкой
+    if (kind === "k") {
+      const mk = martialDef(id);
+      if (mk?.kind === "attack") {
+        const blade = ["weapon", "weaponOrBrawl"].includes(mk.use) ? weaponsOf(a).find(w => w.kind === "melee" && !w.naturalFormWeapon) : null;
+        const note = t(`Martial.N.${id}`);
+        if (blade) {
+          const k = VTM20.weaponKinds[blade.kind];
+          const own = mk.dmg != null;   // Морд-хау: урон Сила + 1 вместо урона клинка
+          return { name: `${t(`Martial.M.${id}`)} · ${blade.name}`, attr: mk.attr ?? k.attribute, ability: "melee", dice: 0, diff: blade.difficulty - 6 + mk.diff,
+            ranged: false, isWeapon: true, weaponDmg: own ? 0 : blade.damage, dmg: own ? str + mk.dmg : (blade.strength ? str : 0) + blade.damage,
+            auto: own || blade.strength ? auto : 0, strengthDamage: own || !!blade.strength, type: own ? mk.type : blade.damageType, venom: false,
+            supernatural: !!blade.supernatural, fangs: false, note, pierce: blade.pierce ?? 0, bullet: false, martial: id };
+        }
+        const ability = mk.use === "ride" ? "ride" : "brawl";
+        return { name: t(`Martial.M.${id}`), attr: mk.attr, ability, dice: 0, diff: mk.diff, ranged: false,
+          dmg: mk.dmg == null ? (mk.use === "weaponOrBrawl" ? str : null) : str + mk.dmg, auto: mk.dmg == null && mk.use !== "weaponOrBrawl" ? 0 : auto,
+          strengthDamage: mk.dmg != null || mk.use === "weaponOrBrawl", type: mk.type ?? "bashing", venom: false, fangs: false, supernatural: false,
+          note: mk.use === "weapon" ? `${t("Martial.NoBlade")} ${note}` : note, pierce: 0, bullet: false, martial: id };
+      }
+    }
     const m = MANEUVERS[id] ?? MANEUVERS.punch;
     // Чудовищный облик: +1 куб к урону в драке; Шкура гадюки: +1 куб к укусу (data/effects.mjs)
     // Костяные шипы (Искусство костей): +2 куба урона в клинче и броске
@@ -224,6 +247,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const attackAuto = v.physical ? a.physicalAuto(c.attr) : 0;
     if (attackAuto) bd.push({ label: t("Roll.AutoSuccess"), value: attackAuto });
     add(t("Combat.Accuracy"), c.dice);
+    // Бой в доспехах («Воинская выучка», Tome of Secrets): Сила + Драка в броне класса 3 — +1 куб, класса 4 и выше — +2
+    if (c.attr === "strength" && c.ability === "brawl" && martialKnown(a).some(m => m.key === "armoredBrawling"))
+      add(t("Martial.M.armoredBrawling"), a.armor.rating >= 4 ? 2 : a.armor.rating === 3 ? 1 : 0);
     add(t("Artifact.TalismanAttack"), c.talisman ?? 0);   // свой талисман-оружие в руке (data/talisman.mjs)
     // Очи мизгиря, Чувства вия (форма зуло): за фланг и спину цели бонусных кубов нет
     const foeFx = v.foe ? foundry.utils.fromUuidSync(v.foe)?.system?.fx : null;
@@ -313,6 +339,12 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const maneuvers = Object.entries(MANEUVERS).filter(([k, m]) => (allowedFormManeuvers?.has(k)) || (k === "claws" ? (!!a.system.fx?.claws && !hasProteanClawItem) : (!m.vampire || a.isVampire)))
       .map(([k, m]) => ({ key: `m:${k}`, name: t(`Combat.M.${k}`), icon: m.icon, active: v.pick === `m:${k}`, dim: !!allowedFormManeuvers && !allowedFormManeuvers.has(k) }))
       .concat((a.system.formFx?.weapons ?? []).map((w, i) => ({ key: `f:${i}`, name: w.name, icon: w.icon ?? "fa-dragon", active: v.pick === `f:${i}` })));
+    // «Воинская выучка» (Тёмные века): выученные приёмы атаки — рядом с манёврами; защитные и постоянные — подсказкой ниже
+    const known = martialKnown(a), hasBlade = weaponsOf(a).some(w => w.kind === "melee" && !w.naturalFormWeapon);
+    const martial = known.filter(m => m.kind === "attack").map(m => ({ key: `k:${m.key}`, name: t(`Martial.M.${m.key}`), icon: m.icon,
+      active: v.pick === `k:${m.key}`, dim: m.use === "weapon" && !hasBlade, tip: t(`Martial.D.${m.key}`) }));
+    const martialInfo = known.filter(m => m.kind !== "attack").map(m => ({ name: t(`Martial.M.${m.key}`), icon: m.icon, kind: t(`Martial.Kind.${m.kind}`), tip: t(`Martial.D.${m.key}`) }));
+    const martialOn = MARTIAL_ABILITIES.some(k => martialDots(a, k) > 0);
     const split = label => { const m = label.match(/^(.*?)\s*\(([^)]*)\)\s*$/); return m ? { name: m[1], mod: m[2] } : { name: label, mod: "" }; };
     const opt = (list, cur, prefix) => list.map(k => ({ value: k, label: t(`${prefix}.${k}`), ...split(t(`${prefix}.${k}`)), selected: k === cur }));
     // Цели: отмеченные токены (T) и все токены сцены, кроме самого атакующего
@@ -331,7 +363,7 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const physicalDisplay = Math.max(potentialDice, potentialAuto);
     const chances = chancesView(odds({ pool: r.pool, difficulty: r.difficulty, specialty, willpower: v.willpower, auto: r.attackAuto ?? 0 }));
     return {
-      v: { ...v, specialty }, ...r, canUseSpecialty: r.specialtyEligible, weapons, maneuvers, ranged: r.choice.ranged, foes, chances,
+      v: { ...v, specialty }, ...r, canUseSpecialty: r.specialtyEligible, weapons, maneuvers, martial, martialInfo, martialOn, ranged: r.choice.ranged, foes, chances,
       damageType: game.i18n.localize(VTM20.damageTypes[r.choice.type]?.label ?? ""),
       positions: opt(["front", "flank", "rear"], v.position, "Combat.Pos"),
       aims: opt(["none", "medium", "small", "tiny"], v.aim, "Combat.Aim"),
@@ -374,6 +406,11 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static #onPick(event, target) { this.v.pick = target.dataset.key; this.render(); }
+  /** Окно «Воинская выучка»: выбрать приёмы — и сразу обновить окно атаки. */
+  static async #onMartial() {
+    const { openMartial } = await import("../apps/martial.mjs");
+    openMartial(this.actor, { onSave: () => this.render() });
+  }
   static #onBump(event, target) {
     const k = target.dataset.field, d = Number(target.dataset.d);
     const lim = { actions: [1, 6], foes: [0, 4], bonus: [-20, 20], diffAdj: [-6, 6] }[k];
@@ -412,7 +449,9 @@ export class AttackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const head = ["small", "tiny"].includes(v.aim);
     const link = { weaponName: c.name, target: foe?.uuid ?? null, targetName: foe?.name ?? "", pierce: c.pierce, bullet: c.bullet, head, ranged: c.ranged,
       damageAuto: c.auto ?? 0, venom: !!c.venom, silver: !!c.silver, supernatural: !!c.supernatural,
-      unarmed: pickKind === "m" && c.ability === "brawl", maneuver: pickKind === "m" ? pickId : null };
+      unarmed: (pickKind === "m" || (pickKind === "k" && !c.isWeapon)) && c.ability === "brawl",
+      // «Связать и ударить»: оба в клинче (Tome of Secrets) — как обычный клинч
+      maneuver: pickKind === "m" ? pickId : pickKind === "k" && pickId === "tieStrike" ? "clinch" : null };
     const samiel = !c.ranged ? this.actor.effects.find(e => !e.disabled && e.flags?.[SYSTEM_ID]?.samiel) : null;
     if (samiel) { link.samiel = true; notes.push(t("TP.SamielHit")); }
     const res = await rollPool({

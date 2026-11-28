@@ -5,6 +5,7 @@
 import { VTM20, SYSTEM_ID } from "../../config.mjs";
 import { pathXp } from "./calc.mjs";
 import { Codex } from "../../data/codex.mjs";
+import { baseEdition } from "../../data/editions.mjs";
 import { CHANGELING_HINTS, WRAITH_HINTS, MAGE_HINTS, RENOWN, THRALL_BANNED, TIERS, SECTS, STEP_HINTS, GHOUL_HINTS, DEMON_HINTS, EB_HINTS, THRALL_HINTS, HUNTER_HINTS, GAROU_HINTS, HUNTER_SLOTS, LOST_SLOTS, preview } from "./rules.mjs";
 import { W as werewolfData } from "../werewolf.mjs";
 import { REVENANT_FAMILIES } from "../../data/revenants.mjs";
@@ -34,7 +35,7 @@ export class ContextCreator {
       return { key: k, name: Codex.disciplineLabel(k), rating, mode, xp, ritualsHere,
         paths: Object.entries(own).map(([name, n]) => ({ name, value: n, cost: xp ? pathXp(n) : n * 4 })),
         // краины за пункты и опыт не покупаются — их точки из точек Колдовства (карточка Дисциплины); укладов при краинах нет
-        pathAdd: this.krainaOn(k) ? [] : this.pathOptions(k).filter(p => !taken.has(p.name) && !(k === "koldunism" && VTM20.isDarkAges() && Codex.isKraina(p)))
+        pathAdd: this.krainaOn(k) ? [] : this.pathOptions(k).filter(p => !taken.has(p.name) && !(k === "koldunism" && VTM20.isDarkAges() && Codex.isKraina(p) && !Codex.krainaPathsOn()))
           .map(p => ({ value: p.name, label: p.name })),
         rituals: ownRit.map(n => { const level = rits.find(r => r.name === n)?.level ?? 0; return { name: n, level, cost: xp ? level * 2 : level }; }),
         ritualAdd: [...new Set(ritAvail.map(r => r.level))].map(l => ({ level: l, options: ritAvail.filter(r => r.level === l).map(r => ({ value: r.name, label: r.name })) })) };
@@ -180,7 +181,7 @@ export class ContextCreator {
       const pts = n => game.i18n.format(`VTM20.Creator.BgPts${new Intl.PluralRules("ru").select(n) === "one" ? "One" : new Intl.PluralRules("ru").select(n) === "few" ? "Few" : "Many"}`, { n });
       const g0 = VTM20.baseGeneration();
       ctx.gens = [0, 1, 2, 3, 4, 5].map(n => g0 - n).map(g => ({ g, cost: g0 - g, costLabel: pts(g0 - g), active: g === ctx.generation, pool: VTM20.generationOf(g).pool, perTurn: VTM20.generationOf(g).perTurn }));
-      ctx.paths = Codex.paths.filter(p => (VTM20.isDarkAges() && this.type === "vampire" ? p.era === "darkAges" && Codex.visible(p) && !p.roadOnly : Codex.visible(p)) || p.key === st.path)
+      ctx.paths = Codex.paths.filter(p => (VTM20.isDarkAges() && this.type === "vampire" ? Codex.visible(p) && !p.roadOnly : Codex.visible(p)) || p.key === st.path)
         .map(p => ({ key: p.key, name: p.name, selected: p.key === st.path,
           group: p.key === "humanity" ? p.name : p.fan ? t("Library.Filter.Src.fan") : p.era ? t("Library.Filter.DarkAges") : t("Sheet.EnlightenmentPaths") }));
       ctx.pathName = ctx.paths.find(p => p.selected)?.name ?? "";
@@ -291,10 +292,10 @@ export class ContextCreator {
     // выбранный Факт держим в списке, даже если он из другой линейки или скрыт, — но одной карточкой: «Союзники» есть
     // у Сородичей, охотников и оборотней с одним именем, и выбор одного не должен показывать все три
     // Тёмные века: Факты V20 DA (гл. 4) — у вампира, гуля и смертного (у Факты линий — охотников и др. — свои)
-    const DA = VTM20.isDarkAges() && ["vampire", "ghoul", "mortal"].includes(this.type), daBg = new Set((Codex["dark-ages"]?.backgrounds ?? []).map(b => b.en));
-    // Факты гулей из Ghouls & Revenants (b.ghoul) — гулю и в Тёмных веках (правило системы: в обеих эпохах)
-    // Статусы Age of the Living Gods (фанатское, не V20 DA) — только с настройкой «Век живых богов» (bgList — по Codex.visible)
-    const daOk = b => !DA || b.line || b.alg || b.ghoul || (daBg.has(b.en) && !(b.en === "Status" && this.st.clan === "caitiff"));
+    // какие Факты в эпохе — решают редакции (Codex.visible: Факты V20 с текстом V20 DA, гулей Ghouls & Revenants — в обеих эпохах);
+    // Каитифу в Тёмных веках Статус не положен (V20 DA, гл. 4)
+    const DA = VTM20.isDarkAges() && ["vampire", "ghoul", "mortal"].includes(this.type);
+    const daOk = b => !(DA && b.en === "Status" && this.st.clan === "caitiff");
     const bgList = Codex.backgrounds.filter(b => Codex.visible(b) && bgOk(b) && daOk(b)), bgNames = new Set(bgList.map(b => b.name)), bgKept = new Set();
     ctx.bgCards = Codex.backgrounds.filter(b => bgList.includes(b) || (b.name in st.bg && !bgNames.has(b.name) && !bgKept.has(b.name) && bgKept.add(b.name))).map(b => {
       const on = b.name in st.bg || (st.free.bg[b.name] ?? 0) > 0;
@@ -327,6 +328,8 @@ export class ContextCreator {
     // черты гулей (Ghouls & Revenants) — своей вкладкой «Гулевые», как клановые у вампира
     // запрет клану или линии (notClan: «Тореадорам недоступно», DA High/Low Clans) — черту не показываем
     const banned = m => !!st.clan && (m.notClan ?? []).includes(st.clan);
+    // редакция черты, если это не основа эпохи (module/data/editions.mjs) — для пометки в списке и в выбранном
+    const edOther = m => { const e = Codex.editionLabelOf(m); return e && e !== baseEdition() ? e : null; };
     const inCat = (m, cat) => !Codex.visible(m) || !VTM20.traitFor(m, who) || banned(m) ? false : cat === "clan" ? !!myClan && m.clan === myClan
       : cat === "sect" ? !m.clan && !!mySect && m.sect === mySect
       : cat === "ghoul" ? !!m.ghoul
@@ -340,20 +343,20 @@ export class ContextCreator {
     // категория «clan» — та же вкладка «Клановые» (extra), второй раз не показываем
     const cats = Object.keys(VTM20.meritCategories).filter(k => k !== "clan" && Codex.merits.some(m => m.kind === this.ui.mfTab && inCat(m, k)));
     ctx.mfCats = ["all", ...cats, ...extra].map(k => ({ key: k, label: catLabel(k), active: this.ui.mfCat === k }));
-    // повторы Тёмных веков (та же черта есть в V20 или в другой книге Тёмных веков) не показываем, кроме уже выбранных
+    // повторы одной черты из разных редакций прячет Codex.visible (module/data/editions.mjs) — видна черта старшей редакции
     ctx.mfCards = Codex.merits.filter(m => m.kind === this.ui.mfTab && inCat(m, this.ui.mfCat)
-      && (!Codex.daDuplicate(m) || chosen.some(x => x.name === m.name))
       && (!q || m.name.toLowerCase().includes(q) || (m.en ?? "").toLowerCase().includes(q)))
       // цена в квадратике — только числа («4–5»); пояснение после запятой («4–5, только …») — в подсказку
       .map(m => ({ name: m.name, en: m.en, cost: String(m.cost ?? "").split(/[,;(]/)[0].trim(), costNote: String(m.cost ?? "").replace(/^[^,;(]*[,;(]?\s*/, "").replace(/\)$/, ""),
         cat: m.clan ? Codex.clanName(m.clan) : m.sect ? t(`Sect.${m.sect}`) : m.ghoul ? t("Library.Filter.GhoulTraits") : loc(VTM20.meritCategories[m.category]?.label ?? ""),
-        // откуда черта: Тёмные века — отдельной пометкой, иначе — книга
-        da: m.era === "darkAges", src: m.source ?? "", srcShort: m.era === "darkAges" ? t("Library.Filter.DarkAges") : String(m.source ?? "").replace(/\s*[,(].*$/, ""),
+        // откуда черта: другая редакция (не основа эпохи) — её пометкой, иначе — книга
+        da: !!edOther(m), src: m.source ?? "", srcShort: edOther(m) ? t(`Editions.Short.${edOther(m)}`) : String(m.source ?? "").replace(/\s*[,(].*$/, ""),
         on: chosen.some(x => x.name === m.name), text: preview(m.html, 200),
         html: m.html, open: this.ui.open.has(`mf:${m.kind}:${m.name}`), key: `mf:${m.kind}:${m.name}` }));
-    const daOf = m => Codex.merits.find(x => x.name === m.name && x.kind === m.kind)?.era === "darkAges";
-    ctx.merits = st.merits.map((m, i) => ({ ...m, kind: "merit", index: i, ranged: m.max > m.min })).map(m => ({ ...m, da: daOf(m) }));
-    ctx.flaws = st.flaws.map((m, i) => ({ ...m, kind: "flaw", index: i, ranged: m.max > m.min })).map(m => ({ ...m, da: daOf(m) }));
+    // взятая черта другой редакции — пометкой этой редакции
+    const edMark = m => { const e = edOther(Codex.merits.find(x => x.name === m.name && x.kind === m.kind)); return e ? { da: true, edMark: t(`Editions.Short.${e}`), edName: t(`Editions.Name.${e}`) } : { da: false }; };
+    ctx.merits = st.merits.map((m, i) => ({ ...m, kind: "merit", index: i, ranged: m.max > m.min })).map(m => ({ ...m, ...edMark(m) }));
+    ctx.flaws = st.flaws.map((m, i) => ({ ...m, kind: "flaw", index: i, ranged: m.max > m.min })).map(m => ({ ...m, ...edMark(m) }));
     ctx.meritPoints = this.meritPoints; ctx.flawPoints = this.flawPoints;
     ctx.traitIssues = this.traitIssues.map(c => ({ ...c, text: t(`Creator.Trait${c.key}`, c.data) }));
     ctx.flawRaw = st.flaws.reduce((s, f) => s + (Number(f.cost) || 0), 0);

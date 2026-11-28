@@ -8723,9 +8723,10 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
-     "trait2": "abilities.occult",
-     "difficulty": 4
+     "trait1": "attributes.perception",
+     "trait2": "abilities.awareness",
+     "difficulty": 6,
+     "blood": 1
     }
    },
    {
@@ -8736,9 +8737,9 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 4
+     "difficulty": 6
     }
    },
    {
@@ -8749,9 +8750,10 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.perception",
      "trait2": "abilities.occult",
-     "difficulty": 4
+     "difficulty": 5,
+     "blood": 1
     }
    },
    {
@@ -8762,9 +8764,9 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.perception",
      "trait2": "abilities.occult",
-     "difficulty": 4
+     "difficulty": 8
     }
    },
    {
@@ -8814,9 +8816,9 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.strength",
      "trait2": "abilities.occult",
-     "difficulty": 5
+     "difficulty": 7
     }
    },
    {
@@ -8840,9 +8842,10 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.stamina",
      "trait2": "abilities.occult",
-     "difficulty": 5
+     "difficulty": 8,
+     "willpower": true
     }
    },
    {
@@ -8918,9 +8921,8 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
-     "trait2": "abilities.occult",
-     "difficulty": 6
+     "trait1": "attributes.stamina",
+     "difficulty": 9
     }
    },
    {
@@ -8931,9 +8933,10 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.stamina",
      "trait2": "abilities.occult",
-     "difficulty": 6
+     "difficulty": 6,
+     "blood": 3
     }
    },
    {
@@ -8970,9 +8973,9 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.manipulation",
      "trait2": "abilities.occult",
-     "difficulty": 6
+     "difficulty": 7
     }
    },
    {
@@ -8983,9 +8986,9 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 6
+     "difficulty": 9
     }
    },
    {
@@ -9061,9 +9064,8 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
-     "trait2": "abilities.occult",
-     "difficulty": 7
+     "trait1": "virtues.conviction",
+     "difficulty": 8
     }
    },
    {
@@ -9074,9 +9076,10 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
-     "trait2": "abilities.occult",
-     "difficulty": 7
+     "trait1": "attributes.stamina",
+     "trait2": "abilities.medicine",
+     "difficulty": 6,
+     "blood": 2
     }
    },
    {
@@ -9087,7 +9090,7 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.perception",
      "trait2": "abilities.occult",
      "difficulty": 7
     }
@@ -9120,15 +9123,17 @@
    },
    {
     "discipline": "obtenebration",
-    "level": 5,
+    "level": 9,
     "name": "Избранная Темница Букефоса",
     "en": "Boukephos' Chosen Oubliette",
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 8
+     "difficulty": 8,
+     "willpower": true,
+     "blood": 3
     }
    },
    {
@@ -9152,9 +9157,9 @@
     "source": "V20 Dark Ages: Tome of Secrets",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.manipulation",
      "trait2": "abilities.occult",
-     "difficulty": 8
+     "difficulty": 6
     }
    },
    {
@@ -9178,7 +9183,7 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
      "difficulty": 8
     }
@@ -9188,7 +9193,7 @@
     "level": 5,
     "name": "Гомункул Рикарда Аргентиса",
     "en": "Rickard Argentis’s Homunculus",
-    "source": "V20 Dark Ages: Tome of Secrets",
+    "source": "OWbN (фанатское; в Tome of Secrets нет)",
     "era": "darkAges",
     "roll": {
      "trait1": "attributes.wits",
@@ -9230,9 +9235,10 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 9
+     "difficulty": 7,
+     "blood": 3
     }
    },
    {
@@ -9243,9 +9249,10 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.perception",
      "trait2": "abilities.occult",
-     "difficulty": 9
+     "difficulty": 6,
+     "blood": 3
     }
    },
    {
@@ -9256,9 +9263,9 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.intelligence",
      "trait2": "abilities.occult",
-     "difficulty": 9
+     "difficulty": 8
     }
    },
    {
@@ -9269,9 +9276,10 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.perception",
      "trait2": "abilities.occult",
-     "difficulty": 9
+     "difficulty": 6,
+     "blood": 3
     }
    },
    {
@@ -9282,9 +9290,9 @@
     "source": "V20 Dark Ages",
     "era": "darkAges",
     "roll": {
-     "trait1": "attributes.wits",
+     "trait1": "attributes.manipulation",
      "trait2": "abilities.occult",
-     "difficulty": 9
+     "difficulty": 8
     }
    },
    {

@@ -36,6 +36,18 @@
   {
    "key": "swarms",
    "label": "Рои и стаи"
+  },
+  {
+   "key": "abyss",
+   "label": "Твари Бездны",
+   "era": "darkAges",
+   "source": "V20 Dark Ages: Tome of Secrets"
+  },
+  {
+   "key": "daBeasts",
+   "label": "Создания Тёмных веков",
+   "era": "darkAges",
+   "source": "V20 Dark Ages Companion"
   }
  ],
  "templates": [
@@ -2993,6 +3005,758 @@
    },
    "supernatural": false,
    "note": "Рой атакует раз в ход: проверка урона (сложность 6) пулом из таблицы, повреждения тяжёлые (у мелких тварей — лёгкие). Защита — уклонение; не уклонился — скорость вдвое. Больше 2 повреждений или провал — сбит с ног и захлёстнут: только ползёт, сложность урона роя 5. Уровни здоровья — сколько повреждений рой выдержит до рассеивания, ещё 2 — уничтожен. Пистолеты, винтовки и лёгкое холодное оружие — не больше 1 повреждения за атаку; дробовики, тяжёлое оружие и урон по площади — как обычно. Рои не гасят прочностью урон."
+  },
+  {
+   "key": "blatherskite",
+   "name": "Болтун (тварь Бездны)",
+   "group": "abyss",
+   "kind": "creature",
+   "page": 33,
+   "source": "V20 Dark Ages: Tome of Secrets",
+   "attributes": {
+    "strength": 2,
+    "dexterity": 5,
+    "stamina": 2,
+    "charisma": 1,
+    "manipulation": 1,
+    "appearance": 0,
+    "perception": 4,
+    "intelligence": 1,
+    "wits": 2
+   },
+   "abilities": {
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 4,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 1,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 3,
+     "specialty": ""
+    },
+    "performance": {
+     "value": 2,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 4,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 1,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 5,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "celerity": 4,
+    "obtenebration": 1,
+    "potence": 2
+   },
+   "willpower": 4,
+   "blood": 5,
+   "bloodText": "5",
+   "health": "6 уровней",
+   "notes": [
+    "Сплетение рук и пальцев без головы и туловища. Чирикает и рыгает всё чаще, чем ближе кровь; душит жертву, пока не пойдёт кровь, а насытившись — растекается жидкой тенью.",
+    "Ранит его только губительный урон; на рассвете тает."
+   ]
+  },
+  {
+   "key": "bezoar",
+   "name": "Младенец-безоар",
+   "group": "abyss",
+   "kind": "creature",
+   "page": 33,
+   "source": "V20 Dark Ages: Tome of Secrets",
+   "attributes": {
+    "strength": 4,
+    "dexterity": 1,
+    "stamina": 3,
+    "charisma": 1,
+    "manipulation": 0,
+    "appearance": 0,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 1,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 4,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 4,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "fortitude": 3,
+    "obtenebration": 2,
+    "potence": 1
+   },
+   "willpower": 3,
+   "blood": 0,
+   "bloodText": "0",
+   "health": "4 уровня",
+   "notes": [
+    "Опухоль, растущая в сердце того, кто ел или пил в Бездне. В первую ночь высасывает 1 кровь, каждую следующую — на 1 больше (до 6 за ночь), пока не выгрызет сердце и не выйдет через рёбра. Мудрые вырезают его до торпора."
+   ]
+  },
+  {
+   "key": "umbriferous",
+   "name": "Тенеродный человек",
+   "group": "abyss",
+   "kind": "creature",
+   "page": 33,
+   "source": "V20 Dark Ages: Tome of Secrets",
+   "attributes": {
+    "strength": 2,
+    "dexterity": 3,
+    "stamina": 2,
+    "charisma": 4,
+    "manipulation": 4,
+    "appearance": 2,
+    "perception": 4,
+    "intelligence": 5,
+    "wits": 4
+   },
+   "abilities": {
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 3,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 3,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 5,
+     "specialty": ""
+    },
+    "commerce": {
+     "value": 3,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 2,
+     "specialty": ""
+    },
+    "performance": {
+     "value": 3,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 1,
+     "specialty": ""
+    },
+    "academics": {
+     "value": 3,
+     "specialty": ""
+    },
+    "enigmas": {
+     "value": 5,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 2,
+     "specialty": ""
+    },
+    "medicine": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 5,
+     "specialty": ""
+    },
+    "theology": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "auspex": 3,
+    "chimerstry": 2,
+    "dominate": 3,
+    "obtenebration": 4,
+    "obfuscate": 2
+   },
+   "willpower": 7,
+   "blood": 12,
+   "bloodText": "12",
+   "health": "10 уровней",
+   "notes": [
+    "Высокая фигура в слоях лохмотьев, жёлтые глаза. Говорит на сотне языков сразу, загадывает загадки за щедрую награду; не разгадавшего однажды заберёт из теней верхнего мира. Боец никудышный; из бинтов сыплется серебро — взявший его вскоре исчезает.",
+    "Мистика Бездны 2: Глаза Бездны, Поглотить тьму, Бездна знает. Кровь восполняет днём в полной тьме."
+   ]
+  },
+  {
+   "key": "minacious",
+   "name": "Рыцарь Грозного легиона",
+   "group": "abyss",
+   "kind": "creature",
+   "page": 34,
+   "source": "V20 Dark Ages: Tome of Secrets",
+   "attributes": {
+    "strength": 4,
+    "dexterity": 5,
+    "stamina": 5,
+    "charisma": 2,
+    "manipulation": 1,
+    "appearance": 2,
+    "perception": 4,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "alertness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 5,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 1,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 4,
+     "specialty": ""
+    },
+    "animalKen": {
+     "value": 3,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 1,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 5,
+     "specialty": ""
+    },
+    "ride": {
+     "value": 4,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 2,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 3,
+     "specialty": ""
+    },
+    "investigation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "medicine": {
+     "value": 1,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "animalism": 2,
+    "celerity": 3,
+    "fortitude": 3,
+    "obtenebration": 1,
+    "potence": 3
+   },
+   "willpower": 6,
+   "blood": 6,
+   "bloodText": "6",
+   "health": "12 уровней",
+   "notes": [
+    "Псы-охотники Бездны: всадники в чёрной шипастой броне на безголовых конях-мокрицах, никогда не спешиваются. Каждую ночь погони отнимают у жертвы по точке Дисциплины (сначала высшей, клановой); забрав все — убивают.",
+    "Мистика Бездны 2: Глаза Бездны, Клинок Бездны."
+   ],
+   "equipment": "палаш и копьё из тени, броня класса 5"
+  },
+  {
+   "key": "ingurgitant",
+   "name": "Поглощающий вихрь",
+   "group": "abyss",
+   "kind": "creature",
+   "page": 34,
+   "source": "V20 Dark Ages: Tome of Secrets",
+   "attributes": {
+    "strength": 5,
+    "dexterity": 1,
+    "stamina": 5,
+    "charisma": 1,
+    "manipulation": 4,
+    "appearance": 0,
+    "perception": 2,
+    "intelligence": 3,
+    "wits": 5
+   },
+   "abilities": {
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 1,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 5,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 5,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 4,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 1,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 3,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 4,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "fortitude": 2,
+    "obtenebration": 5,
+    "potence": 4
+   },
+   "willpower": 5,
+   "blood": 10,
+   "bloodText": "10",
+   "health": "20 уровней",
+   "notes": [
+    "Вращающаяся воронка 1–3 м в полу, стене, гробу или постели; из неё тянутся языки и поёт голос того, кто был дорог. Проглоченные не возвращаются. Отгоняет её только живой свет или огонь. Попробовав жертву, является рядом каждую ночь, до трёх раз за ночь меняя место."
+   ]
+  },
+  {
+   "key": "blackDog",
+   "name": "Чёрный пёс",
+   "group": "daBeasts",
+   "kind": "creature",
+   "page": 35,
+   "source": "V20 Dark Ages Companion",
+   "attributes": {
+    "strength": 2,
+    "dexterity": 3,
+    "stamina": 2,
+    "charisma": 5,
+    "manipulation": 1,
+    "appearance": 4,
+    "perception": 4,
+    "intelligence": 3,
+    "wits": 3
+   },
+   "abilities": {
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 4,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 2,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 5,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 3,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "celerity": 4,
+    "daimoinon": 2,
+    "serpentis": 1,
+    "valeren": 1
+   },
+   "willpower": 7,
+   "blood": 5,
+   "bloodText": "5",
+   "notes": [
+    "Огромный пёс с глазами-углями с вересковых пустошей Британии (баргест, гуиллги, Чёрный Шак): вестник смерти, следит за обречённым из тумана. Каинитов, тянущих за собой цепи смертей, ненавидит особо.",
+    "Ещё Метаморфозы 7 — только Глаза зверя и Призрачное тело; Валерен (Страж) 1 даёт знамения, где и когда умрёт цель. Под Призрачным телом его ранит всё, что действует на бесплотных. «Кровь» восполняет сном или шестью часами выслеживания."
+   ],
+   "humanity": 3,
+   "humanityText": "Дорога 3"
+  },
+  {
+   "key": "fossegrim",
+   "name": "Фоссегрим",
+   "group": "daBeasts",
+   "kind": "creature",
+   "page": 48,
+   "source": "V20 Dark Ages Companion",
+   "attributes": {
+    "strength": 1,
+    "dexterity": 4,
+    "stamina": 2,
+    "charisma": 4,
+    "manipulation": 4,
+    "appearance": 5,
+    "perception": 2,
+    "intelligence": 2,
+    "wits": 2
+   },
+   "abilities": {
+    "alertness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "animalKen": {
+     "value": 3,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 1,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 4,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 3,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 2,
+     "specialty": ""
+    },
+    "hearthWisdom": {
+     "value": 2,
+     "specialty": ""
+    },
+    "legerdemain": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 2,
+     "specialty": ""
+    },
+    "performance": {
+     "value": 5,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 2,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "animalism": 1,
+    "auspex": 2,
+    "potence": 2,
+    "presence": 1,
+    "spiritus": 2
+   },
+   "willpower": 7,
+   "blood": 6,
+   "bloodText": "6",
+   "notes": [
+    "Прекрасный нагой музыкант скандинавских водопадов: заманивает игрой и решает — утопить или оставить при себе. Мстит всем Цимисхам за колдуна, что когда-то поработил первого из них.",
+    "Величие — только пока играет на струнах или танцует под музыку. Неделя вдали от родной воды — −1 постоянная Воля; на нуле умирает. За плату и часы «общения» учит игре: ученик сразу покупает точку Обаяния, Эмпатии, Исполнения или Величия. «Кровь» восполняет сном или музыкой."
+   ],
+   "humanity": 5,
+   "humanityText": "Дорога 5"
+  },
+  {
+   "key": "kallikantzaros",
+   "name": "Калликанцарос",
+   "group": "daBeasts",
+   "kind": "creature",
+   "page": 64,
+   "source": "V20 Dark Ages Companion",
+   "attributes": {
+    "strength": 4,
+    "dexterity": 3,
+    "stamina": 3,
+    "charisma": 3,
+    "manipulation": 5,
+    "appearance": 3,
+    "perception": 3,
+    "intelligence": 2,
+    "wits": 4
+   },
+   "abilities": {
+    "alertness": {
+     "value": 4,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 5,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 3,
+     "specialty": ""
+    },
+    "empathy": {
+     "value": 4,
+     "specialty": ""
+    },
+    "etiquette": {
+     "value": 3,
+     "specialty": ""
+    },
+    "expression": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 3,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 5,
+     "specialty": ""
+    },
+    "theology": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "auspex": 6,
+    "chimerstry": 6,
+    "dominate": 1,
+    "obtenebration": 2
+   },
+   "willpower": 9,
+   "blood": 9,
+   "bloodText": "9",
+   "notes": [
+    "Зимний гоблин греческих и ромейских земель, мастер иллюзий: может явиться и демоном, и Аполлоном, и Христом. Колдует только в святые дни зимы; привычки меняет вслед за верой края.",
+    "Привлекательность — по облику; кто видит сквозь иллюзии (Ясновидение), видит урода с Привлекательностью 1. «Кровь» — 1 пункт за минуту обращённого к нему поклонения."
+   ],
+   "humanity": 4,
+   "humanityText": "Дорога 4"
+  },
+  {
+   "key": "pishacha",
+   "name": "Пишача",
+   "group": "daBeasts",
+   "kind": "creature",
+   "page": 101,
+   "source": "V20 Dark Ages Companion",
+   "attributes": {
+    "strength": 5,
+    "dexterity": 4,
+    "stamina": 2,
+    "charisma": 2,
+    "manipulation": 2,
+    "appearance": 1,
+    "perception": 5,
+    "intelligence": 2,
+    "wits": 3
+   },
+   "abilities": {
+    "alertness": {
+     "value": 3,
+     "specialty": ""
+    },
+    "athletics": {
+     "value": 2,
+     "specialty": ""
+    },
+    "awareness": {
+     "value": 2,
+     "specialty": ""
+    },
+    "brawl": {
+     "value": 4,
+     "specialty": ""
+    },
+    "intimidation": {
+     "value": 3,
+     "specialty": ""
+    },
+    "leadership": {
+     "value": 2,
+     "specialty": ""
+    },
+    "melee": {
+     "value": 2,
+     "specialty": ""
+    },
+    "occult": {
+     "value": 1,
+     "specialty": ""
+    },
+    "stealth": {
+     "value": 5,
+     "specialty": ""
+    },
+    "subterfuge": {
+     "value": 1,
+     "specialty": ""
+    },
+    "survival": {
+     "value": 3,
+     "specialty": ""
+    }
+   },
+   "trained": {},
+   "disciplines": {
+    "celerity": 1,
+    "dementation": 1,
+    "dominate": 5,
+    "obfuscate": 2,
+    "potence": 2
+   },
+   "willpower": 4,
+   "blood": 6,
+   "bloodText": "6",
+   "notes": [
+    "Жалкие родичи вампиров с погребальных костров Индии: едят сырую плоть, разносят болезни. Механически — вампир 13-го поколения: живая плоть — как свежая кровь, мёртвая теряет половину за каждый час; плоть сверхъестественного — вдвое.",
+    "Ещё Абомбве 3; Доминирование — только Приказ, Подчинение и Одержимость. Пока пользуется Безумием или Доминированием, дух покидает тело — защищаться не может; жертва потом бросает Выносливость (6), иначе психоз или болезнь. Не создаёт уз и потомков, не имитирует жизнь; на колу рассыпается прахом; бешенство — только от голода; солнце не поглощает. +1 Воля за место кровавой смерти или удачную силу (раз в сцену)."
+   ],
+   "humanity": 1,
+   "humanityText": "Дорога 1"
   }
  ],
  "animalRule": "Зверя можно сделать гулем: раз в месяц поить витэ. Животное-гуль получает волю, 1 точку Мощи и 2 пункта крови (V20, гл. 9).",
@@ -3267,6 +4031,358 @@
     "Долгоруков",
     "Шереметев",
     "Воронцов"
+   ]
+  }
+ },
+ "namesDA": {
+  "fr": {
+   "label": "Франки (XIII век)",
+   "m": [
+    "Гийом",
+    "Раймон",
+    "Гуго",
+    "Тибо",
+    "Жоффруа",
+    "Амори",
+    "Бодуэн",
+    "Робер",
+    "Готье",
+    "Рено",
+    "Эд",
+    "Бертран",
+    "Арно",
+    "Жослен",
+    "Рауль",
+    "Симон",
+    "Анри",
+    "Филипп",
+    "Пьер",
+    "Этьен",
+    "Жан",
+    "Обри",
+    "Ансо",
+    "Мило"
+   ],
+   "f": [
+    "Аэлис",
+    "Беатриса",
+    "Эрменгарда",
+    "Изабо",
+    "Маго",
+    "Бланка",
+    "Алиенора",
+    "Эрсенда",
+    "Петронилла",
+    "Агнесса",
+    "Жанна",
+    "Матильда",
+    "Сибилла",
+    "Ода",
+    "Гизела",
+    "Эрмессинда"
+   ],
+   "last": [
+    "де Монфор",
+    "де Куси",
+    "де Бриенн",
+    "де Шатильон",
+    "де Бомон",
+    "де Труа",
+    "де Лузиньян",
+    "Лебрен",
+    "Ле Гро",
+    "Лефевр",
+    "Буше",
+    "Ле Руж",
+    "де Блуа",
+    "де Монморанси",
+    "Лекок"
+   ]
+  },
+  "en": {
+   "label": "Англичане (XIII век)",
+   "m": [
+    "Уильям",
+    "Роберт",
+    "Ричард",
+    "Джон",
+    "Генри",
+    "Уолтер",
+    "Хью",
+    "Роджер",
+    "Саймон",
+    "Джеффри",
+    "Ральф",
+    "Гилберт",
+    "Осберт",
+    "Адам",
+    "Николас",
+    "Стивен"
+   ],
+   "f": [
+    "Матильда",
+    "Элис",
+    "Агнес",
+    "Изабелла",
+    "Джоан",
+    "Эмма",
+    "Сесилия",
+    "Маргарет",
+    "Алианора",
+    "Хависа",
+    "Эдит",
+    "Розамунда"
+   ],
+   "last": [
+    "Фиц-Уолтер",
+    "де Клер",
+    "Маршал",
+    "Смит",
+    "Миллер",
+    "Атвуд",
+    "де Ласи",
+    "Фицалан",
+    "Таннер",
+    "Хейворд",
+    "де Бург",
+    "Фицрой",
+    "Кэрпентер",
+    "Фуллер"
+   ]
+  },
+  "de": {
+   "label": "Немцы (XIII век)",
+   "m": [
+    "Конрад",
+    "Генрих",
+    "Оттон",
+    "Фридрих",
+    "Дитрих",
+    "Герман",
+    "Вольфрам",
+    "Альбрехт",
+    "Людольф",
+    "Рудольф",
+    "Бертольд",
+    "Гартман",
+    "Экберт",
+    "Гюнтер",
+    "Зигфрид"
+   ],
+   "f": [
+    "Гертруда",
+    "Кунигунда",
+    "Ирменгарда",
+    "Хильдегарда",
+    "Агнесса",
+    "Ютта",
+    "Адельгейда",
+    "Матильда",
+    "Елизавета",
+    "Гедвига",
+    "Рихенца"
+   ],
+   "last": [
+    "фон Альтенбург",
+    "фон Регенсбург",
+    "фон Майсен",
+    "фон Кульмбах",
+    "фон Эберштайн",
+    "Шмид",
+    "Мюллер",
+    "Фогт",
+    "Бекер",
+    "Шульц",
+    "Фишер",
+    "Вебер"
+   ]
+  },
+  "it": {
+   "label": "Итальянцы (XIII век)",
+   "m": [
+    "Франческо",
+    "Пьетро",
+    "Гвидо",
+    "Уберто",
+    "Оттоне",
+    "Ландольфо",
+    "Ринальдо",
+    "Бонифачо",
+    "Марко",
+    "Энрико",
+    "Джакомо",
+    "Танкреди",
+    "Руджеро",
+    "Убальдо"
+   ],
+   "f": [
+    "Беатриче",
+    "Джованна",
+    "Матильда",
+    "Констанца",
+    "Изабелла",
+    "Бьянка",
+    "Клара",
+    "Аньезе",
+    "Чечилия",
+    "Пиккарда"
+   ],
+   "last": [
+    "да Романо",
+    "Висконти",
+    "делла Торре",
+    "Орсини",
+    "Колонна",
+    "ди Монферрато",
+    "Дандоло",
+    "Морозини",
+    "да Пиза",
+    "ди Капуя",
+    "Малатеста",
+    "Аччайоли"
+   ]
+  },
+  "ru": {
+   "label": "Русь (XIII век)",
+   "femPat": true,
+   "m": [
+    "Мстислав",
+    "Ярослав",
+    "Всеволод",
+    "Святослав",
+    "Изяслав",
+    "Ростислав",
+    "Владимир",
+    "Даниил",
+    "Фёдор",
+    "Василько",
+    "Добрыня",
+    "Ратибор",
+    "Твердислав",
+    "Ждан",
+    "Гюрята",
+    "Онфим",
+    "Михаил"
+   ],
+   "f": [
+    "Предслава",
+    "Ефросинья",
+    "Агафья",
+    "Феодосия",
+    "Анастасия",
+    "Ярослава",
+    "Звенислава",
+    "Верхуслава",
+    "Марина",
+    "Евпраксия",
+    "Улита",
+    "Феврония"
+   ],
+   "last": [
+    "Ярославич",
+    "Мстиславич",
+    "Всеволодович",
+    "Ратиборович",
+    "Твердиславич",
+    "Михалкович",
+    "Жирославич",
+    "Святославич",
+    "Иванкович",
+    "Олегович",
+    "Борисович",
+    "Остромирович"
+   ]
+  },
+  "by": {
+   "label": "Ромеи (XIII век)",
+   "m": [
+    "Иоанн",
+    "Алексей",
+    "Михаил",
+    "Феодор",
+    "Мануил",
+    "Андроник",
+    "Исаак",
+    "Никифор",
+    "Константин",
+    "Георгий",
+    "Димитрий",
+    "Никита",
+    "Лев",
+    "Василий"
+   ],
+   "f": [
+    "Ирина",
+    "Анна",
+    "Евдокия",
+    "Феодора",
+    "Мария",
+    "Зоя",
+    "Елена",
+    "Феофано",
+    "Евфросиния",
+    "Кира"
+   ],
+   "last": [
+    "Ласкарис",
+    "Дука",
+    "Ангел",
+    "Комнин",
+    "Палеолог",
+    "Ватац",
+    "Врана",
+    "Кантакузин",
+    "Торник",
+    "Каматир",
+    "Мелиссин",
+    "Хониат"
+   ]
+  },
+  "ar": {
+   "label": "Арабы и персы (XIII век)",
+   "m": [
+    "Юсуф",
+    "Салах",
+    "Имад",
+    "Нур",
+    "Хасан",
+    "Хусейн",
+    "Ахмад",
+    "Али",
+    "Умар",
+    "Мухаммад",
+    "Ибрахим",
+    "Тарик",
+    "Рашид",
+    "Халид",
+    "Фарид"
+   ],
+   "f": [
+    "Фатима",
+    "Айша",
+    "Зайнаб",
+    "Хадиджа",
+    "Шаджар",
+    "Лейла",
+    "Марьям",
+    "Рабиа",
+    "Сафия",
+    "Ширин",
+    "Наргис"
+   ],
+   "last": [
+    "ибн Аюб",
+    "ибн Салим",
+    "ад-Дин",
+    "аль-Хаким",
+    "ибн Мусса",
+    "аль-Ансари",
+    "ибн Абдаллах",
+    "аль-Баки",
+    "ас-Сафади",
+    "аль-Исфахани",
+    "ибн Халид",
+    "аль-Мисри"
    ]
   }
  }
