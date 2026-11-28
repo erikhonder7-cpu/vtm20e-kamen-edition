@@ -2,7 +2,7 @@
   "id": "vtm20e-kamen-edition",
   "title": "World of Darkness 20E \"Kamen&Shamil Edition\"",
   "description": "Мир Тьмы юбилейного 20-го издания для Foundry VTT v14 — семь линеек на одних правилах: «Вампир: Маскарад» (V20), «Оборотень: Апокалипсис» (W20), «Маг: Восхождение» (M20), «Призрак: Забвение» (Wraith 20), «Подменыш: Грёза» (C20), «Демон: Падшие» и «Охотник: Расплата». У каждой линейки свой лист со своей палитрой, мастер создания по книге и силы с готовыми бросками, сложностью и ценой. Справочник открывается со знака на листе, книги правил переведены на русский своими словами — с примерами, ссылками на карточки и подсказками к терминам. Пулы d10 со сложностью, единицы гасят успехи; лёгкие, тяжёлые и губительные раны, прочность и броня. HUD в свой ход, бой и статисты, охота, престация, двор, календарь ночи, генератор НПС всех линеек, звуки на записях. Оформление — революционная Франция: «Liberté · Égalité · Éternité».",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -934,7 +934,7 @@
   "background": "systems/vtm20e-kamen-edition/assets/ui/background.png",
   "url": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition",
   "manifest": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/latest/download/system.json",
-  "download": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/download/v4.7.0/vtm20e-kamen-edition.zip",
+  "download": "https://github.com/erikhonder7-cpu/vtm20e-kamen-edition/releases/download/v4.8.0/vtm20e-kamen-edition.zip",
   "packFolders": [
     {
       "name": "Vampire: The Masquerade",
